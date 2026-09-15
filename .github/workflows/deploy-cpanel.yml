@@ -38,12 +38,21 @@ jobs:
       - name: Configure SSH
         env:
           SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
           HOST: ${{ secrets.CPANEL_HOST }}
           PORT: ${{ secrets.CPANEL_PORT }}
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_deploy
           chmod 600 ~/.ssh/qismat_deploy
+          eval "$(ssh-agent -s)"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$SSH_KEY_PASSPHRASE"' > "$RUNNER_TEMP/qismat_ssh_askpass"
+          chmod 700 "$RUNNER_TEMP/qismat_ssh_askpass"
+          SSH_ASKPASS="$RUNNER_TEMP/qismat_ssh_askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0 \
+            ssh-add ~/.ssh/qismat_deploy < /dev/null
+          rm -f "$RUNNER_TEMP/qismat_ssh_askpass"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
           ssh-keyscan -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
 
       - name: Deploy static frontends

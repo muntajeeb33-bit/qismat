@@ -15,6 +15,7 @@ jobs:
           HOST: ${{ secrets.CPANEL_HOST }}
           USER: ${{ secrets.CPANEL_USER }}
           SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
@@ -22,6 +23,7 @@ jobs:
           test -n "$HOST"
           test -n "$USER"
           test -n "$SSH_KEY"
+          test -n "$SSH_KEY_PASSPHRASE"
           test -n "$DATABASE_NAME"
           test -n "$DATABASE_USER"
           test -n "$DATABASE_PASSWORD"
@@ -29,16 +31,21 @@ jobs:
       - name: Configure SSH
         env:
           SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
           HOST: ${{ secrets.CPANEL_HOST }}
           PORT: ${{ secrets.CPANEL_PORT }}
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_preflight
           chmod 600 ~/.ssh/qismat_preflight
-          if ! ssh-keygen -y -P '' -f ~/.ssh/qismat_preflight > /dev/null; then
-            echo '::error::CPANEL_SSH_KEY must be a dedicated non-interactive deploy key, or passphrase support must be configured separately.'
-            exit 1
-          fi
+          eval "$(ssh-agent -s)"
+          printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$SSH_KEY_PASSPHRASE"' > "$RUNNER_TEMP/qismat_ssh_askpass"
+          chmod 700 "$RUNNER_TEMP/qismat_ssh_askpass"
+          SSH_ASKPASS="$RUNNER_TEMP/qismat_ssh_askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0 \
+            ssh-add ~/.ssh/qismat_preflight < /dev/null
+          rm -f "$RUNNER_TEMP/qismat_ssh_askpass"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
           ssh-keyscan -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
 
       - name: Check server versions
