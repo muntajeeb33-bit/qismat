@@ -4,7 +4,16 @@ Use this file for compact repository-level bug tracking. Larger bugs should also
 
 ## Open
 
-No known blocking bugs at this stage.
+### DEPLOY-001 — cPanel SSH deploy key requires a passphrase
+- Date found: 2026-09-15
+- Component: cPanel deployment / GitHub Actions
+- Severity: deployment-blocking
+- Environment/build: cPanel Preflight runs `34931571866` and `34931693576`
+- Reproduction: run the cPanel preflight with the configured `CPANEL_SSH_KEY` secret.
+- Root cause: the stored private key is encrypted and GitHub Actions has no non-interactive passphrase with which to unlock it. The host is reachable and the required SSH/database secret names are populated.
+- Fix: replace the secret with a dedicated non-interactive deployment private key whose public key is authorized for `CPANEL_USER`, or explicitly design and configure passphrase-secret support.
+- Commit/PR: PR #1; diagnostic workflow commit `453afd6`
+- Resolution status: Open; server and database checks are blocked before authentication.
 
 ## Resolved
 

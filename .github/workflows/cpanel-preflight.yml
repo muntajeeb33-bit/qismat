@@ -2,9 +2,6 @@ name: cPanel Preflight
 
 on:
   workflow_dispatch:
-  push:
-    branches: [foundation/initial-platform]
-    paths: ['.github/workflows/cpanel-preflight.yml']
 
 permissions:
   contents: read
@@ -38,7 +35,10 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_preflight
           chmod 600 ~/.ssh/qismat_preflight
-          ssh-keygen -y -f ~/.ssh/qismat_preflight > /dev/null
+          if ! ssh-keygen -y -P '' -f ~/.ssh/qismat_preflight > /dev/null; then
+            echo '::error::CPANEL_SSH_KEY must be a dedicated non-interactive deploy key, or passphrase support must be configured separately.'
+            exit 1
+          fi
           ssh-keyscan -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
 
       - name: Check server versions

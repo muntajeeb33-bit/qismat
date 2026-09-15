@@ -16,6 +16,7 @@ No staging or production deployments yet.
 | Date | Environment | Component | Version/build | Commit | Migration version | Result | Rollback |
 |---|---|---|---|---|---|---|---|
 | 2026-09-15 | GitHub Actions | Android | shell 001 | `afcc31a` | N/A | Passed; APK artifact produced by run `34925738195` | Not applicable; CI artifact only |
+| 2026-09-15 | cPanel preflight | Server/database | 0.1.0-dev | `453afd6` | `2026_09_15_043815` planned, not run | Failed before server login: encrypted SSH key requires an unavailable passphrase (run `34931693576`) | No server changes occurred; no rollback required |
 
 ## Deployment record format
 

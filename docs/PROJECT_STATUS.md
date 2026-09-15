@@ -74,7 +74,7 @@ Last updated: 2026-09-15
 
 ## Major blockers
 
-- cPanel PHP, Composer, MySQL/MariaDB and Node versions await the new automated preflight result.
+- cPanel preflight reached the host but is blocked because `CPANEL_SSH_KEY` requires a passphrase unavailable to GitHub Actions (DEPLOY-001).
 - `CPANEL_API_PATH`, `GMAIL_USERNAME` and `GMAIL_APP_PASSWORD` GitHub secrets are not configured; backend deployment and live email verification remain gated.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.
