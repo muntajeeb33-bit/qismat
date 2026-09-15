@@ -38,14 +38,7 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_preflight
           chmod 600 ~/.ssh/qismat_preflight
-          eval "$(ssh-agent -s)"
-          printf '%s\n' '#!/bin/sh' 'printf "%s\n" "$SSH_KEY_PASSPHRASE"' > "$RUNNER_TEMP/qismat_ssh_askpass"
-          chmod 700 "$RUNNER_TEMP/qismat_ssh_askpass"
-          SSH_ASKPASS="$RUNNER_TEMP/qismat_ssh_askpass" SSH_ASKPASS_REQUIRE=force DISPLAY=:0 \
-            timeout 20s ssh-add ~/.ssh/qismat_preflight < /dev/null
-          rm -f "$RUNNER_TEMP/qismat_ssh_askpass"
-          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
-          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+          timeout 20s ssh-keygen -p -q -P "$SSH_KEY_PASSPHRASE" -N '' -f ~/.ssh/qismat_preflight
           timeout 20s ssh-keyscan -T 10 -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
 
       - name: Check server versions
