@@ -4,7 +4,16 @@ Use this file for compact repository-level bug tracking. Larger bugs should also
 
 ## Open
 
-No open repository-level bugs.
+### DEPLOY-003 — MariaDB rejects default indexed string length
+- Date found: 2026-09-15
+- Component: Laravel migrations / cPanel MariaDB
+- Severity: deployment-blocking
+- Environment/build: staging deployment run `34942870359`
+- Reproduction: run the initial Laravel migrations against the cPanel MariaDB database.
+- Root cause: the server permits a maximum 1000-byte index, while Laravel's default 255-character `utf8mb4` indexed strings can require 1020 bytes.
+- Fix: use Laravel's 191-character default string length and allow the initial migration to resume safely around tables created before the failed DDL statement.
+- Commit/PR: pending
+- Resolution status: Fix implemented; staging verification pending.
 
 ## Resolved
 
