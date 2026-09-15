@@ -107,7 +107,7 @@ jobs:
               "rm -f '$remote_credentials'" || true
           }
           trap cleanup EXIT
-          printf '[client]\nuser=%s\npassword=%s\nhost=localhost\n' "$DATABASE_USER" "$DATABASE_PASSWORD" > "$local_credentials"
+          php .github/scripts/write-mysql-option-file.php "$local_credentials"
           chmod 600 "$local_credentials"
           scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
             "$local_credentials" "$USER@$HOST:$remote_credentials"

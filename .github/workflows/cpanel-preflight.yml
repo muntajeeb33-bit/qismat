@@ -82,7 +82,7 @@ jobs:
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           REMOTE_CREDENTIAL_FILE: /tmp/qismat-db-check-${{ github.run_id }}.cnf
         run: |
-          printf '[client]\nuser=%s\npassword=%s\nhost=localhost\n' "$DATABASE_USER" "$DATABASE_PASSWORD" > database-check.cnf
+          php .github/scripts/write-mysql-option-file.php database-check.cnf
           chmod 600 database-check.cnf
           scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -P "${PORT:-22}" database-check.cnf "$USER@$HOST:$REMOTE_CREDENTIAL_FILE"
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
