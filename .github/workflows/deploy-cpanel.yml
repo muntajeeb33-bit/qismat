@@ -173,6 +173,7 @@ jobs:
             --exclude='database/database.sqlite' \
             --exclude='public/storage' \
             --exclude='public/.well-known/' \
+            --exclude='public/cgi-bin/' \
             --exclude='storage/app/public/' \
             --exclude='storage/framework/cache/data/' \
             --exclude='storage/framework/sessions/' \
@@ -219,8 +220,8 @@ jobs:
           WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
           ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
         run: |
-          rsync -az --delete --exclude='.well-known/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" web/dist/ "$USER@$HOST:$WEB_PATH/"
-          rsync -az --delete --exclude='.well-known/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" admin/dist/ "$USER@$HOST:$ADMIN_PATH/"
+          rsync -az --delete --exclude='.well-known/' --exclude='cgi-bin/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" web/dist/ "$USER@$HOST:$WEB_PATH/"
+          rsync -az --delete --exclude='.well-known/' --exclude='cgi-bin/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" admin/dist/ "$USER@$HOST:$ADMIN_PATH/"
 
       - name: Verify API health
         run: curl --fail --show-error --silent --retry 5 --retry-delay 3 https://api.qismatconnections.com/up > /dev/null
