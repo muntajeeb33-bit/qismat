@@ -50,6 +50,7 @@ function App() {
 
       <section className="search-wrap" id="discover"><div className="search-card">
         <div className="search-heading"><Spark /><div><span>Start your search</span><strong>Who are you looking for?</strong></div></div>
+        <label>Profile for<select defaultValue="Myself"><option>Myself</option><option>My daughter</option><option>My son</option><option>A family member</option></select></label>
         <label>I’m looking for<select defaultValue="Bride"><option>Bride</option><option>Groom</option></select></label>
         <label>Age<div className="age-fields"><select defaultValue="24"><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option></select><i>to</i><select defaultValue="30"><option>28</option><option>29</option><option>30</option><option>31</option><option>32</option><option>33</option></select></div></label>
         <label>Religion<select defaultValue="Select"><option disabled>Select</option><option>Hindu</option><option>Muslim</option><option>Sikh</option><option>Christian</option><option>Jain</option><option>Buddhist</option><option>Other</option></select></label>
