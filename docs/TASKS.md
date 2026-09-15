@@ -1,7 +1,7 @@
 # Qismat Task Tracker
 
 ## In progress
-- [ ] Add Firebase project/service-account configuration
+- [x] Add Firebase project/service-account configuration
 - [ ] Connect web and Flutter Firebase Authentication clients
 
 ## Next
@@ -23,7 +23,7 @@
 - [x] `.env.example` files without secrets
 - [x] GitHub Actions Android build
 - [x] Backend/web CI checks
-- [ ] cPanel deploy script
+- [x] cPanel deploy workflow with CI-built Laravel dependencies
 - [x] cPanel SSH/database preflight workflow
 - [ ] staging configuration
 - [ ] production configuration

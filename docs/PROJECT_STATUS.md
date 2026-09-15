@@ -74,8 +74,9 @@ Last updated: 2026-09-15
 
 ## Major blockers
 
-- cPanel preflight reached the host but is blocked because `CPANEL_SSH_KEY` requires a passphrase unavailable to GitHub Actions (DEPLOY-001).
-- `CPANEL_API_PATH`, `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` are not configured; backend deployment and live Firebase verification remain gated.
+- cPanel SSH, PHP 8.2, MariaDB client and Git are verified. Server Composer and Node.js are unavailable, so deployable artifacts are built in GitHub Actions.
+- MariaDB rejects the configured database credentials; verify the full cPanel-prefixed database/user names, password and user-to-database privileges (DEPLOY-002).
+- `CPANEL_API_PATH`, `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` are configured. `LARAVEL_APP_KEY` is still required before first deployment.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.
 

@@ -25,6 +25,7 @@ All notable changes to Qismat will be recorded here.
 - Firebase ID-token verification middleware and Firebase-to-Sanctum exchange endpoint
 - Firebase UID mapping and verified-email enforcement for local Qismat accounts
 - Non-deploying cPanel server/database preflight workflow
+- cPanel deployment workflow with CI-built Composer dependencies, protected Firebase credential upload, managed `.env` merging, migrations and API health verification
 
 ### Changed
 
@@ -32,6 +33,7 @@ All notable changes to Qismat will be recorded here.
 - Duplicate interest attempts return the existing record without duplicating activity history.
 - Backend status advanced from a source overlay to a runnable Laravel application.
 - Authentication ownership moved from Laravel password/Gmail SMTP flows to Firebase Authentication; Laravel remains the API authorization and business-data authority.
+- Encrypted cPanel SSH deployment keys are supported through a separate passphrase secret.
 
 ### Planned
 - Authentication and verification APIs
