@@ -18,6 +18,8 @@ No known blocking bugs at this stage.
 - Fix: commit a Qismat-specific widget smoke test before native project generation.
 - Fix commit: `c115e611df77f7d01130f9289b7fe4bd0c54503a`
 - Date resolved: 2026-09-15
+- Verification: latest Android workflow run `34925738195` completed successfully for commit `afcc31a`.
+- Resolution status: Resolved and verified.
 
 ## Bug record format
 

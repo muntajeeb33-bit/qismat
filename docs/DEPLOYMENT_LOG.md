@@ -5,16 +5,20 @@
 - Local/dev: pending
 - Staging cPanel: pending
 - Production cPanel: pending
-- Android CI: pending
+- Android CI: foundation build verified
 - iOS Xcode Cloud: pending
 
 ## Deployments
 
-No deployments yet.
+No staging or production deployments yet.
+
+| Date | Environment | Component | Version/build | Commit | Migration version | Result | Rollback |
+|---|---|---|---|---|---|---|---|
+| 2026-09-15 | GitHub Actions | Android | shell 001 | `afcc31a` | N/A | Passed; APK artifact produced by run `34925738195` | Not applicable; CI artifact only |
 
 ## Deployment record format
 
-| Date | Environment | Component | Version/build | Commit | Result | Notes |
+| Date | Environment | Component | Version/build | Commit | Migration version | Result | Rollback |
 |---|---|---|---|---|---|---|
 
 ## Production rule

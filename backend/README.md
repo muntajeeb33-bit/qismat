@@ -2,7 +2,7 @@
 
 Laravel 12 / PHP 8.2+ API application for Qismat.
 
-This directory currently contains the Qismat application overlay (domain models, API routes, migrations/schema and environment contract). The generated Laravel framework skeleton will be added in the next backend bootstrap commit; vendor dependencies and secrets are never committed.
+This directory contains the bootable Qismat Laravel application, Sanctum token authentication, versioned API routes, domain models, migrations, seed data and API tests. Vendor dependencies and secrets are never committed.
 
 Target production: cPanel + SSH + MySQL/MariaDB.
 
@@ -16,3 +16,19 @@ Target production: cPanel + SSH + MySQL/MariaDB.
 - `/api/v1/conversations`
 
 Authentication will use Laravel Sanctum tokens for mobile/API clients.
+
+## Local setup
+
+```bash
+cp .env.example .env
+composer install
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+```
+
+The default environment targets MySQL/MariaDB. The automated test suite uses an in-memory SQLite database:
+
+```bash
+composer test
+```
