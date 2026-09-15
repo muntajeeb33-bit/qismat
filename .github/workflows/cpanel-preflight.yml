@@ -38,6 +38,7 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_preflight
           chmod 600 ~/.ssh/qismat_preflight
+          ssh-keygen -y -f ~/.ssh/qismat_preflight > /dev/null
           ssh-keyscan -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
 
       - name: Check server versions
@@ -46,7 +47,7 @@ jobs:
           USER: ${{ secrets.CPANEL_USER }}
           PORT: ${{ secrets.CPANEL_PORT }}
         run: |
-          ssh -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
             'php -v && composer --version && (mysql --version || mariadb --version) && node -v && npm -v && git --version'
 
       - name: Check database credentials
@@ -61,8 +62,8 @@ jobs:
         run: |
           printf '[client]\nuser=%s\npassword=%s\nhost=localhost\n' "$DATABASE_USER" "$DATABASE_PASSWORD" > database-check.cnf
           chmod 600 database-check.cnf
-          scp -i ~/.ssh/qismat_preflight -P "${PORT:-22}" database-check.cnf "$USER@$HOST:$REMOTE_CREDENTIAL_FILE"
-          ssh -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -P "${PORT:-22}" database-check.cnf "$USER@$HOST:$REMOTE_CREDENTIAL_FILE"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
             "chmod 600 '$REMOTE_CREDENTIAL_FILE' && (mysql --defaults-extra-file='$REMOTE_CREDENTIAL_FILE' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok' || mariadb --defaults-extra-file='$REMOTE_CREDENTIAL_FILE' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok')"
 
       - name: Remove temporary database credentials
@@ -74,4 +75,4 @@ jobs:
           REMOTE_CREDENTIAL_FILE: /tmp/qismat-db-check-${{ github.run_id }}.cnf
         run: |
           rm -f database-check.cnf
-          ssh -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" "rm -f '$REMOTE_CREDENTIAL_FILE'" || true
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" "rm -f '$REMOTE_CREDENTIAL_FILE'" || true
