@@ -14,7 +14,7 @@ const steps = [
 ];
 
 function Brand() {
-  return <a className="brand" href="#top" aria-label="Qismat home"><span className="brand-mark"><Heart /></span><span>Qismat</span></a>;
+  return <a className="brand" href="#top" aria-label="Qismat Connections home"><span className="brand-mark"><Heart /></span><span>Qismat Connections</span></a>;
 }
 
 function App() {
