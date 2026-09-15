@@ -1,0 +1,102 @@
+name: cPanel Preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate required secrets
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        run: |
+          test -n "$HOST"
+          test -n "$USER"
+          test -n "$SSH_KEY"
+          test -n "$SSH_KEY_PASSPHRASE"
+          test -n "$API_PATH"
+          test -n "$DATABASE_NAME"
+          test -n "$DATABASE_USER"
+          test -n "$DATABASE_PASSWORD"
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_preflight
+          chmod 600 ~/.ssh/qismat_preflight
+          timeout 20s ssh-keygen -p -q -P "$SSH_KEY_PASSPHRASE" -N '' -f ~/.ssh/qismat_preflight
+          timeout 20s ssh-keyscan -T 10 -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Check server versions
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+        run: |
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
+            bash -s -- "$API_PATH" <<'REMOTE'
+          set -e
+          api_path="$1"
+          api_parent="$(dirname "$api_path")"
+          php -v
+          if command -v composer >/dev/null 2>&1; then
+            composer --version
+          elif [ -x /opt/cpanel/composer/bin/composer ]; then
+            /opt/cpanel/composer/bin/composer --version
+          else
+            echo 'Composer unavailable; deployment will upload CI-built dependencies.'
+          fi
+          mysql --version || mariadb --version
+          node -v && npm -v || echo 'Node.js unavailable; frontends will be built in CI.'
+          git --version || echo 'Git unavailable; deployment will use rsync.'
+          test -d "$api_parent" && test -w "$api_parent"
+          if [ -e "$api_path" ]; then
+            test -d "$api_path" && test -w "$api_path"
+          fi
+          REMOTE
+
+      - name: Check database credentials
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          REMOTE_CREDENTIAL_FILE: /tmp/qismat-db-check-${{ github.run_id }}.cnf
+        run: |
+          php .github/scripts/write-mysql-option-file.php database-check.cnf
+          chmod 600 database-check.cnf
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -P "${PORT:-22}" database-check.cnf "$USER@$HOST:$REMOTE_CREDENTIAL_FILE"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
+            "chmod 600 '$REMOTE_CREDENTIAL_FILE' && (mysql --defaults-extra-file='$REMOTE_CREDENTIAL_FILE' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok' || mariadb --defaults-extra-file='$REMOTE_CREDENTIAL_FILE' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok')"
+
+      - name: Remove temporary database credentials
+        if: always()
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          REMOTE_CREDENTIAL_FILE: /tmp/qismat-db-check-${{ github.run_id }}.cnf
+        run: |
+          rm -f database-check.cnf
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" "rm -f '$REMOTE_CREDENTIAL_FILE'" || true

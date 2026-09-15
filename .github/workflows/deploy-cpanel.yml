@@ -1,0 +1,226 @@
+name: Deploy cPanel Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to deploy
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Validate deployment secrets
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          LARAVEL_APP_KEY: ${{ secrets.LARAVEL_APP_KEY }}
+        run: |
+          test -n "$HOST"
+          test -n "$USER"
+          test -n "$SSH_KEY"
+          test -n "$SSH_KEY_PASSPHRASE"
+          test -n "$API_PATH"
+          test -n "$WEB_PATH"
+          test -n "$ADMIN_PATH"
+          test -n "$DATABASE_NAME"
+          test -n "$DATABASE_USER"
+          test -n "$DATABASE_PASSWORD"
+          test -n "$FIREBASE_PROJECT_ID"
+          test -n "$FIREBASE_SERVICE_ACCOUNT_JSON"
+          test -n "$LARAVEL_APP_KEY"
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Build Laravel backend
+        working-directory: backend
+        env:
+          APP_ENV: production
+          APP_KEY: ${{ secrets.LARAVEL_APP_KEY }}
+        run: composer install --no-dev --no-interaction --prefer-dist --no-progress --optimize-autoloader
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build member web
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build admin
+        working-directory: admin
+        run: |
+          npm ci
+          npm run build
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_deploy
+          chmod 600 ~/.ssh/qismat_deploy
+          timeout 20s ssh-keygen -p -q -P "$SSH_KEY_PASSPHRASE" -N '' -f ~/.ssh/qismat_deploy
+          timeout 20s ssh-keyscan -T 10 -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Verify deployment database
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        run: |
+          local_credentials="$RUNNER_TEMP/qismat-db-check.cnf"
+          remote_credentials="/tmp/qismat-deploy-db-${GITHUB_RUN_ID}.cnf"
+          cleanup() {
+            rm -f "$local_credentials"
+            ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+              "rm -f '$remote_credentials'" || true
+          }
+          trap cleanup EXIT
+          php .github/scripts/write-mysql-option-file.php "$local_credentials"
+          chmod 600 "$local_credentials"
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
+            "$local_credentials" "$USER@$HOST:$remote_credentials"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            "chmod 600 '$remote_credentials' && (mysql --defaults-extra-file='$remote_credentials' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok' || mariadb --defaults-extra-file='$remote_credentials' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok')"
+
+      - name: Prepare Laravel environment
+        env:
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
+          LARAVEL_APP_KEY: ${{ secrets.LARAVEL_APP_KEY }}
+        run: |
+          php -r '
+          $values = [
+              "APP_NAME" => "Qismat",
+              "APP_ENV" => "production",
+              "APP_KEY" => getenv("LARAVEL_APP_KEY"),
+              "APP_DEBUG" => "false",
+              "APP_URL" => "https://api.qismatconnections.com",
+              "LOG_CHANNEL" => "stack",
+              "LOG_LEVEL" => "warning",
+              "DB_CONNECTION" => "mysql",
+              "DB_HOST" => "localhost",
+              "DB_PORT" => "3306",
+              "DB_DATABASE" => getenv("DATABASE_NAME"),
+              "DB_USERNAME" => getenv("DATABASE_USER"),
+              "DB_PASSWORD" => getenv("DATABASE_PASSWORD"),
+              "SESSION_DRIVER" => "database",
+              "QUEUE_CONNECTION" => "database",
+              "CACHE_STORE" => "database",
+              "FIREBASE_PROJECT_ID" => getenv("FIREBASE_PROJECT_ID"),
+              "FIREBASE_CREDENTIALS" => getenv("API_PATH")."/.secrets/firebase-service-account.json",
+              "FILESYSTEM_DISK" => "public",
+              "FRONTEND_URL" => "https://qismatconnections.com",
+              "ADMIN_URL" => "https://admin.qismatconnections.com",
+              "SANCTUM_STATEFUL_DOMAINS" => "qismatconnections.com,www.qismatconnections.com,admin.qismatconnections.com",
+          ];
+          foreach ($values as $name => $value) {
+              echo $name."=".json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE).PHP_EOL;
+          }
+          ' > "$RUNNER_TEMP/qismat.env"
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT_JSON" > "$RUNNER_TEMP/firebase-service-account.json"
+          php -r 'json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);' "$RUNNER_TEMP/firebase-service-account.json"
+          chmod 600 "$RUNNER_TEMP/qismat.env" "$RUNNER_TEMP/firebase-service-account.json"
+
+      - name: Deploy Laravel backend
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+        run: |
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            "mkdir -p '$API_PATH' '$API_PATH/.secrets' && chmod 700 '$API_PATH/.secrets'"
+          rsync -az --delete \
+            --exclude='.env' \
+            --exclude='.secrets/' \
+            --exclude='.phpunit.result.cache' \
+            --exclude='database/database.sqlite' \
+            --exclude='public/storage' \
+            --exclude='public/.well-known/' \
+            --exclude='storage/app/public/' \
+            --exclude='storage/framework/cache/data/' \
+            --exclude='storage/framework/sessions/' \
+            --exclude='storage/framework/views/' \
+            --exclude='storage/logs/' \
+            --exclude='tests/' \
+            -e "ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
+            backend/ "$USER@$HOST:$API_PATH/"
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
+            "$RUNNER_TEMP/qismat.env" "$USER@$HOST:$API_PATH/.env.${GITHUB_RUN_ID}.tmp"
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
+            .github/scripts/merge-dotenv.php "$USER@$HOST:$API_PATH/.merge-dotenv.${GITHUB_RUN_ID}.php"
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
+            "$RUNNER_TEMP/firebase-service-account.json" \
+            "$USER@$HOST:$API_PATH/.secrets/firebase-service-account.json.${GITHUB_RUN_ID}.tmp"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            bash -s -- "$API_PATH" "$GITHUB_RUN_ID" <<'REMOTE'
+          set -e
+          api_path="$1"
+          run_id="$2"
+          cd "$api_path"
+          cleanup() {
+            rm -f ".env.${run_id}.tmp" ".env.${run_id}.new" ".merge-dotenv.${run_id}.php"
+          }
+          trap cleanup EXIT
+          php ".merge-dotenv.${run_id}.php" .env ".env.${run_id}.tmp" ".env.${run_id}.new"
+          chmod 600 ".env.${run_id}.new"
+          mv ".env.${run_id}.new" .env
+          mv ".secrets/firebase-service-account.json.${run_id}.tmp" .secrets/firebase-service-account.json
+          chmod 600 .env .secrets/firebase-service-account.json
+          mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+          chmod -R u+rwX storage bootstrap/cache
+          php artisan config:clear
+          php artisan migrate --force
+          php artisan storage:link || test -L public/storage
+          php artisan optimize
+          REMOTE
+
+      - name: Deploy static frontends
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
+        run: |
+          rsync -az --delete --exclude='.well-known/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" web/dist/ "$USER@$HOST:$WEB_PATH/"
+          rsync -az --delete --exclude='.well-known/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" admin/dist/ "$USER@$HOST:$ADMIN_PATH/"
+
+      - name: Verify API health
+        run: curl --fail --show-error --silent --retry 5 --retry-delay 3 https://api.qismatconnections.com/up > /dev/null

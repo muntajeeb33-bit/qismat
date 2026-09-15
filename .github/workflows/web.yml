@@ -1,0 +1,23 @@
+name: Web and Admin
+on:
+  push:
+    branches: [main, foundation/initial-platform]
+    paths: ['web/**','admin/**','.github/workflows/web.yml']
+  pull_request:
+    paths: ['web/**','admin/**','.github/workflows/web.yml']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [web, admin]
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
