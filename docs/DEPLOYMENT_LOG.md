@@ -20,6 +20,7 @@ No staging or production deployments yet.
 | 2026-09-15 | cPanel preflight | SSH/runtime | 0.1.0-dev | `0f68c54` | Not run | Passed SSH authentication; PHP 8.2.33 confirmed, server Composer unavailable (run `34939195446`) | No deployment occurred |
 | 2026-09-15 | cPanel preflight | Database | 0.1.0-dev | `be1fe5f` | Not run | MariaDB reached but rejected the configured user at localhost (run `34939737992`) | Temporary credential file removed; no database changes occurred |
 | 2026-09-15 | cPanel preflight | Server/database | 0.1.0-dev | `05b12e4` | Not run | Passed SSH, PHP 8.2, path permission and MariaDB `SELECT 1` checks (run `34941862520`) | No deployment occurred |
+| 2026-09-15 | Staging cPanel | Backend | 0.1.0-dev | `8ed8219` | Initial migration started, not recorded | Backend uploaded and protected configuration installed; migration stopped on MariaDB's 1000-byte index limit (run `34942870359`) | No tables dropped; deployment stopped before frontends and health check |
 
 ## Deployment record format
 

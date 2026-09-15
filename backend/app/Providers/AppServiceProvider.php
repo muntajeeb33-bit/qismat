@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Contracts\FirebaseTokenVerifier;
 use App\Services\KreaitFirebaseTokenVerifier;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Kreait\Firebase\Contract\Auth;
 use Kreait\Firebase\Factory;
@@ -38,6 +39,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Schema::defaultStringLength(191);
     }
 }
