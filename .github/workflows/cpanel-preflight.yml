@@ -51,14 +51,26 @@ jobs:
           API_PATH: ${{ secrets.CPANEL_API_PATH }}
         run: |
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
-            "php -v &&
-             if command -v composer >/dev/null 2>&1; then composer --version;
-             elif [ -x /opt/cpanel/composer/bin/composer ]; then /opt/cpanel/composer/bin/composer --version;
-             else echo 'Composer unavailable; deployment will upload CI-built dependencies.'; fi &&
-             (mysql --version || mariadb --version) &&
-             (node -v && npm -v || echo 'Node.js unavailable; frontends will be built in CI.') &&
-             (git --version || echo 'Git unavailable; deployment will use rsync.') &&
-             test -d '$API_PATH/public' && test -w '$API_PATH'"
+            bash -s -- "$API_PATH" <<'REMOTE'
+          set -e
+          api_path="$1"
+          api_parent="$(dirname "$api_path")"
+          php -v
+          if command -v composer >/dev/null 2>&1; then
+            composer --version
+          elif [ -x /opt/cpanel/composer/bin/composer ]; then
+            /opt/cpanel/composer/bin/composer --version
+          else
+            echo 'Composer unavailable; deployment will upload CI-built dependencies.'
+          fi
+          mysql --version || mariadb --version
+          node -v && npm -v || echo 'Node.js unavailable; frontends will be built in CI.'
+          git --version || echo 'Git unavailable; deployment will use rsync.'
+          test -d "$api_parent" && test -w "$api_parent"
+          if [ -e "$api_path" ]; then
+            test -d "$api_path" && test -w "$api_path"
+          fi
+          REMOTE
 
       - name: Check database credentials
         env:
