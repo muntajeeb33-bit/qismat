@@ -16,6 +16,7 @@ jobs:
           USER: ${{ secrets.CPANEL_USER }}
           SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
           SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
@@ -24,6 +25,7 @@ jobs:
           test -n "$USER"
           test -n "$SSH_KEY"
           test -n "$SSH_KEY_PASSPHRASE"
+          test -n "$API_PATH"
           test -n "$DATABASE_NAME"
           test -n "$DATABASE_USER"
           test -n "$DATABASE_PASSWORD"
@@ -46,9 +48,17 @@ jobs:
           HOST: ${{ secrets.CPANEL_HOST }}
           USER: ${{ secrets.CPANEL_USER }}
           PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
         run: |
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
-            'php -v && composer --version && (mysql --version || mariadb --version) && node -v && npm -v && git --version'
+            "php -v &&
+             if command -v composer >/dev/null 2>&1; then composer --version;
+             elif [ -x /opt/cpanel/composer/bin/composer ]; then /opt/cpanel/composer/bin/composer --version;
+             else echo 'Composer unavailable; deployment will upload CI-built dependencies.'; fi &&
+             (mysql --version || mariadb --version) &&
+             (node -v && npm -v || echo 'Node.js unavailable; frontends will be built in CI.') &&
+             (git --version || echo 'Git unavailable; deployment will use rsync.') &&
+             test -d '$API_PATH/public' && test -w '$API_PATH'"
 
       - name: Check database credentials
         env:
