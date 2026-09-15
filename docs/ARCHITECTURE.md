@@ -35,6 +35,10 @@ deployment/    cPanel and infrastructure scripts/config
 
 Business rules live in the backend. Web, admin and mobile consume versioned APIs. Do not duplicate matching, privacy, subscription, moderation or permission logic across clients.
 
+## Authentication flow
+
+Firebase Authentication handles client-side email/password registration, login, verification email delivery and password recovery. After Firebase authentication, the client sends its ID token to `POST /api/v1/auth/firebase`. Laravel middleware verifies the token and its revocation status, requires a Firebase-verified email, synchronizes the local Qismat user by Firebase UID, and returns a Sanctum token. All matrimonial business authorization remains in Laravel.
+
 ## Core domains
 
 1. Identity and authentication

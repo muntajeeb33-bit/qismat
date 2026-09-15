@@ -2,82 +2,111 @@
 
 namespace Tests\Feature\Api;
 
+use App\Contracts\FirebaseTokenVerifier;
 use App\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\URL;
 use Laravel\Sanctum\Sanctum;
+use RuntimeException;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_member_can_register_with_email(): void
+    public function test_firebase_exchange_requires_an_id_token(): void
     {
-        Notification::fake();
+        $this->postJson('/api/v1/auth/firebase')
+            ->assertUnauthorized()
+            ->assertJsonPath('success', false);
+    }
 
-        $response = $this->postJson('/api/v1/auth/register', [
-            'name' => 'Amina Khan',
+    public function test_invalid_firebase_token_is_rejected(): void
+    {
+        $this->mock(FirebaseTokenVerifier::class)
+            ->shouldReceive('verify')
+            ->once()
+            ->with('invalid-token')
+            ->andThrow(new RuntimeException('Invalid token'));
+
+        $this->withToken('invalid-token')
+            ->postJson('/api/v1/auth/firebase')
+            ->assertUnauthorized()
+            ->assertJsonPath('message', 'Firebase ID token is invalid or expired.');
+    }
+
+    public function test_verified_firebase_user_is_synchronized_and_receives_a_sanctum_token(): void
+    {
+        $this->mockFirebaseClaims([
+            'sub' => 'firebase-user-123',
             'email' => 'amina@example.test',
-            'password' => 'StrongPass123!',
-            'password_confirmation' => 'StrongPass123!',
+            'email_verified' => true,
+            'name' => 'Amina Khan',
         ]);
 
-        $response->assertCreated()
+        $response = $this->withToken('valid-firebase-token')
+            ->postJson('/api/v1/auth/firebase')
+            ->assertOk()
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.user.email', 'amina@example.test')
-            ->assertJsonPath('data.email_verification_required', true)
             ->assertJsonStructure(['data' => ['token']]);
 
-        $this->assertDatabaseHas('users', ['email' => 'amina@example.test', 'status' => 'active']);
-        Notification::assertSentTo(User::where('email', 'amina@example.test')->firstOrFail(), VerifyEmail::class);
-    }
+        $this->assertDatabaseHas('users', ['firebase_uid' => 'firebase-user-123', 'email' => 'amina@example.test']);
 
-    public function test_registration_requires_an_email_address(): void
-    {
-        $this->postJson('/api/v1/auth/register', [
-            'name' => 'Rayan Ali',
-            'phone' => '+919876543210',
-            'password' => 'StrongPass123!',
-            'password_confirmation' => 'StrongPass123!',
-        ])->assertUnprocessable()
-            ->assertJsonPath('success', false)
-            ->assertJsonValidationErrors('email');
-    }
-
-    public function test_member_can_login_and_fetch_current_account(): void
-    {
-        User::factory()->create([
-            'email' => 'member@example.test',
-            'password' => 'StrongPass123!',
-            'status' => 'active',
-        ]);
-
-        $login = $this->postJson('/api/v1/auth/login', [
-            'login' => 'member@example.test',
-            'password' => 'StrongPass123!',
-        ])->assertOk()->assertJsonPath('success', true);
-
-        $this->withToken($login->json('data.token'))
+        $this->withToken($response->json('data.token'))
             ->getJson('/api/v1/auth/me')
             ->assertOk()
-            ->assertJsonPath('data.email', 'member@example.test');
+            ->assertJsonPath('data.email', 'amina@example.test');
     }
 
-    public function test_inactive_member_cannot_login(): void
+    public function test_unverified_firebase_email_is_rejected(): void
     {
-        User::factory()->create([
-            'email' => 'suspended@example.test',
-            'password' => 'StrongPass123!',
-            'status' => 'suspended',
+        $this->mockFirebaseClaims([
+            'sub' => 'firebase-user-123',
+            'email' => 'unverified@example.test',
+            'email_verified' => false,
         ]);
 
-        $this->postJson('/api/v1/auth/login', [
-            'login' => 'suspended@example.test',
-            'password' => 'StrongPass123!',
-        ])->assertUnprocessable()->assertJsonValidationErrors('login');
+        $this->withToken('valid-firebase-token')
+            ->postJson('/api/v1/auth/firebase')
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Firebase email address is not verified.');
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_existing_firebase_identity_is_not_duplicated(): void
+    {
+        User::factory()->create(['firebase_uid' => 'firebase-user-123', 'email' => 'amina@example.test']);
+        $this->mockFirebaseClaims([
+            'sub' => 'firebase-user-123',
+            'email' => 'amina@example.test',
+            'email_verified' => true,
+            'name' => 'Amina Updated',
+        ]);
+
+        $this->withToken('valid-firebase-token')->postJson('/api/v1/auth/firebase')->assertOk();
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertDatabaseHas('users', ['firebase_uid' => 'firebase-user-123', 'name' => 'Amina Updated']);
+    }
+
+    public function test_suspended_qismat_account_cannot_exchange_a_firebase_token(): void
+    {
+        User::factory()->create([
+            'firebase_uid' => 'firebase-user-123',
+            'email' => 'suspended@example.test',
+            'status' => 'suspended',
+        ]);
+        $this->mockFirebaseClaims([
+            'sub' => 'firebase-user-123',
+            'email' => 'suspended@example.test',
+            'email_verified' => true,
+        ]);
+
+        $this->withToken('valid-firebase-token')
+            ->postJson('/api/v1/auth/firebase')
+            ->assertForbidden()
+            ->assertJsonPath('message', 'This Qismat account is not active.');
     }
 
     public function test_authenticated_member_can_logout(): void
@@ -101,40 +130,12 @@ class AuthenticationTest extends TestCase
             ]);
     }
 
-    public function test_signed_link_verifies_email_address(): void
+    private function mockFirebaseClaims(array $claims): void
     {
-        $user = User::factory()->unverified()->create();
-        $url = URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), [
-            'id' => $user->id,
-            'hash' => sha1($user->getEmailForVerification()),
-        ]);
-
-        $this->getJson($url)
-            ->assertOk()
-            ->assertJsonPath('data.email_verified', true);
-
-        $this->assertNotNull($user->fresh()->email_verified_at);
-    }
-
-    public function test_unverified_member_cannot_access_member_features(): void
-    {
-        Sanctum::actingAs(User::factory()->unverified()->create());
-
-        $this->getJson('/api/v1/profile')
-            ->assertForbidden()
-            ->assertJsonPath('success', false);
-    }
-
-    public function test_unverified_member_can_request_another_verification_email(): void
-    {
-        Notification::fake();
-        $user = User::factory()->unverified()->create();
-        Sanctum::actingAs($user);
-
-        $this->postJson('/api/v1/auth/email/verification-notification')
-            ->assertOk()
-            ->assertJsonPath('message', 'Verification email sent.');
-
-        Notification::assertSentTo($user, VerifyEmail::class);
+        $this->mock(FirebaseTokenVerifier::class)
+            ->shouldReceive('verify')
+            ->once()
+            ->with('valid-firebase-token')
+            ->andReturn($claims);
     }
 }

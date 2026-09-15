@@ -17,7 +17,9 @@ Target production: cPanel + SSH + MySQL/MariaDB.
 
 Authentication will use Laravel Sanctum tokens for mobile/API clients.
 
-Member verification uses Laravel signed email-verification links delivered through Gmail SMTP. Phone/Firebase verification is not part of the current verification flow. Configure a Gmail account and app password through the server environment; never commit them.
+Firebase Authentication owns member email/password registration, login, verification email delivery and password recovery. Clients send the resulting Firebase ID token to `POST /api/v1/auth/firebase`; Laravel middleware verifies it, synchronizes the local Qismat user and returns a Sanctum API token for subsequent requests.
+
+The server requires `FIREBASE_PROJECT_ID` and an absolute `FIREBASE_CREDENTIALS` path to a service-account JSON file stored outside the public web root. Never commit that file.
 
 ## Local setup
 

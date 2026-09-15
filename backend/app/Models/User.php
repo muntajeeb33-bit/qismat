@@ -12,9 +12,9 @@ class User extends Authenticatable implements MustVerifyEmailContract
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'phone', 'password', 'status', 'last_login_at'];
+    protected $fillable = ['firebase_uid', 'name', 'email', 'phone', 'password', 'status', 'last_login_at'];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['firebase_uid', 'password', 'remember_token'];
 
     protected function casts(): array
     {

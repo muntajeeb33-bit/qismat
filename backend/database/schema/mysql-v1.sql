@@ -1,6 +1,6 @@
 -- Qismat MySQL/MariaDB schema v1 (reference schema; Laravel migrations remain source of truth once bootstrapped)
 CREATE TABLE users (
- id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, firebase_uid VARCHAR(128) NULL UNIQUE,
  name VARCHAR(120) NOT NULL, email VARCHAR(190) NULL UNIQUE, phone VARCHAR(30) NULL UNIQUE,
  email_verified_at TIMESTAMP NULL, phone_verified_at TIMESTAMP NULL, password VARCHAR(255) NOT NULL,
  status VARCHAR(30) NOT NULL DEFAULT 'active', last_login_at TIMESTAMP NULL, remember_token VARCHAR(100) NULL,

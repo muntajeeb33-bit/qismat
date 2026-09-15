@@ -5,13 +5,13 @@ Last updated: 2026-09-15
 ## Overall
 
 **Phase:** Foundation implementation
-**Overall progress:** 25%
+**Overall progress:** 27%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 45% |
+| Backend/API | In progress | 50% |
 | Website | In progress | 20% |
 | Admin dashboard | In progress | 20% |
 | Flutter mobile app | In progress | 20% |
@@ -42,14 +42,14 @@ Last updated: 2026-09-15
 - [x] Backend migrations, factories, plan seed data and API test suite
 - [x] Backend GitHub Actions workflow
 - [x] Latest Android CI result confirmed green after BUG-001
-- [x] Signed Gmail email verification and resend API
-- [x] Verified-email enforcement for member features
+- [x] Firebase ID-token verification middleware and Sanctum exchange API
+- [x] Firebase-verified-email enforcement before user synchronization
 - [x] cPanel SSH/database preflight workflow
 
 ## In progress / next
 
-- [ ] Gmail production delivery verification
-- [ ] Password recovery
+- [ ] Firebase project/service-account configuration
+- [ ] Web and Flutter Firebase client integration
 - [ ] Profile photos and privacy rules
 - [ ] Partner preferences and recommendation engine
 - [ ] Search/filter APIs
@@ -70,12 +70,12 @@ Last updated: 2026-09-15
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | migration `2026_09_15_043815` |
+| Database schema | migration `2026_09_15_000400` plus Sanctum migration `2026_09_15_043815` |
 
 ## Major blockers
 
 - cPanel preflight reached the host but is blocked because `CPANEL_SSH_KEY` requires a passphrase unavailable to GitHub Actions (DEPLOY-001).
-- `CPANEL_API_PATH`, `GMAIL_USERNAME` and `GMAIL_APP_PASSWORD` GitHub secrets are not configured; backend deployment and live email verification remain gated.
+- `CPANEL_API_PATH`, `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` are not configured; backend deployment and live Firebase verification remain gated.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.
 

@@ -43,7 +43,13 @@ Use the user's cPanel hosting with SSH access for backend, web and admin deploym
 Maintain project status, roadmap, tasks, changelog, bugs, decisions and deployment history in version control.
 
 ## ADR-008 — Gmail email verification
-**Status:** Accepted
+**Status:** Superseded by ADR-009
 **Date:** 2026-09-15
 
 Use Laravel signed email-verification links delivered through Gmail SMTP for account verification. Email is required at registration; mobile number remains optional. Firebase Authentication and mobile OTP verification are not part of the current account-verification flow. Firebase may still be evaluated separately for future push notifications.
+
+## ADR-009 — Firebase Authentication with Laravel token exchange
+**Status:** Accepted
+**Date:** 2026-09-15
+
+Use Firebase Authentication on web/mobile for email/password registration, login, verification emails and password recovery. Clients send Firebase ID tokens to the Laravel API. Laravel verifies the token server-side, synchronizes the Qismat user by Firebase UID and issues a Sanctum token for Qismat API authorization. Business data and authorization remain in Laravel/MySQL.

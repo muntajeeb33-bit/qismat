@@ -1,11 +1,11 @@
 # Qismat Task Tracker
 
 ## In progress
-- [ ] Add Gmail SMTP secrets and verify production email delivery
-- [ ] Complete password recovery flow
+- [ ] Add Firebase project/service-account configuration
+- [ ] Connect web and Flutter Firebase Authentication clients
 
 ## Next
-- [ ] Password recovery and credential security
+- [ ] Firebase client registration/login/verification/password recovery
 - [ ] Profile CRUD APIs
 - [ ] Photo upload/storage rules
 - [ ] Partner preference model
@@ -45,5 +45,6 @@
 - [x] Create web/member portal shell
 - [x] Create admin dashboard shell
 - [x] Confirm Android CI green after BUG-001
-- [x] Add signed Gmail email verification and resend API
-- [x] Require verification before member features
+- [x] Add Laravel Firebase ID-token verification middleware
+- [x] Add Firebase-to-Sanctum token exchange API
+- [x] Require Firebase-verified email before local account synchronization
