@@ -4,18 +4,21 @@ Use this file for compact repository-level bug tracking. Larger bugs should also
 
 ## Open
 
+No open repository-level bugs.
+
+## Resolved
+
 ### DEPLOY-002 — cPanel database credentials are rejected
 - Date found: 2026-09-15
 - Component: cPanel MariaDB / GitHub Actions
 - Severity: deployment-blocking
-- Environment/build: cPanel Preflight run `34939737992`
-- Reproduction: run the cPanel preflight with the configured `DATABASE_NAME`, `DATABASE_USER` and `DATABASE_PASSWORD` secrets.
-- Root cause: MariaDB rejects the configured database user at `localhost`; the password may not match, the cPanel-prefixed name may be incomplete, or the user may not be assigned to the database.
-- Fix: verify the full cPanel database/user names, reset the database-user password if necessary, assign that user to the database with required privileges, and update the matching GitHub secrets.
-- Commit/PR: PR #1
-- Resolution status: Open; migrations and first backend deployment remain gated.
-
-## Resolved
+- Environment/build: cPanel Preflight runs `34939737992` and `34941862520`
+- Root cause: MariaDB rejected the originally configured database credentials at `localhost`.
+- Fix: update the full cPanel-prefixed database name/user/password and safely quote special characters in the generated client option file.
+- Fix commit: `05b12e4`
+- Date resolved: 2026-09-15
+- Verification: preflight run `34941862520` completed successfully, including `SELECT 1` against the configured database.
+- Resolution status: Resolved and verified.
 
 ### DEPLOY-001 — cPanel SSH deploy key requires a passphrase
 - Date found: 2026-09-15

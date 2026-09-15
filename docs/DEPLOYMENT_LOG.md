@@ -6,7 +6,7 @@
 - Staging cPanel: pending
 - Production cPanel: pending
 - Android CI: foundation build verified
-- cPanel preflight: SSH and server runtime verified; database authentication blocked
+- cPanel preflight: SSH, server runtime, API path and database authentication verified
 - iOS Xcode Cloud: pending
 
 ## Deployments
@@ -19,6 +19,7 @@ No staging or production deployments yet.
 | 2026-09-15 | cPanel preflight | Server/database | 0.1.0-dev | `453afd6` | `2026_09_15_043815` planned, not run | Failed before server login: encrypted SSH key requires an unavailable passphrase (run `34931693576`) | No server changes occurred; no rollback required |
 | 2026-09-15 | cPanel preflight | SSH/runtime | 0.1.0-dev | `0f68c54` | Not run | Passed SSH authentication; PHP 8.2.33 confirmed, server Composer unavailable (run `34939195446`) | No deployment occurred |
 | 2026-09-15 | cPanel preflight | Database | 0.1.0-dev | `be1fe5f` | Not run | MariaDB reached but rejected the configured user at localhost (run `34939737992`) | Temporary credential file removed; no database changes occurred |
+| 2026-09-15 | cPanel preflight | Server/database | 0.1.0-dev | `05b12e4` | Not run | Passed SSH, PHP 8.2, path permission and MariaDB `SELECT 1` checks (run `34941862520`) | No deployment occurred |
 
 ## Deployment record format
 

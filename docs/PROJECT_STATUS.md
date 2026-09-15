@@ -75,8 +75,9 @@ Last updated: 2026-09-15
 ## Major blockers
 
 - cPanel SSH, PHP 8.2, MariaDB client and Git are verified. Server Composer and Node.js are unavailable, so deployable artifacts are built in GitHub Actions.
-- MariaDB rejects the configured database credentials; verify the full cPanel-prefixed database/user names, password and user-to-database privileges (DEPLOY-002).
-- `CPANEL_API_PATH`, `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON` are configured. `LARAVEL_APP_KEY` is still required before first deployment.
+- MariaDB authentication and database access are verified by the cPanel preflight.
+- `CPANEL_API_PATH`, Firebase credentials and the persistent `LARAVEL_APP_KEY` are configured.
+- First staging deployment awaits merge of PR #1 because GitHub only dispatches manual workflows that exist on the default branch.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.
 
