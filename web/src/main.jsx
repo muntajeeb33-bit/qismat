@@ -36,7 +36,7 @@ function App() {
     <main id="top">
       <section className="hero-section">
         <div className="hero-copy">
-          <div className="eyebrow"><span></span> India’s thoughtful matrimonial experience</div>
+          <div className="eyebrow"><span></span> A thoughtful matrimonial experience for every community</div>
           <h1>Where beautiful<br />beginnings find <em>you.</em></h1>
           <p className="hero-lede">A modern, private and trusted way to meet someone who shares your values—and your vision for the future.</p>
           <div className="hero-buttons"><button className="btn btn-primary btn-large">Create your profile <Arrow /></button><a className="text-link" href="#journey">See how it works <span>↓</span></a></div>
