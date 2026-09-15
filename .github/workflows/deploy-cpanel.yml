@@ -26,13 +26,13 @@ jobs:
       - name: Build member web
         working-directory: web
         run: |
-          npm install
+          npm ci
           npm run build
 
       - name: Build admin
         working-directory: admin
         run: |
-          npm install
+          npm ci
           npm run build
 
       - name: Configure SSH
