@@ -1,0 +1,61 @@
+name: Deploy cPanel Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to deploy
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build member web
+        working-directory: web
+        run: |
+          npm install
+          npm run build
+
+      - name: Build admin
+        working-directory: admin
+        run: |
+          npm install
+          npm run build
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_deploy
+          chmod 600 ~/.ssh/qismat_deploy
+          ssh-keyscan -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy static frontends
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
+        run: |
+          rsync -az --delete -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" web/dist/ "$USER@$HOST:$WEB_PATH/"
+          rsync -az --delete -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" admin/dist/ "$USER@$HOST:$ADMIN_PATH/"
+
+      - name: Deployment note
+        run: echo "Frontend deployment completed for ${{ inputs.ref }}. Backend deployment remains gated until Laravel bootstrap is complete."
