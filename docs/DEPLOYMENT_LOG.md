@@ -6,6 +6,7 @@
 - Staging cPanel: pending
 - Production cPanel: pending
 - Android CI: foundation build verified
+- cPanel preflight: workflow prepared; result pending
 - iOS Xcode Cloud: pending
 
 ## Deployments
@@ -24,3 +25,11 @@ No staging or production deployments yet.
 ## Production rule
 
 Every production deployment must record the deployed commit SHA, application version/build, migration state, result and rollback notes when applicable.
+
+## Required backend secrets
+
+- `CPANEL_API_PATH` — Laravel release/application path outside the public web root where possible
+- `GMAIL_USERNAME` — Gmail address used by the server as `MAIL_USERNAME` and `MAIL_FROM_ADDRESS`
+- `GMAIL_APP_PASSWORD` — Google app password used by the server as `MAIL_PASSWORD`; never use or commit the normal Google account password
+
+The existing `DATABASE_NAME`, `DATABASE_USER` and `DATABASE_PASSWORD` secrets map to Laravel's `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` server environment values. Deployment must update only these named settings and must not replace the complete server `.env` file.

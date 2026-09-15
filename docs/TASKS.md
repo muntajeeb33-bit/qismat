@@ -1,10 +1,11 @@
 # Qismat Task Tracker
 
 ## In progress
-- [ ] Complete authentication verification and recovery flows
+- [ ] Add Gmail SMTP secrets and verify production email delivery
+- [ ] Complete password recovery flow
 
 ## Next
-- [ ] Authentication and verification
+- [ ] Password recovery and credential security
 - [ ] Profile CRUD APIs
 - [ ] Photo upload/storage rules
 - [ ] Partner preference model
@@ -23,6 +24,7 @@
 - [x] GitHub Actions Android build
 - [x] Backend/web CI checks
 - [ ] cPanel deploy script
+- [x] cPanel SSH/database preflight workflow
 - [ ] staging configuration
 - [ ] production configuration
 - [ ] Xcode Cloud setup notes
@@ -43,3 +45,5 @@
 - [x] Create web/member portal shell
 - [x] Create admin dashboard shell
 - [x] Confirm Android CI green after BUG-001
+- [x] Add signed Gmail email verification and resend API
+- [x] Require verification before member features

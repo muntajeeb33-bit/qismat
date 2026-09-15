@@ -5,19 +5,19 @@ Last updated: 2026-09-15
 ## Overall
 
 **Phase:** Foundation implementation
-**Overall progress:** 22%
+**Overall progress:** 25%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 40% |
+| Backend/API | In progress | 45% |
 | Website | In progress | 20% |
 | Admin dashboard | In progress | 20% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 40% |
 | iOS/Xcode Cloud | Planned | 5% |
-| cPanel deployment | Planned | 8% |
+| cPanel deployment | In progress | 12% |
 | QA/security | In progress | 15% |
 
 ## Completed in current foundation batch
@@ -42,10 +42,14 @@ Last updated: 2026-09-15
 - [x] Backend migrations, factories, plan seed data and API test suite
 - [x] Backend GitHub Actions workflow
 - [x] Latest Android CI result confirmed green after BUG-001
+- [x] Signed Gmail email verification and resend API
+- [x] Verified-email enforcement for member features
+- [x] cPanel SSH/database preflight workflow
 
 ## In progress / next
 
-- [ ] OTP/email verification
+- [ ] Gmail production delivery verification
+- [ ] Password recovery
 - [ ] Profile photos and privacy rules
 - [ ] Partner preferences and recommendation engine
 - [ ] Search/filter APIs
@@ -70,9 +74,10 @@ Last updated: 2026-09-15
 
 ## Major blockers
 
-- cPanel PHP, Composer, MySQL/MariaDB and Node versions have not yet been verified on the production host.
-- Staging database credentials and deployment paths are not configured; no production migration is authorized yet.
-- Apple Developer, Firebase, SMS/OTP and payment-provider credentials remain pending for their later stages.
+- cPanel PHP, Composer, MySQL/MariaDB and Node versions await the new automated preflight result.
+- `CPANEL_API_PATH`, `GMAIL_USERNAME` and `GMAIL_APP_PASSWORD` GitHub secrets are not configured; backend deployment and live email verification remain gated.
+- No production migration is authorized until database/storage backup and rollback procedures are completed.
+- Apple Developer and payment-provider credentials remain pending for their later stages.
 
 ## Rule
 

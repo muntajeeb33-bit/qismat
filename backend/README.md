@@ -17,6 +17,8 @@ Target production: cPanel + SSH + MySQL/MariaDB.
 
 Authentication will use Laravel Sanctum tokens for mobile/API clients.
 
+Member verification uses Laravel signed email-verification links delivered through Gmail SMTP. Phone/Firebase verification is not part of the current verification flow. Configure a Gmail account and app password through the server environment; never commit them.
+
 ## Local setup
 
 ```bash

@@ -41,3 +41,9 @@ Use the user's cPanel hosting with SSH access for backend, web and admin deploym
 **Date:** 2026-09-15
 
 Maintain project status, roadmap, tasks, changelog, bugs, decisions and deployment history in version control.
+
+## ADR-008 — Gmail email verification
+**Status:** Accepted
+**Date:** 2026-09-15
+
+Use Laravel signed email-verification links delivered through Gmail SMTP for account verification. Email is required at registration; mobile number remains optional. Firebase Authentication and mobile OTP verification are not part of the current account-verification flow. Firebase may still be evaluated separately for future push notifications.

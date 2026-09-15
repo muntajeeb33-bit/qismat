@@ -17,16 +17,18 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'email' => ['nullable', 'email', 'max:190', 'unique:users,email', 'required_without:phone'],
-            'phone' => ['nullable', 'string', 'max:30', 'unique:users,phone', 'required_without:email'],
+            'email' => ['required', 'email', 'max:190', 'unique:users,email'],
+            'phone' => ['nullable', 'string', 'max:30', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user = User::create($data + ['status' => 'active']);
+        $user->sendEmailVerificationNotification();
 
         return $this->success([
             'user' => $user,
             'token' => $user->createToken('qismat')->plainTextToken,
+            'email_verification_required' => true,
         ], 'Registration successful.', 201);
     }
 

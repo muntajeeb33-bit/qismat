@@ -1,0 +1,77 @@
+name: cPanel Preflight
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [foundation/initial-platform]
+    paths: ['.github/workflows/cpanel-preflight.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  verify-host:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required secrets
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        run: |
+          test -n "$HOST"
+          test -n "$USER"
+          test -n "$SSH_KEY"
+          test -n "$DATABASE_NAME"
+          test -n "$DATABASE_USER"
+          test -n "$DATABASE_PASSWORD"
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_preflight
+          chmod 600 ~/.ssh/qismat_preflight
+          ssh-keyscan -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
+
+      - name: Check server versions
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+        run: |
+          ssh -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
+            'php -v && composer --version && (mysql --version || mariadb --version) && node -v && npm -v && git --version'
+
+      - name: Check database credentials
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          REMOTE_CREDENTIAL_FILE: /tmp/qismat-db-check-${{ github.run_id }}.cnf
+        run: |
+          printf '[client]\nuser=%s\npassword=%s\nhost=localhost\n' "$DATABASE_USER" "$DATABASE_PASSWORD" > database-check.cnf
+          chmod 600 database-check.cnf
+          scp -i ~/.ssh/qismat_preflight -P "${PORT:-22}" database-check.cnf "$USER@$HOST:$REMOTE_CREDENTIAL_FILE"
+          ssh -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" \
+            "chmod 600 '$REMOTE_CREDENTIAL_FILE' && (mysql --defaults-extra-file='$REMOTE_CREDENTIAL_FILE' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok' || mariadb --defaults-extra-file='$REMOTE_CREDENTIAL_FILE' '$DATABASE_NAME' -e 'SELECT 1 AS connection_ok')"
+
+      - name: Remove temporary database credentials
+        if: always()
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          REMOTE_CREDENTIAL_FILE: /tmp/qismat-db-check-${{ github.run_id }}.cnf
+        run: |
+          rm -f database-check.cnf
+          ssh -i ~/.ssh/qismat_preflight -p "${PORT:-22}" "$USER@$HOST" "rm -f '$REMOTE_CREDENTIAL_FILE'" || true
