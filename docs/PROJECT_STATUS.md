@@ -53,7 +53,7 @@ Last updated: 2026-09-20
 ## In progress / next
 
 - [x] Firebase project/service-account configuration
-- [ ] Web and Flutter Firebase client integration
+- [ ] Web, admin and Android client integration, in that delivery phase
 - [ ] Profile photos and privacy rules
 - [ ] Partner preferences and recommendation engine
 - [ ] Search/filter APIs
@@ -64,7 +64,7 @@ Last updated: 2026-09-20
 - [ ] Admin authentication and profile moderation APIs/UI
 - [ ] Pin the cPanel SSH host key in GitHub Secrets
 - [ ] Add atomic releases and a tested staging rollback procedure
-- [ ] Xcode Cloud configuration
+- [ ] Xcode Cloud configuration after web, admin and Android stabilization
 
 ## Build identifiers
 
@@ -89,6 +89,10 @@ Last updated: 2026-09-20
 - cPanel deployment currently updates files in place and uses `ssh-keyscan`; atomic release switching and a pinned host key remain outstanding.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.
+
+## Delivery priority
+
+The active product phase completes member web and admin first while Android implements the same modules against the shared API. Native iOS implementation follows the stabilized feature set and uses Xcode Cloud for builds and releases.
 
 ## Rule
 

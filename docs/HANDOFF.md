@@ -7,8 +7,8 @@ Last updated: 2026-09-20
 - Upstream repository: `shihan84/qismat`
 - Working fork: `muntajeeb33-bit/qismat`
 - Active integration branch: `main`
-- Last verified staging release before this audit: `015fda1`
-- Staging deployment: GitHub Actions run `35520092827` passed
+- Last verified staging release: `dea4182`
+- Staging deployment: GitHub Actions run `35520740580` passed
 - Member site: `https://qismatconnections.com`
 - Admin site: `https://admin.qismatconnections.com`
 - Shared API: `https://admin.qismatconnections.com/api/v1`
@@ -47,15 +47,18 @@ The Laravel runtime is deployed to `CPANEL_API_PATH`, outside the admin document
 6. SSH host discovery currently uses `ssh-keyscan`. Replace it with a pinned `known_hosts` value stored in GitHub Secrets.
 7. Remove or redirect the obsolete `api.qismatconnections.com` DNS/subdomain after confirming no external client uses it.
 
-## Recommended next implementation sequence
+## Agreed delivery order
 
-1. Add admin Firebase login, enforce Laravel `role=admin` middleware and build moderation list/approve/reject endpoints.
-2. Connect member web and Flutter Firebase flows to `POST /api/v1/auth/firebase`; store Sanctum tokens securely and implement logout.
-3. Build member profile onboarding against the current profile/status endpoints.
-4. Add photo storage, moderation and visibility rules before broad discovery UI work.
-5. Connect discovery and interests, then implement favourites, reporting/blocking and mutual-match chat.
-6. Commit the iOS native project, configure Firebase iOS files through secure build settings and enable Xcode Cloud.
-7. Add atomic cPanel releases, pinned SSH host verification, backup/restore validation and a documented production release gate.
+Complete the member web application and admin dashboard first. Develop the Android application against the same shared API and module contracts during this phase. Start native iOS packaging after the web, admin and Android feature set is stable; build and release iOS through Xcode Cloud.
+
+1. Add admin Firebase login, enforce Laravel `role=admin` middleware and build moderation list/approve/reject endpoints and screens.
+2. Connect member web and Android Firebase flows to `POST /api/v1/auth/firebase`; store Sanctum tokens securely and implement logout and recovery.
+3. Build profile onboarding on web and Android against the current profile/status endpoints, with admin moderation support.
+4. Add photo storage, moderation and visibility rules across web, admin and Android.
+5. Connect discovery and interests, then implement favourites, reporting/blocking and mutual-match chat across web and Android.
+6. Complete responsive web/admin QA and Android release QA against the shared staging API.
+7. Commit the iOS native project, configure Firebase iOS files through secure build settings, reuse the stable API/module behavior and enable Xcode Cloud.
+8. Add atomic cPanel releases, pinned SSH host verification, backup/restore validation and a documented production release gate.
 
 ## Deployment and rollback notes
 
