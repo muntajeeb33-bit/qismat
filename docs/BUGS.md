@@ -4,6 +4,21 @@ Use this file for compact repository-level bug tracking. Larger bugs should also
 
 ## Open
 
+No open deployment-blocking defects. See `docs/HANDOFF.md` for incomplete product and release-engineering risks.
+
+## Resolved
+
+### DEPLOY-004 — API subdomain certificate hostname mismatch
+- Date found: 2026-09-16
+- Component: cPanel TLS / API health check
+- Severity: deployment-blocking
+- Environment/build: staging deployment run `35084466554`
+- Root cause: `api.qismatconnections.com` served a certificate valid only for `*.web-hosting.com` and `web-hosting.com`.
+- Fix: expose Laravel through the valid admin origin at `https://admin.qismatconnections.com/api/v1` and update every client/deployment endpoint.
+- Date resolved: 2026-09-20
+- Verification: staging run `35520092827` passed and the live JSON health endpoint returned HTTP 200 over verified TLS.
+- Resolution status: Resolved and verified.
+
 ### DEPLOY-003 — MariaDB rejects default indexed string length
 - Date found: 2026-09-15
 - Component: Laravel migrations / cPanel MariaDB
@@ -12,10 +27,10 @@ Use this file for compact repository-level bug tracking. Larger bugs should also
 - Reproduction: run the initial Laravel migrations against the cPanel MariaDB database.
 - Root cause: the server permits a maximum 1000-byte index, while Laravel's default 255-character `utf8mb4` indexed strings can require 1020 bytes.
 - Fix: use Laravel's 191-character default string length and allow the initial migration to resume safely around tables created before the failed DDL statement.
-- Commit/PR: pending
-- Resolution status: Fix implemented; staging verification pending.
-
-## Resolved
+- Commit/PR: `cdd3131`, upstream PR #3
+- Date resolved: 2026-09-20
+- Verification: all migrations completed during staging run `35520092827`.
+- Resolution status: Resolved and verified.
 
 ### DEPLOY-002 — cPanel database credentials are rejected
 - Date found: 2026-09-15

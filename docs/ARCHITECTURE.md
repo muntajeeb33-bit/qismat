@@ -57,11 +57,13 @@ Firebase Authentication handles client-side email/password registration, login, 
 
 ## Deployment model
 
-Suggested endpoints:
+Current staging endpoints:
 
-- `www.<domain>` — public/member website
-- `admin.<domain>` — admin dashboard
-- `api.<domain>` — backend API
+- `https://qismatconnections.com` — public/member website
+- `https://admin.qismatconnections.com` — admin dashboard
+- `https://admin.qismatconnections.com/api/v1` — shared API for web, admin, Android and iOS
+
+The Laravel application remains in a private cPanel application path. The admin document root contains a controlled rewrite gateway to Laravel's public front controller and a public-storage link. This avoids dependence on the unavailable `api.qismatconnections.com` certificate while preserving one API and one business-logic layer.
 
 All secrets stay in server environment variables, GitHub Secrets or Xcode Cloud environment/secrets. No production credentials are committed.
 
