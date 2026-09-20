@@ -1,1 +1,1 @@
-{"name":"@qismat/web","private":true,"version":"0.1.0","type":"module","scripts":{"dev":"vite","build":"vite build","preview":"vite preview"},"dependencies":{"@vitejs/plugin-react":"latest","vite":"latest","typescript":"latest","react":"latest","react-dom":"latest"},"devDependencies":{}}
+{"name":"@qismat/web","private":true,"version":"0.1.0","type":"module","scripts":{"dev":"vite","build":"vite build","preview":"vite preview"},"dependencies":{"@vitejs/plugin-react":"latest","firebase":"^12.3.0","react":"latest","react-dom":"latest","typescript":"latest","vite":"latest"}}

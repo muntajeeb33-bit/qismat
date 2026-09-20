@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { getCurrentUser, logoutApi, session } from './api';
+import { AuthPanel, MemberHome } from './auth';
+import { firebaseLogout } from './firebase';
 import './styles.css';
 
 const Arrow = () => <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg>;
@@ -19,6 +22,23 @@ function Brand() {
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [authMode, setAuthMode] = useState(null);
+  const [user, setUser] = useState(null);
+  const [restoring, setRestoring] = useState(Boolean(session.get()));
+
+  useEffect(() => {
+    if (!session.get()) return;
+    getCurrentUser().then(setUser).catch(() => session.clear()).finally(() => setRestoring(false));
+  }, []);
+
+  async function logout() {
+    await Promise.allSettled([logoutApi(), firebaseLogout()]);
+    setUser(null);
+  }
+
+  if (restoring) return <div className="member-loader">Restoring your session…</div>;
+  if (user) return <MemberHome user={user} onLogout={logout} />;
+
   return <div className="site-shell">
     <header className="header">
       <Brand />
@@ -27,9 +47,9 @@ function App() {
         <a href="#journey" onClick={() => setMenuOpen(false)}>How it works</a>
         <a href="#safety" onClick={() => setMenuOpen(false)}>Safety</a>
         <a href="#stories" onClick={() => setMenuOpen(false)}>Success stories</a>
-        <div className="mobile-actions"><button className="btn btn-quiet">Log in</button><button className="btn btn-primary">Join free</button></div>
+        <div className="mobile-actions"><button className="btn btn-quiet" onClick={() => setAuthMode('login')}>Log in</button><button className="btn btn-primary" onClick={() => setAuthMode('register')}>Join free</button></div>
       </nav>
-      <div className="header-actions"><button className="login-link">Log in</button><button className="btn btn-primary btn-small">Join free <Arrow /></button></div>
+      <div className="header-actions"><button className="login-link" onClick={() => setAuthMode('login')}>Log in</button><button className="btn btn-primary btn-small" onClick={() => setAuthMode('register')}>Join free <Arrow /></button></div>
       <button className="menu-button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label="Toggle menu"><span></span><span></span></button>
     </header>
 
@@ -39,7 +59,7 @@ function App() {
           <div className="eyebrow"><span></span> A thoughtful matrimonial experience for every community</div>
           <h1>Where beautiful<br />beginnings find <em>you.</em></h1>
           <p className="hero-lede">A modern, private and trusted way to meet someone who shares your values—and your vision for the future.</p>
-          <div className="hero-buttons"><button className="btn btn-primary btn-large">Create your profile <Arrow /></button><a className="text-link" href="#journey">See how it works <span>↓</span></a></div>
+          <div className="hero-buttons"><button className="btn btn-primary btn-large" onClick={() => setAuthMode('register')}>Create your profile <Arrow /></button><a className="text-link" href="#journey">See how it works <span>↓</span></a></div>
           <div className="trust-row"><div className="member-faces" aria-hidden="true"><span>✓</span><span>♡</span><span>Q</span><span>+</span></div><div><div className="stars">★★★★★</div><small>Built for thoughtful, verified connections</small></div></div>
         </div>
         <div className="hero-visual">
@@ -54,7 +74,7 @@ function App() {
         <label>I’m looking for<select defaultValue="Bride"><option>Bride</option><option>Groom</option></select></label>
         <label>Age<div className="age-fields"><select defaultValue="24"><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option></select><i>to</i><select defaultValue="30"><option>28</option><option>29</option><option>30</option><option>31</option><option>32</option><option>33</option></select></div></label>
         <label>Religion<select defaultValue="Select"><option disabled>Select</option><option>Hindu</option><option>Muslim</option><option>Sikh</option><option>Christian</option><option>Jain</option><option>Buddhist</option><option>Other</option></select></label>
-        <button className="btn btn-dark">View matches <Arrow /></button>
+        <button className="btn btn-dark" onClick={() => setAuthMode('register')}>View matches <Arrow /></button>
       </div></section>
 
       <section className="promise-strip"><span>Handpicked compatibility</span><i>✦</i><span>Privacy at every step</span><i>✦</i><span>Real, verified people</span><i>✦</i><span>Made for lasting love</span></section>
@@ -78,10 +98,11 @@ function App() {
         <div className="story-side"><span className="kicker">Stories written by fate</span><h2>One introduction can<br />change <em>everything.</em></h2><p>Every Qismat story begins with two people choosing to take a meaningful first step.</p><a className="text-link burgundy" href="#top">Read success stories <Arrow /></a></div>
       </section>
 
-      <section className="final-cta"><span className="cta-spark">✦</span><p className="kicker">Your person may be closer than you think</p><h2>Let your story<br /><em>begin.</em></h2><button className="btn btn-light btn-large">Join Qismat for free <Arrow /></button><small>It takes less than 5 minutes to create your profile.</small></section>
+      <section className="final-cta"><span className="cta-spark">✦</span><p className="kicker">Your person may be closer than you think</p><h2>Let your story<br /><em>begin.</em></h2><button className="btn btn-light btn-large" onClick={() => setAuthMode('register')}>Join Qismat for free <Arrow /></button><small>It takes less than 5 minutes to create your profile.</small></section>
     </main>
 
     <footer><div className="footer-brand"><Brand /><p>Meaningful matches.<br />Beautiful beginnings.</p></div><div className="footer-links"><div><strong>Discover</strong><a href="#discover">Find matches</a><a href="#stories">Success stories</a><a href="#journey">How it works</a></div><div><strong>Trust</strong><a href="#safety">Safety</a><a href="#safety">Privacy</a><a href="#safety">Help centre</a></div><div><strong>Company</strong><a href="#top">About Qismat</a><a href="#top">Contact</a><a href="#top">Careers</a></div></div><div className="footer-bottom"><span>© 2026 Qismat Connections. All rights reserved.</span><span>Made with care for meaningful connections.</span></div></footer>
+    {authMode && <AuthPanel initialMode={authMode} onClose={() => setAuthMode(null)} onAuthenticated={(member) => { setUser(member); setAuthMode(null); }} />}
   </div>;
 }
 

@@ -2,8 +2,9 @@
 
 ## In progress
 - [x] Add Firebase project/service-account configuration
-- [ ] Connect web and Android Firebase Authentication clients
-- [ ] Connect admin authentication and moderation UI to Laravel
+- [ ] Deploy and verify web Firebase Authentication
+- [ ] Connect Android Firebase Authentication client
+- [ ] Deploy and verify admin authentication and moderation UI
 
 ## Delivery order
 - [ ] Complete member web modules
@@ -59,3 +60,5 @@
 - [x] Require Firebase-verified email before local account synchronization
 - [x] Route the shared API through `admin.qismatconnections.com/api/v1`
 - [x] Deploy and smoke-test cPanel staging
+- [x] Implement web registration, verification, login, recovery and Laravel session exchange
+- [x] Implement admin login, role enforcement, moderation queue and approve/reject audit trail

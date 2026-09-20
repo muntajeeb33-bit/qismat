@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Added Firebase email registration, verification, login and password recovery to the member website.
+- Added Firebase admin login with server-enforced active-admin authorization.
+- Added admin dashboard counts, a pending-profile moderation queue and audited approve/reject decisions.
+- Added the `qismat:admin` console command for controlled administrator provisioning and session revocation.
+- Added Firebase client configuration to the staging deployment workflow.
+
 All notable changes to Qismat will be recorded here.
 
 ## [Unreleased] - 2026-09-20

@@ -18,7 +18,7 @@ The Laravel runtime is deployed to `CPANEL_API_PATH`, outside the admin document
 
 ## Verified behavior
 
-- The Laravel suite passes with 21 tests and 82 assertions; backend CI, web/admin builds and Android build are green.
+- The Laravel suite passes with 27 tests and 104 assertions; backend CI, web/admin builds and Android build are green.
 - Web and admin dependency audits report no known vulnerabilities.
 - Admin and member sites return HTTP 200 over valid TLS.
 - The shared health endpoint returns the expected `qismat-api` JSON response.
@@ -39,8 +39,8 @@ The Laravel runtime is deployed to `CPANEL_API_PATH`, outside the admin document
 
 ## Material gaps
 
-1. Web, admin and Flutter are still visual shells. API base URLs are configured, but login, onboarding, discovery and moderation screens do not yet call the API.
-2. Admin authentication, role middleware, moderation endpoints and audit UI are not implemented. Never treat the current static admin page as an authorization boundary.
+1. Web and admin authentication plus the admin moderation queue are implemented in the current feature branch. They require the Firebase Web API key deployment secret and live verification before this gap is closed. Profile editing, discovery and the remaining member screens are still incomplete.
+2. Android remains a visual shell and does not yet authenticate or call the profile APIs.
 3. Photo upload/moderation, partner preferences, favourites, reports, blocking, chat, notifications, subscriptions and payments remain incomplete.
 4. The iOS native project is not committed and Xcode Cloud is not active.
 5. Deployment updates files in place. Atomic release directories, rollback switching and a tested database rollback procedure are still required.
@@ -66,4 +66,6 @@ Relevant upstream `main` changes automatically run `.github/workflows/deploy-cpa
 
 For application rollback, redeploy a known-good Git ref through the manual workflow input. Do not reverse database migrations automatically. Review each migration, restore from a tested backup when required, and record the result in `docs/DEPLOYMENT_LOG.md`.
 
-Required GitHub secrets are `CPANEL_HOST`, `CPANEL_USER`, `CPANEL_PORT`, `CPANEL_SSH_KEY`, `CPANEL_SSH_KEY_PASSPHRASE`, `CPANEL_API_PATH`, `CPANEL_WEB_PATH`, `CPANEL_ADMIN_PATH`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `FIREBASE_PROJECT_ID`, `FIREBASE_SERVICE_ACCOUNT_JSON` and `LARAVEL_APP_KEY`. Values must never be copied into repository files or handoff messages.
+Required GitHub secrets are `CPANEL_HOST`, `CPANEL_USER`, `CPANEL_PORT`, `CPANEL_SSH_KEY`, `CPANEL_SSH_KEY_PASSPHRASE`, `CPANEL_API_PATH`, `CPANEL_WEB_PATH`, `CPANEL_ADMIN_PATH`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON` and `LARAVEL_APP_KEY`. Values must never be copied into repository files or handoff messages.
+
+Create or promote the first admin only from the server console after the Firebase account has signed in once: `php artisan qismat:admin admin@example.com`. The command revokes existing API sessions when the role changes. Never add a public role-assignment endpoint.

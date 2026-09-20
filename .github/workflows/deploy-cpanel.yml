@@ -45,6 +45,7 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           LARAVEL_APP_KEY: ${{ secrets.LARAVEL_APP_KEY }}
         run: |
@@ -59,6 +60,7 @@ jobs:
           test -n "$DATABASE_USER"
           test -n "$DATABASE_PASSWORD"
           test -n "$FIREBASE_PROJECT_ID"
+          test -n "$FIREBASE_WEB_API_KEY"
           test -n "$FIREBASE_SERVICE_ACCOUNT_JSON"
           test -n "$LARAVEL_APP_KEY"
 
@@ -82,6 +84,9 @@ jobs:
         working-directory: web
         env:
           VITE_API_BASE_URL: https://admin.qismatconnections.com/api/v1
+          VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_PROJECT_ID }}.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         run: |
           npm ci
           npm run build
@@ -90,6 +95,9 @@ jobs:
         working-directory: admin
         env:
           VITE_API_BASE_URL: /api/v1
+          VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_PROJECT_ID }}.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         run: |
           npm ci
           npm run build
