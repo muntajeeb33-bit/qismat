@@ -2,8 +2,15 @@
 
 ## In progress
 - [x] Add Firebase project/service-account configuration
-- [ ] Connect web and Flutter Firebase Authentication clients
+- [ ] Connect web and Android Firebase Authentication clients
 - [ ] Connect admin authentication and moderation UI to Laravel
+
+## Delivery order
+- [ ] Complete member web modules
+- [ ] Complete admin modules and moderation operations
+- [ ] Complete Android modules against the shared API
+- [ ] Stabilize shared behavior and complete cross-platform QA
+- [ ] Build and release the native iOS client through Xcode Cloud
 
 ## Next
 - [ ] Firebase client registration/login/verification/password recovery
@@ -29,7 +36,7 @@
 - [x] staging configuration and successful deployment
 - [ ] Pin cPanel SSH host key and add atomic release rollback
 - [ ] production configuration
-- [ ] Xcode Cloud setup notes
+- [ ] Xcode Cloud setup after web, admin and Android stabilization
 
 ## Completed
 - [x] Confirm `shihan84/qismat` repository access
