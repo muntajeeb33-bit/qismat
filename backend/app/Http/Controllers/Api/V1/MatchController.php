@@ -14,7 +14,7 @@ class MatchController extends Controller
     public function index(Request $r)
     {
         $me = $r->user();
-        $q = Profile::query()->where('user_id', '!=', $me->id)->where('visibility', '!=', 'hidden')->whereHas('user', fn ($u) => $u->where('status', 'active'));
+        $q = Profile::query()->where('user_id', '!=', $me->id)->where('visibility', '!=', 'hidden')->where('moderation_status', 'approved')->where('discovery_opt_in', true)->whereNotNull('date_of_birth')->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())->whereHas('user', fn ($u) => $u->where('status', 'active')->whereNotNull('email_verified_at'));
         if ($gender = $r->string('gender')->toString()) {
             $q->where('gender', $gender);
         }

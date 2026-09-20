@@ -29,7 +29,10 @@ Authentication and verification, matrimonial profiles, photos, family/education/
 
 ## Hosting targets
 
-- Production backend/web: cPanel hosting with SSH access
+- Member website: `https://qismatconnections.com`
+- Admin panel and shared API gateway: `https://admin.qismatconnections.com`
+- Shared API base URL for web, admin, Android and iOS: `https://admin.qismatconnections.com/api/v1`
+- Laravel runtime: private cPanel path deployed over SSH and exposed only through the admin gateway
 - Database: MySQL/MariaDB
 - Android builds: GitHub Actions
 - iOS builds: Xcode Cloud
