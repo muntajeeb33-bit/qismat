@@ -43,7 +43,7 @@ class ProfileController extends Controller
         );
 
         // Any change to reviewed public information requires a fresh moderation decision.
-        if ($profile->wasChanged(['display_name', 'gender', 'date_of_birth', 'marital_status', 'religion', 'community', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation', 'about_me', 'partner_expectations']) && $profile->moderation_status === 'approved') {
+        if ($profile->wasChanged(['display_name', 'gender', 'date_of_birth', 'marital_status', 'religion', 'community', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation', 'about_me', 'partner_expectations']) && in_array($profile->moderation_status, ['approved', 'pending'], true)) {
             $profile->forceFill(['moderation_status' => 'draft', 'discovery_opt_in' => false, 'approved_at' => null])->save();
         }
 
