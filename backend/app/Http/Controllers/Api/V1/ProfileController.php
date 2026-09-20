@@ -19,8 +19,9 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $data = $request->validate([
+            'display_name' => ['sometimes', 'string', 'max:120'],
             'gender' => ['sometimes', 'in:male,female,other'],
-            'date_of_birth' => ['sometimes', 'date', 'before:-18 years'],
+            'date_of_birth' => ['sometimes', 'date', 'before_or_equal:'.now()->subYears(18)->toDateString()],
             'height_cm' => ['sometimes', 'integer', 'between:100,250'],
             'marital_status' => ['sometimes', 'string', 'max:40'],
             'religion' => ['sometimes', 'nullable', 'string', 'max:80'],
@@ -41,7 +42,12 @@ class ProfileController extends Controller
             $data + ['profile_code' => $existingProfile?->profile_code ?? $this->newProfileCode()]
         );
 
-        return $this->success($profile, 'Profile updated successfully.');
+        // Any change to reviewed public information requires a fresh moderation decision.
+        if ($profile->wasChanged(['display_name', 'gender', 'date_of_birth', 'marital_status', 'religion', 'community', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation', 'about_me', 'partner_expectations']) && $profile->moderation_status === 'approved') {
+            $profile->forceFill(['moderation_status' => 'draft', 'discovery_opt_in' => false, 'approved_at' => null])->save();
+        }
+
+        return $this->success($profile->refresh(), 'Profile updated successfully.');
     }
 
     private function newProfileCode(): string
