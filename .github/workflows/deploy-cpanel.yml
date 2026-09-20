@@ -1,6 +1,8 @@
 name: Deploy cPanel Staging
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
@@ -13,11 +15,12 @@ permissions:
 
 jobs:
   build-and-deploy:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'shihan84/qismat'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
 
       - name: Validate deployment secrets
         env:
@@ -67,12 +70,16 @@ jobs:
 
       - name: Build member web
         working-directory: web
+        env:
+          VITE_API_BASE_URL: https://admin.qismatconnections.com/api/v1
         run: |
           npm ci
           npm run build
 
       - name: Build admin
         working-directory: admin
+        env:
+          VITE_API_BASE_URL: /api/v1
         run: |
           npm ci
           npm run build
@@ -130,7 +137,7 @@ jobs:
               "APP_ENV" => "production",
               "APP_KEY" => getenv("LARAVEL_APP_KEY"),
               "APP_DEBUG" => "false",
-              "APP_URL" => "https://api.qismatconnections.com",
+              "APP_URL" => "https://admin.qismatconnections.com",
               "LOG_CHANNEL" => "stack",
               "LOG_LEVEL" => "warning",
               "DB_CONNECTION" => "mysql",
@@ -221,7 +228,43 @@ jobs:
           ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
         run: |
           rsync -az --delete --exclude='.well-known/' --exclude='cgi-bin/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" web/dist/ "$USER@$HOST:$WEB_PATH/"
-          rsync -az --delete --exclude='.well-known/' --exclude='cgi-bin/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" admin/dist/ "$USER@$HOST:$ADMIN_PATH/"
+          rsync -az --delete \
+            --exclude='.well-known/' \
+            --exclude='cgi-bin/' \
+            --exclude='_qismat_api.php' \
+            --exclude='storage' \
+            -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
+            admin/dist/ "$USER@$HOST:$ADMIN_PATH/"
+
+      - name: Integrate API with admin domain
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
+        run: |
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            bash -s -- "$API_PATH" "$ADMIN_PATH" <<'REMOTE'
+          set -e
+          api_path="$1"
+          admin_path="$2"
+
+          test -f "$api_path/public/index.php"
+          test -d "$api_path/storage/app/public"
+
+          if [ -e "$admin_path/_qismat_api.php" ] && [ ! -L "$admin_path/_qismat_api.php" ]; then
+            echo "Refusing to replace non-symlink: $admin_path/_qismat_api.php" >&2
+            exit 1
+          fi
+          if [ -e "$admin_path/storage" ] && [ ! -L "$admin_path/storage" ]; then
+            echo "Refusing to replace non-symlink: $admin_path/storage" >&2
+            exit 1
+          fi
+
+          ln -sfn "$api_path/public/index.php" "$admin_path/_qismat_api.php"
+          ln -sfn "$api_path/storage/app/public" "$admin_path/storage"
+          REMOTE
 
       - name: Verify API health
-        run: curl --fail --show-error --silent --retry 5 --retry-delay 3 https://api.qismatconnections.com/up > /dev/null
+        run: curl --fail --show-error --silent --retry 5 --retry-delay 3 https://admin.qismatconnections.com/api/v1/health > /dev/null
