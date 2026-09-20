@@ -12,10 +12,26 @@ class InterestTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function makeDiscoverable(User $user): void
+    {
+        $user->profile()->create([
+            'profile_code' => 'QSM'.str_pad((string) $user->id, 9, '0', STR_PAD_LEFT),
+            'display_name' => 'Available Member',
+            'date_of_birth' => now()->subYears(25)->toDateString(),
+            'country' => 'CA',
+            'city' => 'Toronto',
+            'about_me' => 'A complete profile available for discovery.',
+            'visibility' => 'members',
+            'moderation_status' => 'approved',
+            'discovery_opt_in' => true,
+        ]);
+    }
+
     public function test_duplicate_interests_are_prevented_and_only_one_activity_is_recorded(): void
     {
         $sender = User::factory()->create();
         $receiver = User::factory()->create();
+        $this->makeDiscoverable($receiver);
         Sanctum::actingAs($sender);
 
         $payload = ['receiver_id' => $receiver->id, 'message' => 'Would like to connect.'];
@@ -30,6 +46,20 @@ class InterestTest extends TestCase
 
         $this->assertDatabaseCount('interests', 1);
         $this->assertDatabaseCount('activity_logs', 1);
+    }
+
+    public function test_interest_cannot_bypass_profile_discovery_rules(): void
+    {
+        $sender = User::factory()->create();
+        $receiver = User::factory()->create();
+        Sanctum::actingAs($sender);
+
+        $this->postJson('/api/v1/interests', ['receiver_id' => $receiver->id])
+            ->assertNotFound();
+
+        $this->makeDiscoverable($receiver);
+        $this->postJson('/api/v1/interests', ['receiver_id' => $receiver->id])
+            ->assertCreated();
     }
 
     public function test_only_the_receiver_can_accept_an_interest(): void

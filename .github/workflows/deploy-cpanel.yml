@@ -3,6 +3,12 @@ name: Deploy cPanel Staging
 on:
   push:
     branches: [main]
+    paths:
+      - 'backend/**'
+      - 'web/**'
+      - 'admin/**'
+      - '.github/scripts/**'
+      - '.github/workflows/deploy-cpanel.yml'
   workflow_dispatch:
     inputs:
       ref:
@@ -12,6 +18,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: cpanel-staging
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -267,4 +277,14 @@ jobs:
           REMOTE
 
       - name: Verify API health
-        run: curl --fail --show-error --silent --retry 5 --retry-delay 3 https://admin.qismatconnections.com/api/v1/health > /dev/null
+        run: |
+          health_file="$RUNNER_TEMP/qismat-api-health.json"
+          curl --fail --show-error --silent --retry 5 --retry-delay 3 \
+            https://admin.qismatconnections.com/api/v1/health > "$health_file"
+          php -r '
+          $payload = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+          if (($payload["success"] ?? null) !== true || ($payload["data"]["service"] ?? null) !== "qismat-api") {
+              fwrite(STDERR, "Unexpected API health response".PHP_EOL);
+              exit(1);
+          }
+          ' "$health_file"

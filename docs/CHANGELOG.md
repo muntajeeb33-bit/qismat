@@ -2,6 +2,22 @@
 
 All notable changes to Qismat will be recorded here.
 
+## [Unreleased] - 2026-09-20
+
+### Added
+- Profile onboarding, moderation state and explicit discovery opt-in APIs.
+- Shared API gateway at `https://admin.qismatconnections.com/api/v1`.
+- Client endpoint configuration for web, admin, Android and iOS.
+- Automatic cPanel staging deployment for relevant upstream `main` changes.
+
+### Fixed
+- Corrected active-member defaults in backend factories.
+- Prevented direct interests from bypassing profile discovery eligibility.
+- Cleared stale submission timestamps when reviewed profile data changes.
+- Validated match age and demographic filters.
+- Serialized staging deployments and made the health check validate the expected JSON service response.
+- Avoided the invalid `api.qismatconnections.com` TLS certificate.
+
 ## [0.1.0-dev] - 2026-09-15
 
 ### Added

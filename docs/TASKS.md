@@ -3,14 +3,15 @@
 ## In progress
 - [x] Add Firebase project/service-account configuration
 - [ ] Connect web and Flutter Firebase Authentication clients
+- [ ] Connect admin authentication and moderation UI to Laravel
 
 ## Next
 - [ ] Firebase client registration/login/verification/password recovery
-- [ ] Profile CRUD APIs
+- [x] Profile CRUD and onboarding-state APIs
 - [ ] Photo upload/storage rules
 - [ ] Partner preference model
 - [ ] Search/filter API
-- [ ] Interest workflow
+- [x] Interest send/respond API foundation
 - [ ] Shortlist/favourites
 - [ ] Matching/recommendation service
 - [ ] Chat foundation
@@ -25,7 +26,8 @@
 - [x] Backend/web CI checks
 - [x] cPanel deploy workflow with CI-built Laravel dependencies
 - [x] cPanel SSH/database preflight workflow
-- [ ] staging configuration
+- [x] staging configuration and successful deployment
+- [ ] Pin cPanel SSH host key and add atomic release rollback
 - [ ] production configuration
 - [ ] Xcode Cloud setup notes
 
@@ -48,3 +50,5 @@
 - [x] Add Laravel Firebase ID-token verification middleware
 - [x] Add Firebase-to-Sanctum token exchange API
 - [x] Require Firebase-verified email before local account synchronization
+- [x] Route the shared API through `admin.qismatconnections.com/api/v1`
+- [x] Deploy and smoke-test cPanel staging

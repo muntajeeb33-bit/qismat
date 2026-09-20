@@ -1,24 +1,24 @@
 # Qismat Project Status
 
-Last updated: 2026-09-15
+Last updated: 2026-09-20
 
 ## Overall
 
-**Phase:** Foundation implementation
-**Overall progress:** 27%
+**Phase:** Identity and profile foundation
+**Overall progress:** 35%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 50% |
+| Backend/API | In progress | 60% |
 | Website | In progress | 20% |
 | Admin dashboard | In progress | 20% |
 | Flutter mobile app | In progress | 20% |
-| Android CI/CD | In progress | 40% |
+| Android CI/CD | In progress | 60% |
 | iOS/Xcode Cloud | Planned | 5% |
-| cPanel deployment | In progress | 12% |
-| QA/security | In progress | 15% |
+| cPanel deployment | Staging operational | 75% |
+| QA/security | In progress | 25% |
 
 ## Completed in current foundation batch
 
@@ -45,10 +45,14 @@ Last updated: 2026-09-15
 - [x] Firebase ID-token verification middleware and Sanctum exchange API
 - [x] Firebase-verified-email enforcement before user synchronization
 - [x] cPanel SSH/database preflight workflow
+- [x] Profile onboarding, moderation state and explicit discovery opt-in API
+- [x] Shared API gateway at `admin.qismatconnections.com/api/v1`
+- [x] Successful cPanel staging deployment with database migrations and HTTPS health verification
+- [x] Web, admin, backend and Android checks passing for the deployed release
 
 ## In progress / next
 
-- [ ] Firebase project/service-account configuration
+- [x] Firebase project/service-account configuration
 - [ ] Web and Flutter Firebase client integration
 - [ ] Profile photos and privacy rules
 - [ ] Partner preferences and recommendation engine
@@ -57,7 +61,9 @@ Last updated: 2026-09-15
 - [ ] Conversations/messages after mutual acceptance
 - [ ] Block/report/moderation APIs
 - [ ] Connect web/admin/mobile shells to API
-- [ ] cPanel staging deployment
+- [ ] Admin authentication and profile moderation APIs/UI
+- [ ] Pin the cPanel SSH host key in GitHub Secrets
+- [ ] Add atomic releases and a tested staging rollback procedure
 - [ ] Xcode Cloud configuration
 
 ## Build identifiers
@@ -70,14 +76,17 @@ Last updated: 2026-09-15
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | migration `2026_09_15_000400` plus Sanctum migration `2026_09_15_043815` |
+| Database schema | through migration `2026_09_20_000100` |
 
-## Major blockers
+## Major blockers and risks
 
 - cPanel SSH, PHP 8.2, MariaDB client and Git are verified. Server Composer and Node.js are unavailable, so deployable artifacts are built in GitHub Actions.
 - MariaDB authentication and database access are verified by the cPanel preflight.
 - `CPANEL_API_PATH`, Firebase credentials and the persistent `LARAVEL_APP_KEY` are configured.
-- First staging deployment awaits merge of PR #1 because GitHub only dispatches manual workflows that exist on the default branch.
+- Staging is deployed and healthy through the admin-domain gateway.
+- Client applications remain UI shells; endpoint constants alone do not implement login, profiles, matching or moderation screens.
+- The admin panel has no admin authentication or authorization flow yet.
+- cPanel deployment currently updates files in place and uses `ssh-keyscan`; atomic release switching and a pinned host key remain outstanding.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.
 

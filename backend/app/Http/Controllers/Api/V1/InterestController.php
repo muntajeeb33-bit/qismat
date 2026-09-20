@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\V1\Concerns\RespondsWithJson;
 use App\Http\Controllers\Controller;
 use App\Models\Interest;
+use App\Models\Profile;
 use App\Services\ActivityTracker;
 use Illuminate\Http\Request;
 
@@ -25,6 +26,18 @@ class InterestController extends Controller
     public function store(Request $r, ActivityTracker $tracker)
     {
         $data = $r->validate(['receiver_id' => ['required', 'integer', 'exists:users,id', 'not_in:'.$r->user()->id], 'message' => ['nullable', 'string', 'max:500']]);
+        $receiverIsDiscoverable = Profile::query()
+            ->where('user_id', $data['receiver_id'])
+            ->where('visibility', '!=', 'hidden')
+            ->where('moderation_status', 'approved')
+            ->where('discovery_opt_in', true)
+            ->whereNotNull('date_of_birth')
+            ->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())
+            ->whereHas('user', fn ($query) => $query->where('status', 'active')->whereNotNull('email_verified_at'))
+            ->exists();
+
+        abort_unless($receiverIsDiscoverable, 404, 'Profile not found.');
+
         $interest = Interest::firstOrCreate(
             ['sender_id' => $r->user()->id, 'receiver_id' => $data['receiver_id']],
             ['message' => $data['message'] ?? null, 'status' => 'pending']

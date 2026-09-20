@@ -21,5 +21,5 @@
 5. Run `php artisan migrate:status`, backend tests, API health check and manual authenticated flow: save a draft, submit for review, verify hidden status, simulate an authorized approval, enable/disable discovery. Check logs, storage access and CORS.
 6. Monitor staging, verify rollback, and only then schedule a separately approved production release.
 
-## No live deployment in this branch
-GitHub commits do not update the live cPanel host. Production migration, staging dispatch, and release decisions remain separate actions; do not claim the hosted website or apps are updated until deployment and smoke tests succeed.
+## Deployment status
+The feature and admin-domain API gateway reached cPanel staging on 2026-09-20. Deployment run `35520092827`, database migrations, the JSON API health check and direct HTTPS smoke tests passed. Production remains a separate release requiring backup, rollback validation and explicit authorization.

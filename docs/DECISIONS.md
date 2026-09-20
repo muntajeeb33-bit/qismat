@@ -53,3 +53,9 @@ Use Laravel signed email-verification links delivered through Gmail SMTP for acc
 **Date:** 2026-09-15
 
 Use Firebase Authentication on web/mobile for email/password registration, login, verification emails and password recovery. Clients send Firebase ID tokens to the Laravel API. Laravel verifies the token server-side, synchronizes the Qismat user by Firebase UID and issues a Sanctum token for Qismat API authorization. Business data and authorization remain in Laravel/MySQL.
+
+## ADR-010 — Shared API gateway on the admin origin
+**Status:** Accepted
+**Date:** 2026-09-20
+
+Expose the shared Laravel API at `https://admin.qismatconnections.com/api/v1`. Keep the Laravel runtime outside the public admin directory and route only `/api/*` to its public front controller. The member website and Flutter clients use the same endpoint. This replaces the planned `api.qismatconnections.com` endpoint because cPanel serves an unrelated `*.web-hosting.com` certificate for that hostname.

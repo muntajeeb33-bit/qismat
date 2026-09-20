@@ -83,7 +83,8 @@ class ProfileOnboardingTest extends TestCase
 
         $this->putJson('/api/v1/profile', ['about_me' => 'An updated biography.'])
             ->assertOk()->assertJsonPath('data.moderation_status', 'draft')
-            ->assertJsonPath('data.discovery_opt_in', false);
+            ->assertJsonPath('data.discovery_opt_in', false)
+            ->assertJsonPath('data.submitted_at', null);
     }
 
     public function test_other_profiles_are_not_discoverable_without_approval_and_opt_in(): void
@@ -97,5 +98,13 @@ class ProfileOnboardingTest extends TestCase
 
         $profile->forceFill(['moderation_status' => 'approved', 'discovery_opt_in' => true])->save();
         $this->getJson('/api/v1/matches')->assertOk()->assertJsonCount(1, 'data.data');
+    }
+
+    public function test_match_filters_reject_invalid_age_ranges(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->getJson('/api/v1/matches?min_age=17')->assertUnprocessable();
+        $this->getJson('/api/v1/matches?min_age=40&max_age=30')->assertUnprocessable();
     }
 }
