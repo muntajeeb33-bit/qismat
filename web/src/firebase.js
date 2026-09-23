@@ -14,13 +14,24 @@ export const auth = app ? getAuth(app) : null;
 function readableError(error) {
   const messages = {
     'auth/email-already-in-use': 'An account already exists for this email.',
+    'auth/operation-not-allowed': 'Email and password registration is not enabled.',
+    'auth/unauthorized-domain': 'This website domain is not authorized for Firebase sign-in.',
+    'auth/user-disabled': 'This account has been disabled.',
     'auth/invalid-credential': 'The email or password is incorrect.',
+    'auth/invalid-login-credentials': 'The email or password is incorrect.',
+    'auth/user-not-found': 'The email or password is incorrect.',
+    'auth/wrong-password': 'The email or password is incorrect.',
     'auth/invalid-email': 'Enter a valid email address.',
+    'auth/missing-password': 'Enter your password.',
     'auth/weak-password': 'Choose a stronger password with at least eight characters.',
     'auth/too-many-requests': 'Too many attempts. Please wait and try again.',
     'auth/network-request-failed': 'Check your connection and try again.',
+    'auth/api-key-not-valid': 'Firebase configuration is invalid. Please contact support.',
+    'auth/invalid-api-key': 'Firebase configuration is invalid. Please contact support.',
+    'auth/internal-error': 'Firebase encountered an internal error. Please try again.',
   };
-  return new Error(messages[error?.code] || 'Authentication could not be completed.');
+  const code = error?.code || 'unknown-error';
+  return new Error(messages[code] || `Authentication could not be completed (${code}).`);
 }
 
 function requireAuth() {
