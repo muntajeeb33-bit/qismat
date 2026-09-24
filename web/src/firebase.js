@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './api';
 import { getApp, getApps, initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 
 export const firebaseConfigured = Boolean(API_BASE_URL);
 const socialConfig = {
@@ -45,26 +45,18 @@ export async function firebaseResetPassword(email) {
   await firebaseRequest('password-reset', { email });
 }
 
-export async function firebaseSocialLogin(providerName) {
+export async function firebaseGoogleLogin() {
   if (!socialAuth) throw new Error('Social sign-in is not configured for this environment.');
 
-  const provider = providerName === 'apple'
-    ? new OAuthProvider('apple.com')
-    : new GoogleAuthProvider();
-
-  if (providerName === 'apple') {
-    provider.addScope('email');
-    provider.addScope('name');
-  } else {
-    provider.setCustomParameters({ prompt: 'select_account' });
-  }
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
 
   try {
     const credential = await signInWithPopup(socialAuth, provider);
     return credential.user.getIdToken(true);
   } catch (error) {
     const messages = {
-      'auth/operation-not-allowed': `${providerName === 'apple' ? 'Apple' : 'Google'} sign-in is not enabled in Firebase yet.`,
+      'auth/operation-not-allowed': 'Google sign-in is not enabled in Firebase yet.',
       'auth/unauthorized-domain': 'This website domain is not authorized for social sign-in.',
       'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups and try again.',
       'auth/popup-closed-by-user': 'The sign-in window was closed before completion.',
