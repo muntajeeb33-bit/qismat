@@ -33,16 +33,6 @@
   font-weight: 800;
 }
 
-.social-button.apple {
-  border-color: #171315;
-  background: #171315;
-  color: #fff;
-}
-
-.social-button.apple:hover {
-  background: #2c2729;
-}
-
 .auth-divider {
   display: flex;
   align-items: center;
