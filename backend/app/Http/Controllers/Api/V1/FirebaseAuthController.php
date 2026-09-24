@@ -135,6 +135,10 @@ class FirebaseAuthController extends Controller
 
         $response = Http::acceptJson()
             ->asJson()
+            ->withHeaders([
+                'Origin' => (string) config('app.frontend_url', 'https://qismatconnections.com'),
+                'Referer' => rtrim((string) config('app.frontend_url', 'https://qismatconnections.com'), '/').'/',
+            ])
             ->timeout(15)
             ->post("https://identitytoolkit.googleapis.com/v1/accounts:{$action}?key=".urlencode($apiKey), $payload);
 
