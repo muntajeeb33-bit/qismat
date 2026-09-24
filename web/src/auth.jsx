@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { exchangeFirebaseToken, getOnboardingStatus } from './api';
-import { firebaseConfigured, firebaseLogin, firebaseRegister, firebaseResetPassword } from './firebase';
+import { firebaseConfigured, firebaseLogin, firebaseRegister, firebaseResetPassword, firebaseSocialLogin, socialLoginConfigured } from './firebase';
 import './auth.css';
+import './social-auth.css';
 
 export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
   const [mode, setMode] = useState(initialMode);
@@ -38,11 +39,26 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
     finally { setBusy(false); }
   }
 
+  async function socialLogin(provider) {
+    setBusy(true); setMessage(''); setSuccess(false);
+    try {
+      const idToken = await firebaseSocialLogin(provider);
+      const data = await exchangeFirebaseToken(idToken);
+      onAuthenticated(data.user);
+    } catch (error) { setMessage(error.message || 'Unable to continue with social sign-in.'); }
+    finally { setBusy(false); }
+  }
+
   return <div className="auth-backdrop" role="dialog" aria-modal="true" aria-label="Member access"><section className="auth-panel">
     <button className="auth-close" onClick={onClose} aria-label="Close">×</button>
     <span className="kicker">Member access</span><h2>{mode === 'register' ? 'Create your Qismat account' : 'Welcome back'}</h2>
     <p>{mode === 'register' ? 'Start with a verified email. Your profile remains private until you complete it and opt into discovery.' : 'Sign in to continue your profile and connections.'}</p>
     {!firebaseConfigured && <div className="auth-notice error">Sign-in is not configured for this environment.</div>}
+    <div className="social-login">
+      <button type="button" className="social-button google" onClick={() => socialLogin('google')} disabled={busy || !socialLoginConfigured}><span aria-hidden="true">G</span>Continue with Google</button>
+      <button type="button" className="social-button apple" onClick={() => socialLogin('apple')} disabled={busy || !socialLoginConfigured}><span aria-hidden="true">●</span>Continue with Apple</button>
+    </div>
+    <div className="auth-divider"><span>or continue with email</span></div>
     <form onSubmit={submit}>
       {mode === 'register' && <label>Full name<input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required /></label>}
       <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
