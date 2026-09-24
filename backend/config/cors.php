@@ -5,6 +5,7 @@ return [
     'allowed_methods' => ['*'],
     'allowed_origins' => array_values(array_filter([
         env('FRONTEND_URL', 'http://localhost:5173'),
+        env('FRONTEND_WWW_URL', 'https://www.qismatconnections.com'),
         env('ADMIN_URL', 'http://localhost:5174'),
     ])),
     'allowed_origins_patterns' => [],

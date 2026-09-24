@@ -173,6 +173,7 @@ jobs:
               "FIREBASE_CREDENTIALS" => getenv("API_PATH")."/.secrets/firebase-service-account.json",
               "FILESYSTEM_DISK" => "public",
               "FRONTEND_URL" => "https://qismatconnections.com",
+              "FRONTEND_WWW_URL" => "https://www.qismatconnections.com",
               "ADMIN_URL" => "https://admin.qismatconnections.com",
               "SANCTUM_STATEFUL_DOMAINS" => "qismatconnections.com,www.qismatconnections.com,admin.qismatconnections.com",
           ];
