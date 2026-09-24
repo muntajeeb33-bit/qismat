@@ -1,0 +1,67 @@
+.social-login {
+  display: grid;
+  gap: 10px;
+}
+
+.social-button {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  border: 1px solid #d8cfd1;
+  border-radius: 10px;
+  background: #fff;
+  color: #2b2023;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.social-button:hover {
+  border-color: #a98b94;
+  background: #fffafa;
+}
+
+.social-button:disabled {
+  opacity: .5;
+}
+
+.social-button span {
+  width: 20px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.social-button.apple {
+  border-color: #171315;
+  background: #171315;
+  color: #fff;
+}
+
+.social-button.apple:hover {
+  background: #2c2729;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 19px 0;
+  color: #95898d;
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: #e4dadd;
+}
+
+.auth-divider span {
+  white-space: nowrap;
+}
