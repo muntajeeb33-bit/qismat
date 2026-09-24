@@ -14,6 +14,18 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_www_frontend_can_reach_authentication_endpoints(): void
+    {
+        $this->withServerVariables([
+            'HTTP_ORIGIN' => 'https://www.qismatconnections.com',
+            'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => 'POST',
+            'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' => 'content-type',
+        ])
+            ->call('OPTIONS', '/api/v1/auth/register')
+            ->assertNoContent()
+            ->assertHeader('Access-Control-Allow-Origin', 'https://www.qismatconnections.com');
+    }
+
     public function test_member_can_register_through_the_server_firebase_proxy(): void
     {
         config(['firebase.web_api_key' => 'test-api-key']);
