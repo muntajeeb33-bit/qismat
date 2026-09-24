@@ -18,6 +18,9 @@ Route::prefix('v1')->group(function () {
     ]));
 
     Route::prefix('auth')->group(function () {
+        Route::post('/register', [FirebaseAuthController::class, 'register'])->middleware('throttle:10,1');
+        Route::post('/login', [FirebaseAuthController::class, 'login'])->middleware('throttle:20,1');
+        Route::post('/password-reset', [FirebaseAuthController::class, 'passwordReset'])->middleware('throttle:10,1');
         Route::post('/firebase', [FirebaseAuthController::class, 'exchange'])
             ->middleware(['firebase.auth', 'throttle:20,1']);
     });

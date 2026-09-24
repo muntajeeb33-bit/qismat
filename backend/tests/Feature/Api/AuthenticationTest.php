@@ -5,6 +5,7 @@ namespace Tests\Feature\Api;
 use App\Contracts\FirebaseTokenVerifier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Laravel\Sanctum\Sanctum;
 use RuntimeException;
 use Tests\TestCase;
@@ -12,6 +13,45 @@ use Tests\TestCase;
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_member_can_register_through_the_server_firebase_proxy(): void
+    {
+        config(['firebase.web_api_key' => 'test-api-key']);
+        Http::fakeSequence()
+            ->push(['idToken' => 'created-token'])
+            ->push(['idToken' => 'updated-token'])
+            ->push(['email' => 'amina@example.test']);
+
+        $this->postJson('/api/v1/auth/register', [
+            'name' => 'Amina Khan',
+            'email' => 'amina@example.test',
+            'password' => 'SecurePass123!',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('success', true);
+
+        Http::assertSentCount(3);
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'accounts:signUp?key=test-api-key'));
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'accounts:update?key=test-api-key')
+            && $request['displayName'] === 'Amina Khan');
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'accounts:sendOobCode?key=test-api-key')
+            && $request['requestType'] === 'VERIFY_EMAIL');
+    }
+
+    public function test_verified_member_can_login_through_the_server_firebase_proxy(): void
+    {
+        config(['firebase.web_api_key' => 'test-api-key']);
+        Http::fakeSequence()
+            ->push(['idToken' => 'verified-id-token'])
+            ->push(['users' => [['emailVerified' => true]]]);
+
+        $this->postJson('/api/v1/auth/login', [
+            'email' => 'amina@example.test',
+            'password' => 'SecurePass123!',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.id_token', 'verified-id-token');
+    }
 
     public function test_firebase_exchange_requires_an_id_token(): void
     {

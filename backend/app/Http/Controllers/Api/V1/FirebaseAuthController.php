@@ -7,12 +7,75 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class FirebaseAuthController extends Controller
 {
     use RespondsWithJson;
+
+    public function register(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'email' => ['required', 'email', 'max:255'],
+            'password' => ['required', 'string', Password::min(8)],
+        ]);
+
+        $credential = $this->firebaseRequest('signUp', [
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'returnSecureToken' => true,
+        ]);
+        $updated = $this->firebaseRequest('update', [
+            'idToken' => $credential['idToken'],
+            'displayName' => $data['name'],
+            'returnSecureToken' => true,
+        ]);
+        $this->firebaseRequest('sendOobCode', [
+            'requestType' => 'VERIFY_EMAIL',
+            'idToken' => $updated['idToken'] ?? $credential['idToken'],
+        ]);
+
+        return $this->success(null, 'Account created. Check your email to verify your account.', 201);
+    }
+
+    public function login(Request $request)
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+        $credential = $this->firebaseRequest('signInWithPassword', [
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'returnSecureToken' => true,
+        ]);
+        $account = $this->firebaseRequest('lookup', ['idToken' => $credential['idToken']]);
+
+        if (! ($account['users'][0]['emailVerified'] ?? false)) {
+            $this->firebaseRequest('sendOobCode', [
+                'requestType' => 'VERIFY_EMAIL',
+                'idToken' => $credential['idToken'],
+            ]);
+            abort(403, 'Verify your email before signing in. We sent a new verification link.');
+        }
+
+        return $this->success(['id_token' => $credential['idToken']], 'Firebase sign-in successful.');
+    }
+
+    public function passwordReset(Request $request)
+    {
+        $data = $request->validate(['email' => ['required', 'email']]);
+        $this->firebaseRequest('sendOobCode', [
+            'requestType' => 'PASSWORD_RESET',
+            'email' => $data['email'],
+        ]);
+
+        return $this->success(null, 'Password reset email sent.');
+    }
 
     public function exchange(Request $request)
     {
@@ -62,5 +125,37 @@ class FirebaseAuthController extends Controller
             'user' => $user->load('profile'),
             'token' => $user->createToken('qismat')->plainTextToken,
         ], 'Firebase authentication successful.');
+    }
+
+    /** @return array<string, mixed> */
+    private function firebaseRequest(string $action, array $payload): array
+    {
+        $apiKey = trim((string) config('firebase.web_api_key'));
+        abort_if($apiKey === '', 503, 'Firebase authentication is not configured.');
+
+        $response = Http::acceptJson()
+            ->asJson()
+            ->timeout(15)
+            ->post("https://identitytoolkit.googleapis.com/v1/accounts:{$action}?key=".urlencode($apiKey), $payload);
+
+        if ($response->failed()) {
+            $code = Str::before((string) $response->json('error.message', 'FIREBASE_REQUEST_FAILED'), ' : ');
+            $messages = [
+                'EMAIL_EXISTS' => ['An account already exists for this email.', 409],
+                'OPERATION_NOT_ALLOWED' => ['Email and password registration is not enabled.', 503],
+                'USER_DISABLED' => ['This account has been disabled.', 403],
+                'EMAIL_NOT_FOUND' => ['The email or password is incorrect.', 401],
+                'INVALID_PASSWORD' => ['The email or password is incorrect.', 401],
+                'INVALID_LOGIN_CREDENTIALS' => ['The email or password is incorrect.', 401],
+                'INVALID_EMAIL' => ['Enter a valid email address.', 422],
+                'WEAK_PASSWORD' => ['Choose a stronger password with at least eight characters.', 422],
+                'TOO_MANY_ATTEMPTS_TRY_LATER' => ['Too many attempts. Please wait and try again.', 429],
+                'API_KEY_NOT_VALID' => ['Firebase configuration is invalid. Please contact support.', 503],
+            ];
+            [$message, $status] = $messages[$code] ?? ['Authentication could not be completed.', 502];
+            abort($status, $message);
+        }
+
+        return $response->json();
     }
 }

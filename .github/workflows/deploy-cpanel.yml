@@ -146,6 +146,7 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
           FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
           LARAVEL_APP_KEY: ${{ secrets.LARAVEL_APP_KEY }}
         run: |
@@ -168,6 +169,7 @@ jobs:
               "QUEUE_CONNECTION" => "database",
               "CACHE_STORE" => "database",
               "FIREBASE_PROJECT_ID" => getenv("FIREBASE_PROJECT_ID"),
+              "FIREBASE_WEB_API_KEY" => getenv("FIREBASE_WEB_API_KEY"),
               "FIREBASE_CREDENTIALS" => getenv("API_PATH")."/.secrets/firebase-service-account.json",
               "FILESYSTEM_DISK" => "public",
               "FRONTEND_URL" => "https://qismatconnections.com",
