@@ -156,7 +156,7 @@ class FirebaseAuthController extends Controller
                 'TOO_MANY_ATTEMPTS_TRY_LATER' => ['Too many attempts. Please wait and try again.', 429],
                 'API_KEY_NOT_VALID' => ['Firebase configuration is invalid. Please contact support.', 503],
             ];
-            [$message, $status] = $messages[$code] ?? ['Authentication could not be completed.', 502];
+            [$message, $status] = $messages[$code] ?? ["Authentication could not be completed ({$code}).", 502];
             abort($status, $message);
         }
 
