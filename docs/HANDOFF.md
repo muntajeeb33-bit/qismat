@@ -15,8 +15,8 @@ This document is the starting point for contributors joining Qismat. Read it tog
 - Admin website: `https://admin.qismatconnections.com`
 - Shared API: `https://admin.qismatconnections.com/api/v1`
 - Health endpoint: `https://admin.qismatconnections.com/api/v1/health`
-- Latest verified staging release: `adef8095cebea0f73d6a3262d303583204b4581d`
-- Verified cPanel deployment run: `36150079604`
+- Latest verified staging release: `1b55a0f58c16ce9ae1d5365646cf5f9ff92c5515`
+- Verified cPanel deployment run: `36151790370`
 
 The Laravel runtime is deployed outside the public admin document root. The admin domain routes only `/api/*` to Laravel; other non-file requests load the React admin application.
 
@@ -45,6 +45,7 @@ Email/password registration, login and password reset are proxied through Larave
 - Persistent moderation feedback returned to the member without leaking into discovery.
 - Admin login, active-admin role enforcement, dashboard counts and audited approve/reject moderation.
 - Profile CRUD, moderation states, discovery eligibility and interest send/respond API foundation.
+- Structured family/career fields and member-scoped partner-preference CRUD with safe age/height ranges.
 - cPanel database preflight, managed environment deployment, migrations, frontend deployment and API health checks.
 - Pre-migration database/member-file snapshots, immutable application releases, atomic activation and automatic/manual application rollback workflows.
 - CI builds for backend, web/admin and Android.
@@ -54,9 +55,9 @@ Email/password registration, login and password reset are proxied through Larave
 1. Enable Google under Firebase Authentication → Sign-in method and complete a live Google login test.
 2. Provision the first production administrator from the server console and verify the moderation workflow.
 3. Implement profile photos, privacy controls and moderation.
-4. Add partner preferences, search, filters, favourites and recommendation foundations.
+4. Add search, filters, favourites and recommendation foundations using the deployed partner-preference contract.
 5. Connect Android Firebase authentication and member modules to the shared API.
-6. Add atomic cPanel releases, a tested rollback procedure and pinned SSH host verification.
+6. Rehearse application rollback and backup restore, configure off-host copies and pin SSH host verification.
 
 ## Explicitly deferred
 

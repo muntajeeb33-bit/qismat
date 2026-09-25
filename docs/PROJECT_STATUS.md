@@ -5,13 +5,13 @@ Last updated: 2026-09-25
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 45%
+**Overall progress:** 47%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 60% |
+| Backend/API | In progress | 65% |
 | Website | In progress | 60% |
 | Admin dashboard | In progress | 40% |
 | Flutter mobile app | In progress | 20% |
@@ -55,6 +55,7 @@ Last updated: 2026-09-25
 - [x] Apex and www authentication CORS coverage
 - [x] Google sign-in website integration; provider activation remains
 - [x] Apple sign-in hidden until Apple Developer configuration is available
+- [x] Structured family/career profile fields and partner-preference API deployed
 
 ## In progress / next
 
@@ -63,7 +64,8 @@ Last updated: 2026-09-25
 - [x] Member web authentication and profile onboarding integration
 - [ ] Enable Google in Firebase Console and run end-to-end Google login QA
 - [ ] Profile photos and privacy rules
-- [ ] Partner preferences and recommendation engine
+- [x] Partner-preference model and API
+- [ ] Recommendation engine
 - [ ] Search/filter APIs
 - [ ] Interests, favourites and profile views
 - [ ] Conversations/messages after mutual acceptance
@@ -79,12 +81,12 @@ Last updated: 2026-09-25
 | Component | Version/build |
 |---|---|
 | Platform | 0.1.0-dev |
-| Backend | Laravel 12 / API foundation 002 |
+| Backend | Laravel 12 / API foundation 003 |
 | Web | shell 001 |
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | through migration `2026_09_20_000100` |
+| Database schema | through migration `2026_09_25_000200` |
 
 ## Major blockers and risks
 

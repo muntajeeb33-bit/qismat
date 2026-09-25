@@ -23,6 +23,7 @@ Staging is deployed automatically after relevant changes reach upstream `main`.
 | 2026-09-15 | Staging cPanel | Backend | 0.1.0-dev | `8ed8219` | Initial migration started, not recorded | Backend uploaded and protected configuration installed; migration stopped on MariaDB's 1000-byte index limit (run `34942870359`) | No tables dropped; deployment stopped before frontends and health check |
 | 2026-09-20 | Staging cPanel | Backend, web, admin | 0.1.0-dev | `015fda1` | Through `2026_09_20_000100` | Passed; shared API gateway, frontends, migrations and HTTPS JSON health verified (run `35520092827`) | Redeploy the preceding known-good commit; database rollback remains manual and must be reviewed before use |
 | 2026-09-25 | Staging cPanel | Backend, web, admin, deployment recovery | 0.1.0-dev | `adef809` | Through `2026_09_25_000100` | Passed; pre-migration database/member-file backup, immutable release staging, atomic activation and all public health checks verified (run `36150079604`) | Activate a preceding release through the rollback workflow; database migrations remain forward-only |
+| 2026-09-25 | Staging cPanel | Backend profile/preferences API | 0.1.0-dev | `1b55a0f` | Through `2026_09_25_000200` | Passed; backend tests, pre-deployment backup, migration, atomic activation, API health and both frontend checks verified (run `36151790370`) | Activate a preceding application release if needed; review or restore the forward-only preference-table migration separately |
 
 ## Deployment record format
 
