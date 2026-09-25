@@ -39,7 +39,7 @@ Authentication and verification, matrimonial profiles, photos, family/education/
 
 ## Project tracking
 
-See `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`, `docs/TASKS.md`, `docs/CHANGELOG.md`, `docs/DECISIONS.md`, `docs/BUGS.md`, and `docs/DEPLOYMENT_LOG.md`.
+New contributors should start with `docs/HANDOFF.md`. Project tracking continues in `docs/PROJECT_STATUS.md`, `docs/ROADMAP.md`, `docs/TASKS.md`, `docs/CHANGELOG.md`, `docs/DECISIONS.md`, `docs/BUGS.md`, and `docs/DEPLOYMENT_LOG.md`.
 
 ## Security
 
