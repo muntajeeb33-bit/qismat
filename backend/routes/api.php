@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AdminDashboardController;
+use App\Http\Controllers\Api\V1\AdminPhotoModerationController;
 use App\Http\Controllers\Api\V1\AdminProfileModerationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FirebaseAuthController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Api\V1\MatchController;
 use App\Http\Controllers\Api\V1\PartnerPreferenceController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ProfileOnboardingController;
+use App\Http\Controllers\Api\V1\ProfilePhotoController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -34,6 +36,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/dashboard', AdminDashboardController::class);
             Route::get('/profiles', [AdminProfileModerationController::class, 'index']);
             Route::post('/profiles/{profile}/review', [AdminProfileModerationController::class, 'review']);
+            Route::get('/photos', [AdminPhotoModerationController::class, 'index']);
+            Route::post('/photos/{photo}/review', [AdminPhotoModerationController::class, 'review']);
         });
 
         Route::middleware('verified')->group(function () {
@@ -44,6 +48,13 @@ Route::prefix('v1')->group(function () {
             Route::put('/profile/discovery', [ProfileOnboardingController::class, 'discovery']);
             Route::get('/profile/partner-preferences', [PartnerPreferenceController::class, 'show']);
             Route::put('/profile/partner-preferences', [PartnerPreferenceController::class, 'update']);
+            Route::get('/profile/photos', [ProfilePhotoController::class, 'index']);
+            Route::post('/profile/photos', [ProfilePhotoController::class, 'store'])->middleware('throttle:10,1');
+            Route::put('/profile/photos/order', [ProfilePhotoController::class, 'reorder']);
+            Route::patch('/profile/photos/{photo}', [ProfilePhotoController::class, 'update']);
+            Route::delete('/profile/photos/{photo}', [ProfilePhotoController::class, 'destroy']);
+            Route::get('/profile/photos/{photo}/content', [ProfilePhotoController::class, 'content'])
+                ->name('profile.photos.content');
 
             Route::get('/matches', [MatchController::class, 'index']);
 

@@ -32,4 +32,9 @@ class Profile extends Model
     {
         return $this->belongsTo(User::class, 'moderated_by');
     }
+
+    public function photos()
+    {
+        return $this->hasMany(ProfilePhoto::class, 'user_id', 'user_id')->orderBy('sort_order');
+    }
 }

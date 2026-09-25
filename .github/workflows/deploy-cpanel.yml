@@ -70,6 +70,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: gd, fileinfo
           coverage: none
 
       - name: Build Laravel backend
@@ -123,6 +124,8 @@ jobs:
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
         run: |
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            "php -r 'exit(extension_loaded(\"gd\") && extension_loaded(\"fileinfo\") ? 0 : 1);'"
           local_credentials="$RUNNER_TEMP/qismat-db-check.cnf"
           remote_credentials="/tmp/qismat-deploy-db-${GITHUB_RUN_ID}.cnf"
           cleanup() {
