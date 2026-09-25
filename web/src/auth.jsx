@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { exchangeFirebaseToken, getOnboardingStatus } from './api';
+import { exchangeFirebaseToken, getOnboardingStatus, getProfile, updateDiscovery } from './api';
 import { firebaseConfigured, firebaseGoogleLogin, firebaseLogin, firebaseRegister, firebaseResetPassword, socialLoginConfigured } from './firebase';
+import { ProfileEditor } from './profile';
 import './auth.css';
 import './social-auth.css';
 
@@ -71,11 +72,44 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
 
 export function MemberHome({ user, onLogout }) {
   const [status, setStatus] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
-  useEffect(() => { getOnboardingStatus().then(setStatus).catch((requestError) => setError(requestError.message)); }, []);
+  const [notice, setNotice] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  async function refresh() {
+    setError('');
+    try {
+      const [nextProfile, nextStatus] = await Promise.all([getProfile(), getOnboardingStatus()]);
+      setProfile(nextProfile); setStatus(nextStatus);
+    } catch (requestError) { setError(requestError.message); }
+  }
+  useEffect(() => { refresh(); }, []);
+
+  async function toggleDiscovery() {
+    setBusy(true); setError(''); setNotice('');
+    try {
+      await updateDiscovery(!status.discovery_opt_in);
+      setNotice(status.discovery_opt_in ? 'Your profile is hidden from discovery.' : 'Your profile is now visible in discovery.');
+      await refresh();
+    } catch (requestError) { setError(requestError.message); }
+    finally { setBusy(false); }
+  }
+
+  async function completed(_saved, message) {
+    setEditing(false); setNotice(message); await refresh();
+  }
+
   const state = status?.moderation_status || 'draft';
-  return <div className="member-shell"><header className="member-header"><strong>Qismat Connections</strong><div><span>{user.name}</span><button onClick={onLogout}>Sign out</button></div></header><main className="member-main">
-    <section><span className="kicker">Your membership</span><h1>Welcome, {user.name.split(' ')[0]}.</h1><p>Your secure account is connected. Complete your profile to enter the moderation and discovery flow.</p>{error && <div className="auth-notice error">{error}</div>}<button className="btn btn-primary">{status?.required_fields_complete ? 'Review your profile' : 'Complete your profile'}</button></section>
-    <aside className="member-status"><span>Profile status</span><strong>{state}</strong><ul><li className="done">Email verified</li><li className={status?.required_fields_complete ? 'done' : ''}>Required details complete</li><li className={state === 'approved' ? 'done' : ''}>Admin moderation approved</li><li className={status?.discoverable ? 'done' : ''}>Visible in discovery</li></ul></aside>
-  </main></div>;
+  return <div className="member-shell"><header className="member-header"><strong>Qismat Connections</strong><div><span>{user.name}</span><button onClick={onLogout}>Sign out</button></div></header>
+    {editing ? <ProfileEditor profile={profile} status={status} onCancel={() => setEditing(false)} onComplete={completed} /> : <main className="member-main">
+      <section><span className="kicker">Your membership</span><h1>Welcome, {user.name.split(' ')[0]}.</h1><p>Your secure account is connected. Complete your profile, submit it for review, and choose when approved whether to appear in discovery.</p>
+        {notice && <div className="auth-notice success">{notice}</div>}{error && <div className="auth-notice error">{error}</div>}
+        {state === 'rejected' && status?.moderation_feedback && <div className="member-feedback"><strong>Reviewer feedback</strong><span>{status.moderation_feedback}</span></div>}
+        <div className="member-buttons"><button className="btn btn-primary" onClick={() => setEditing(true)}>{profile ? 'Review and edit profile' : 'Complete your profile'}</button>{state === 'approved' && <button className="btn member-discovery" onClick={toggleDiscovery} disabled={busy}>{status.discovery_opt_in ? 'Pause discovery' : 'Enter discovery'}</button>}</div>
+      </section>
+      <aside className="member-status"><span>Profile status</span><strong>{state}</strong><div className="completion"><i style={{ width: `${status?.profile_completion || 0}%` }}></i></div><small>{status?.profile_completion || 0}% profile completion</small><ul><li className="done">Email verified</li><li className={status?.required_fields_complete ? 'done' : ''}>Required details complete</li><li className={state === 'approved' ? 'done' : ''}>Admin moderation approved</li><li className={status?.discoverable ? 'done' : ''}>Visible in discovery</li></ul></aside>
+    </main>}
+  </div>;
 }

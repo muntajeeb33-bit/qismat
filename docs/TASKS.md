@@ -2,9 +2,10 @@
 
 ## In progress
 - [x] Add Firebase project/service-account configuration
-- [ ] Deploy and verify web Firebase Authentication
+- [x] Deploy web Firebase Authentication
 - [ ] Connect Android Firebase Authentication client
-- [ ] Deploy and verify admin authentication and moderation UI
+- [x] Deploy admin authentication and moderation UI
+- [ ] Provision and verify the first production administrator account
 
 ## Delivery order
 - [ ] Complete member web modules
@@ -14,7 +15,7 @@
 - [ ] Build and release the native iOS client through Xcode Cloud
 
 ## Next
-- [ ] Firebase client registration/login/verification/password recovery
+- [ ] Android Firebase registration/login/verification/password recovery
 - [x] Profile CRUD and onboarding-state APIs
 - [ ] Photo upload/storage rules
 - [ ] Partner preference model
@@ -62,3 +63,5 @@
 - [x] Deploy and smoke-test cPanel staging
 - [x] Implement web registration, verification, login, recovery and Laravel session exchange
 - [x] Implement admin login, role enforcement, moderation queue and approve/reject audit trail
+- [x] Implement member web profile editing, completion, moderation submission and discovery controls
+- [x] Return admin rejection feedback to the member without exposing it in discovery results

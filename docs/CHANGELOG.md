@@ -7,6 +7,8 @@
 - Added admin dashboard counts, a pending-profile moderation queue and audited approve/reject decisions.
 - Added the `qismat:admin` console command for controlled administrator provisioning and session revocation.
 - Added Firebase client configuration to the staging deployment workflow.
+- Added complete member web profile editing, completion tracking, moderation submission and discovery controls.
+- Added persistent moderation feedback with reviewer attribution and protected it from discovery responses.
 
 All notable changes to Qismat will be recorded here.
 

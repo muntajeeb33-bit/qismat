@@ -12,7 +12,7 @@ Last updated: 2026-09-20
 |---|---|---:|
 | Architecture | In progress | 70% |
 | Backend/API | In progress | 60% |
-| Website | In progress | 20% |
+| Website | In progress | 40% |
 | Admin dashboard | In progress | 20% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
@@ -53,7 +53,8 @@ Last updated: 2026-09-20
 ## In progress / next
 
 - [x] Firebase project/service-account configuration
-- [ ] Web, admin and Android client integration, in that delivery phase
+- [ ] Complete remaining admin and Android client integration
+- [x] Member web authentication and profile onboarding integration
 - [ ] Profile photos and privacy rules
 - [ ] Partner preferences and recommendation engine
 - [ ] Search/filter APIs
