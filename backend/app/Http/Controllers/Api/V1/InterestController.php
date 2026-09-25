@@ -28,7 +28,7 @@ class InterestController extends Controller
         $data = $r->validate(['receiver_id' => ['required', 'integer', 'exists:users,id', 'not_in:'.$r->user()->id], 'message' => ['nullable', 'string', 'max:500']]);
         $receiverIsDiscoverable = Profile::query()
             ->where('user_id', $data['receiver_id'])
-            ->where('visibility', '!=', 'hidden')
+            ->where('visibility', 'members')
             ->where('moderation_status', 'approved')
             ->where('discovery_opt_in', true)
             ->whereNotNull('date_of_birth')

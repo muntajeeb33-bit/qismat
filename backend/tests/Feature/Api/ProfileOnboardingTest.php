@@ -148,6 +148,30 @@ class ProfileOnboardingTest extends TestCase
             ->assertJsonMissingPath('data.data.0.moderated_by');
     }
 
+    public function test_private_profiles_cannot_enter_or_appear_in_discovery(): void
+    {
+        $member = User::factory()->create();
+        $profile = $this->completeProfile($member);
+        $profile->forceFill([
+            'moderation_status' => 'approved',
+            'discovery_opt_in' => true,
+            'visibility' => 'private',
+        ])->save();
+        Sanctum::actingAs($member);
+
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertOk()
+            ->assertJsonPath('data.discoverable', false);
+        $this->putJson('/api/v1/profile/discovery', ['enabled' => true])
+            ->assertForbidden();
+
+        $viewer = User::factory()->create();
+        Sanctum::actingAs($viewer);
+        $this->getJson('/api/v1/matches')
+            ->assertOk()
+            ->assertJsonCount(0, 'data.data');
+    }
+
     public function test_match_filters_reject_invalid_age_ranges(): void
     {
         Sanctum::actingAs(User::factory()->create());

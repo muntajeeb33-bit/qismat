@@ -68,7 +68,7 @@ class ProfileOnboardingController extends Controller
             if ($data['enabled']) {
                 abort_unless($profile->moderation_status === 'approved' && $this->complete($profile)
                     && $request->user()->status === 'active' && $request->user()->hasVerifiedEmail()
-                    && $profile->visibility !== 'hidden', 403, 'Profile is not eligible for discovery.');
+                    && $profile->visibility === 'members', 403, 'Profile is not eligible for discovery.');
             }
 
             $profile->forceFill(['discovery_opt_in' => $data['enabled']])->save();
@@ -89,7 +89,7 @@ class ProfileOnboardingController extends Controller
     {
         return $profile->moderation_status === 'approved'
             && (bool) $profile->discovery_opt_in
-            && $profile->visibility !== 'hidden'
+            && $profile->visibility === 'members'
             && $request->user()->status === 'active'
             && $request->user()->hasVerifiedEmail()
             && $this->complete($profile);

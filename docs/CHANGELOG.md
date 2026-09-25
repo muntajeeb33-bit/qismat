@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Connected the member web profile editor to structured family, career, privacy and partner-preference fields, and enforced private visibility across discovery and interests.
 - Added a shared, validated partner-preference API and structured family, career and profile-visibility fields for web and mobile clients.
 - Added staged atomic cPanel releases, automatic and operator-selected application rollback, pre-deployment snapshots and daily database/member-file backups.
 - Added optional pinned SSH `known_hosts` configuration with an explicit warning while transitional key scanning remains enabled.

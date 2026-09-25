@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { exchangeFirebaseToken, getOnboardingStatus, getProfile, updateDiscovery } from './api';
+import { exchangeFirebaseToken, getOnboardingStatus, getPartnerPreferences, getProfile, updateDiscovery } from './api';
 import { firebaseConfigured, firebaseGoogleLogin, firebaseLogin, firebaseRegister, firebaseResetPassword, socialLoginConfigured } from './firebase';
 import { ProfileEditor } from './profile';
 import './auth.css';
@@ -79,6 +79,7 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
 export function MemberHome({ user, onLogout }) {
   const [status, setStatus] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [preferences, setPreferences] = useState(null);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [editing, setEditing] = useState(false);
@@ -87,8 +88,8 @@ export function MemberHome({ user, onLogout }) {
   async function refresh() {
     setError('');
     try {
-      const [nextProfile, nextStatus] = await Promise.all([getProfile(), getOnboardingStatus()]);
-      setProfile(nextProfile); setStatus(nextStatus);
+      const [nextProfile, nextStatus, nextPreferences] = await Promise.all([getProfile(), getOnboardingStatus(), getPartnerPreferences()]);
+      setProfile(nextProfile); setStatus(nextStatus); setPreferences(nextPreferences);
     } catch (requestError) { setError(requestError.message); }
   }
   useEffect(() => { refresh(); }, []);
@@ -109,7 +110,7 @@ export function MemberHome({ user, onLogout }) {
 
   const state = status?.moderation_status || 'draft';
   return <div className="member-shell"><header className="member-header"><strong>Qismat Connections</strong><div><span>{user.name}</span><button onClick={onLogout}>Sign out</button></div></header>
-    {editing ? <ProfileEditor profile={profile} status={status} onCancel={() => setEditing(false)} onComplete={completed} /> : <main className="member-main">
+    {editing ? <ProfileEditor profile={profile} preferences={preferences} status={status} onCancel={() => setEditing(false)} onComplete={completed} /> : <main className="member-main">
       <section><span className="kicker">Your membership</span><h1>Welcome, {user.name.split(' ')[0]}.</h1><p>Your secure account is connected. Complete your profile, submit it for review, and choose when approved whether to appear in discovery.</p>
         {notice && <div className="auth-notice success">{notice}</div>}{error && <div className="auth-notice error">{error}</div>}
         {state === 'rejected' && status?.moderation_feedback && <div className="member-feedback"><strong>Reviewer feedback</strong><span>{status.moderation_feedback}</span></div>}
