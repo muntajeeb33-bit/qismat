@@ -15,8 +15,8 @@ This document is the starting point for contributors joining Qismat. Read it tog
 - Admin website: `https://admin.qismatconnections.com`
 - Shared API: `https://admin.qismatconnections.com/api/v1`
 - Health endpoint: `https://admin.qismatconnections.com/api/v1/health`
-- Latest verified staging release: `660706fa9d79d8f8471f258c3af78fcd7ca25bea`
-- Verified cPanel deployment run: `36147225915`
+- Latest verified staging release: `adef8095cebea0f73d6a3262d303583204b4581d`
+- Verified cPanel deployment run: `36150079604`
 
 The Laravel runtime is deployed outside the public admin document root. The admin domain routes only `/api/*` to Laravel; other non-file requests load the React admin application.
 
@@ -46,6 +46,7 @@ Email/password registration, login and password reset are proxied through Larave
 - Admin login, active-admin role enforcement, dashboard counts and audited approve/reject moderation.
 - Profile CRUD, moderation states, discovery eligibility and interest send/respond API foundation.
 - cPanel database preflight, managed environment deployment, migrations, frontend deployment and API health checks.
+- Pre-migration database/member-file snapshots, immutable application releases, atomic activation and automatic/manual application rollback workflows.
 - CI builds for backend, web/admin and Android.
 
 ## Immediate priorities
@@ -75,7 +76,7 @@ Email/password registration, login and password reset are proxied through Larave
 - Never add a public role-assignment endpoint.
 - The obsolete `api.qismatconnections.com` hostname is not used because cPanel presents an unrelated certificate for it.
 - cPanel does not provide the required build tools, so Composer and frontend production artifacts are built in GitHub Actions.
-- Deployments currently update files in place. Database migrations must not be automatically reversed during rollback.
+- Deployments now use immutable release directories and atomic entry-point switches. Application rollback never reverses database migrations.
 
 ## Contributor workflow
 

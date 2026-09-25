@@ -17,7 +17,7 @@ Last updated: 2026-09-25
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
 | iOS/Xcode Cloud | Planned | 5% |
-| cPanel deployment | Staging operational | 75% |
+| cPanel deployment | Staging operational | 82% |
 | QA/security | In progress | 25% |
 
 ## Completed in current foundation batch
@@ -48,6 +48,7 @@ Last updated: 2026-09-25
 - [x] Profile onboarding, moderation state and explicit discovery opt-in API
 - [x] Shared API gateway at `admin.qismatconnections.com/api/v1`
 - [x] Successful cPanel staging deployment with database migrations and HTTPS health verification
+- [x] Pre-migration database/member-file backup and first atomic staging release verified
 - [x] Web, admin, backend and Android checks passing for the deployed release
 - [x] Production web email/password registration, verification, login and recovery
 - [x] Laravel Firebase authentication proxy and verified-ID-token exchange
@@ -95,7 +96,7 @@ Last updated: 2026-09-25
 - Google web sign-in code is deployed, but the Google provider must still be enabled in Firebase Console.
 - Apple sign-in is intentionally deferred pending Apple Developer credentials.
 - Firebase currently blocks email-template edits for this project. Default verification emails work; branded email delivery is deferred or can later move to Laravel with custom SMTP.
-- cPanel deployment currently updates files in place and uses `ssh-keyscan`; atomic release switching and a pinned host key remain outstanding.
+- cPanel deployment uses immutable releases and atomic activation with automatic/manual application rollback. A verified pinned host key, off-host backup copy and restore/rollback rehearsals remain outstanding.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.
 
