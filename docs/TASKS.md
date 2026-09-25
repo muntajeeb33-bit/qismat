@@ -44,7 +44,12 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] cPanel deploy workflow with CI-built Laravel dependencies
 - [x] cPanel SSH/database preflight workflow
 - [x] staging configuration and successful deployment
-- [ ] Pin cPanel SSH host key and add atomic release rollback
+- [x] Add atomic release, automatic rollback and manual rollback workflow implementation
+- [x] Add pre-deployment and daily database/member-file backup automation
+- [ ] Verify the first atomic staging deployment and operator-selected rollback
+- [ ] Rehearse a backup restore into a separate non-production environment
+- [ ] Configure encrypted off-host backup copies and retention
+- [ ] Add and verify the `CPANEL_SSH_KNOWN_HOSTS` secret, then remove transitional key scanning
 - [ ] production configuration
 - [ ] Xcode Cloud setup after web, admin and Android stabilization
 

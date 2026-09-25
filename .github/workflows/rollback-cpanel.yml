@@ -1,0 +1,79 @@
+name: Roll Back cPanel Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: Existing release ID to activate; database migrations are not reversed
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cpanel-staging
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    if: github.repository == 'shihan84/qismat'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate rollback inputs and secrets
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
+        run: |
+          [[ "$RELEASE_ID" =~ ^[A-Za-z0-9._-]+$ ]]
+          test -n "$HOST"
+          test -n "$USER"
+          test -n "$SSH_KEY"
+          test -n "$SSH_KEY_PASSPHRASE"
+          test -n "$API_PATH"
+          test -n "$WEB_PATH"
+          test -n "$ADMIN_PATH"
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          SSH_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+        run: bash .github/scripts/configure-ssh.sh ~/.ssh/qismat_rollback
+
+      - name: Activate selected release
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
+        run: |
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_rollback -p "${PORT:-22}" "$USER@$HOST" \
+            "$API_PATH/deployment/rollback-cpanel-release.sh" "$API_PATH" "$WEB_PATH" "$ADMIN_PATH" "$RELEASE_ID"
+
+      - name: Verify rollback
+        run: |
+          health_file="$RUNNER_TEMP/qismat-api-health.json"
+          curl --fail --show-error --silent --retry 5 --retry-delay 3 \
+            https://admin.qismatconnections.com/api/v1/health > "$health_file"
+          php -r '
+          $payload = json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);
+          if (($payload["success"] ?? null) !== true || ($payload["data"]["service"] ?? null) !== "qismat-api") {
+              fwrite(STDERR, "Unexpected API health response".PHP_EOL);
+              exit(1);
+          }
+          ' "$health_file"
+          curl --fail --show-error --silent https://qismatconnections.com/ | grep -F 'Qismat Connections' >/dev/null
+          curl --fail --show-error --silent https://admin.qismatconnections.com/ | grep -F 'Qismat Admin' >/dev/null

@@ -1,0 +1,78 @@
+name: Backup cPanel Data
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cpanel-data
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    if: github.repository == 'shihan84/qismat'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate backup secrets
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        run: |
+          test -n "$HOST"
+          test -n "$USER"
+          test -n "$SSH_KEY"
+          test -n "$SSH_KEY_PASSPHRASE"
+          test -n "$API_PATH"
+          test -n "$DATABASE_NAME"
+          test -n "$DATABASE_USER"
+          test -n "$DATABASE_PASSWORD"
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          SSH_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+          HOST: ${{ secrets.CPANEL_HOST }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+        run: bash .github/scripts/configure-ssh.sh ~/.ssh/qismat_backup
+
+      - name: Back up database and member files
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        run: |
+          local_credentials="$RUNNER_TEMP/qismat-backup-db.cnf"
+          remote_credentials="/tmp/qismat-scheduled-backup-${GITHUB_RUN_ID}.cnf"
+          backup_id="scheduled-$(date -u +%Y%m%dT%H%M%SZ)-${GITHUB_RUN_ID}"
+          cleanup() {
+            rm -f "$local_credentials"
+            ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_backup -p "${PORT:-22}" "$USER@$HOST" \
+              "rm -f '$remote_credentials'" || true
+          }
+          trap cleanup EXIT
+          php .github/scripts/write-mysql-option-file.php "$local_credentials"
+          chmod 600 "$local_credentials"
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_backup -P "${PORT:-22}" \
+            "$local_credentials" "$USER@$HOST:$remote_credentials"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_backup -p "${PORT:-22}" "$USER@$HOST" \
+            "mkdir -p '$API_PATH' && chmod 600 '$remote_credentials'"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_backup -p "${PORT:-22}" "$USER@$HOST" \
+            bash -s -- "$API_PATH" "$DATABASE_NAME" "$remote_credentials" "$backup_id" 14 \
+            < .github/scripts/backup-cpanel.sh
