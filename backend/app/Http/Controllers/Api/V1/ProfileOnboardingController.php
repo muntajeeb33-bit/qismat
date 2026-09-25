@@ -5,12 +5,15 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\V1\Concerns\RespondsWithJson;
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
+use App\Services\ProfileReadiness;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ProfileOnboardingController extends Controller
 {
     use RespondsWithJson;
+
+    public function __construct(private readonly ProfileReadiness $readiness) {}
 
     public function status(Request $request)
     {
@@ -21,6 +24,8 @@ class ProfileOnboardingController extends Controller
             'discovery_opt_in' => (bool) ($profile?->discovery_opt_in ?? false),
             'discoverable' => $profile ? $this->discoverable($profile, $request) : false,
             'required_fields_complete' => $profile ? $this->complete($profile) : false,
+            'profile_completion' => $profile?->profile_completion ?? 0,
+            'moderation_feedback' => $profile?->moderation_feedback,
             'submitted_at' => $profile?->submitted_at,
         ]);
     }
@@ -41,6 +46,9 @@ class ProfileOnboardingController extends Controller
 
             $profile->forceFill([
                 'moderation_status' => 'pending',
+                'moderation_feedback' => null,
+                'moderated_by' => null,
+                'moderated_at' => null,
                 'discovery_opt_in' => false,
                 'submitted_at' => now(),
                 'approved_at' => null,
@@ -74,12 +82,7 @@ class ProfileOnboardingController extends Controller
 
     private function complete(Profile $profile): bool
     {
-        return filled($profile->display_name)
-            && filled($profile->about_me)
-            && filled($profile->country)
-            && filled($profile->city)
-            && $profile->date_of_birth !== null
-            && $profile->date_of_birth->lte(now()->subYears(18)->startOfDay());
+        return $this->readiness->complete($profile);
     }
 
     private function discoverable(Profile $profile, Request $request): bool

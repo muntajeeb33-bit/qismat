@@ -31,7 +31,11 @@ export async function exchangeFirebaseToken(idToken) {
 }
 
 export const getCurrentUser = () => request('/auth/me').then(({ data }) => data);
+export const getProfile = () => request('/profile').then(({ data }) => data);
 export const getOnboardingStatus = () => request('/profile/onboarding-status').then(({ data }) => data);
+export const updateProfile = (profile) => request('/profile', { method: 'PUT', body: JSON.stringify(profile) }).then(({ data }) => data);
+export const submitProfile = () => request('/profile/submit', { method: 'POST' }).then(({ data }) => data);
+export const updateDiscovery = (enabled) => request('/profile/discovery', { method: 'PUT', body: JSON.stringify({ enabled }) }).then(({ data }) => data);
 export async function logoutApi() {
   try { if (session.get()) await request('/auth/logout', { method: 'POST' }); }
   finally { session.clear(); }

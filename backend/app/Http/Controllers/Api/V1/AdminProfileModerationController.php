@@ -25,7 +25,8 @@ class AdminProfileModerationController extends Controller
             ->where('moderation_status', $data['status'] ?? 'pending')
             ->orderByRaw('submitted_at IS NULL')
             ->orderBy('submitted_at')
-            ->paginate($data['per_page'] ?? 20);
+            ->paginate($data['per_page'] ?? 20)
+            ->through(fn (Profile $profile) => $profile->makeVisible(['moderation_feedback', 'moderated_by', 'moderated_at']));
 
         return $this->success($profiles);
     }
@@ -41,10 +42,13 @@ class AdminProfileModerationController extends Controller
             $profile = Profile::query()->lockForUpdate()->findOrFail($profile->id);
             abort_unless($profile->moderation_status === 'pending', 409, 'Only pending profiles can be reviewed.');
 
-            $before = $profile->only(['moderation_status', 'discovery_opt_in', 'approved_at']);
+            $before = $profile->only(['moderation_status', 'moderation_feedback', 'discovery_opt_in', 'approved_at', 'moderated_by', 'moderated_at']);
             $approved = $data['decision'] === 'approved';
             $profile->forceFill([
                 'moderation_status' => $data['decision'],
+                'moderation_feedback' => $approved ? null : $data['reason'],
+                'moderated_by' => $request->user()->id,
+                'moderated_at' => now(),
                 'discovery_opt_in' => false,
                 'approved_at' => $approved ? now() : null,
             ])->save();
@@ -55,14 +59,12 @@ class AdminProfileModerationController extends Controller
                 'target_type' => 'profile',
                 'target_id' => $profile->id,
                 'old_values' => $before,
-                'new_values' => $profile->only(['moderation_status', 'discovery_opt_in', 'approved_at']) + [
-                    'reason' => $data['reason'] ?? null,
-                ],
+                'new_values' => $profile->only(['moderation_status', 'moderation_feedback', 'discovery_opt_in', 'approved_at', 'moderated_by', 'moderated_at']),
                 'ip_address' => $request->ip(),
             ]);
 
             return $this->success(
-                $profile->load('user:id,name,email,status'),
+                $profile->load('user:id,name,email,status')->makeVisible(['moderation_feedback', 'moderated_by', 'moderated_at']),
                 $approved ? 'Profile approved.' : 'Profile rejected.'
             );
         });

@@ -93,7 +93,10 @@ class AdminModerationTest extends TestCase
         $this->postJson("/api/v1/admin/profiles/{$profile->id}/review", [
             'decision' => 'rejected',
             'reason' => 'Biography needs clarification.',
-        ])->assertOk()->assertJsonPath('data.moderation_status', 'rejected');
+        ])->assertOk()
+            ->assertJsonPath('data.moderation_status', 'rejected')
+            ->assertJsonPath('data.moderation_feedback', 'Biography needs clarification.')
+            ->assertJsonPath('data.moderated_by', $admin->id);
 
         $this->postJson("/api/v1/admin/profiles/{$profile->id}/review", ['decision' => 'approved'])
             ->assertStatus(409);

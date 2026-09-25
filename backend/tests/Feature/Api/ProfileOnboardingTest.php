@@ -87,6 +87,49 @@ class ProfileOnboardingTest extends TestCase
             ->assertJsonPath('data.submitted_at', null);
     }
 
+    public function test_member_sees_rejection_feedback_and_editing_clears_the_decision(): void
+    {
+        $member = User::factory()->create();
+        $profile = $this->completeProfile($member);
+        $profile->forceFill([
+            'moderation_status' => 'rejected',
+            'moderation_feedback' => 'Add more detail about your goals.',
+            'moderated_by' => User::factory()->create(['role' => 'admin'])->id,
+            'moderated_at' => now(),
+        ])->save();
+        Sanctum::actingAs($member);
+
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertOk()
+            ->assertJsonPath('data.moderation_status', 'rejected')
+            ->assertJsonPath('data.moderation_feedback', 'Add more detail about your goals.');
+
+        $this->putJson('/api/v1/profile', ['about_me' => 'I have added more detail about my goals.'])
+            ->assertOk()
+            ->assertJsonPath('data.moderation_status', 'draft')
+            ->assertJsonPath('data.moderation_feedback', null)
+            ->assertJsonPath('data.moderated_by', null);
+    }
+
+    public function test_profile_update_calculates_completion_percentage(): void
+    {
+        $member = User::factory()->create();
+        Sanctum::actingAs($member);
+
+        $this->putJson('/api/v1/profile', [
+            'display_name' => 'Example Member',
+            'date_of_birth' => now()->subYears(25)->toDateString(),
+            'country' => 'Canada',
+            'city' => 'Toronto',
+            'about_me' => 'A complete member biography.',
+        ])->assertOk()->assertJsonPath('data.profile_completion', 42);
+
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertOk()
+            ->assertJsonPath('data.required_fields_complete', true)
+            ->assertJsonPath('data.profile_completion', 42);
+    }
+
     public function test_other_profiles_are_not_discoverable_without_approval_and_opt_in(): void
     {
         $member = User::factory()->create();
@@ -97,7 +140,12 @@ class ProfileOnboardingTest extends TestCase
         $this->getJson('/api/v1/matches')->assertOk()->assertJsonCount(0, 'data.data');
 
         $profile->forceFill(['moderation_status' => 'approved', 'discovery_opt_in' => true])->save();
-        $this->getJson('/api/v1/matches')->assertOk()->assertJsonCount(1, 'data.data');
+        $profile->forceFill(['moderation_feedback' => 'Internal review feedback'])->save();
+        $this->getJson('/api/v1/matches')
+            ->assertOk()
+            ->assertJsonCount(1, 'data.data')
+            ->assertJsonMissingPath('data.data.0.moderation_feedback')
+            ->assertJsonMissingPath('data.data.0.moderated_by');
     }
 
     public function test_match_filters_reject_invalid_age_ranges(): void
