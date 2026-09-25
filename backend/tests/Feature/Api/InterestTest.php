@@ -25,6 +25,13 @@ class InterestTest extends TestCase
             'moderation_status' => 'approved',
             'discovery_opt_in' => true,
         ]);
+        $user->profilePhotos()->create([
+            'disk' => 'profile_photos',
+            'path' => "users/{$user->id}/approved-primary.jpg",
+            'is_primary' => true,
+            'visibility' => 'members',
+            'moderation_status' => 'approved',
+        ]);
     }
 
     public function test_duplicate_interests_are_prevented_and_only_one_activity_is_recorded(): void

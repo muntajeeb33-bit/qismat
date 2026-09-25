@@ -48,12 +48,18 @@ class AdminModerationTest extends TestCase
             'moderation_status' => 'pending',
             'submitted_at' => now(),
         ]);
+        $member->profilePhotos()->create([
+            'disk' => 'profile_photos',
+            'path' => "users/{$member->id}/pending.jpg",
+            'moderation_status' => 'pending',
+        ]);
         Sanctum::actingAs($admin);
 
         $this->getJson('/api/v1/admin/dashboard')
             ->assertOk()
             ->assertJsonPath('data.registered_users', 1)
-            ->assertJsonPath('data.pending_verification', 1);
+            ->assertJsonPath('data.pending_verification', 1)
+            ->assertJsonPath('data.pending_photos', 1);
 
         $this->getJson('/api/v1/admin/profiles')
             ->assertOk()

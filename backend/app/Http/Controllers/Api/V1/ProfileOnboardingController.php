@@ -24,6 +24,7 @@ class ProfileOnboardingController extends Controller
             'discovery_opt_in' => (bool) ($profile?->discovery_opt_in ?? false),
             'discoverable' => $profile ? $this->discoverable($profile, $request) : false,
             'required_fields_complete' => $profile ? $this->complete($profile) : false,
+            'has_approved_primary_photo' => $profile ? $this->hasApprovedPrimaryPhoto($profile) : false,
             'profile_completion' => $profile?->profile_completion ?? 0,
             'moderation_feedback' => $profile?->moderation_feedback,
             'submitted_at' => $profile?->submitted_at,
@@ -68,7 +69,7 @@ class ProfileOnboardingController extends Controller
             if ($data['enabled']) {
                 abort_unless($profile->moderation_status === 'approved' && $this->complete($profile)
                     && $request->user()->status === 'active' && $request->user()->hasVerifiedEmail()
-                    && $profile->visibility === 'members', 403, 'Profile is not eligible for discovery.');
+                    && $profile->visibility === 'members' && $this->hasApprovedPrimaryPhoto($profile), 403, 'Profile is not eligible for discovery.');
             }
 
             $profile->forceFill(['discovery_opt_in' => $data['enabled']])->save();
@@ -92,6 +93,15 @@ class ProfileOnboardingController extends Controller
             && $profile->visibility === 'members'
             && $request->user()->status === 'active'
             && $request->user()->hasVerifiedEmail()
+            && $this->hasApprovedPrimaryPhoto($profile)
             && $this->complete($profile);
+    }
+
+    private function hasApprovedPrimaryPhoto(Profile $profile): bool
+    {
+        return $profile->photos()
+            ->where('is_primary', true)
+            ->where('moderation_status', 'approved')
+            ->exists();
     }
 }

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { exchangeFirebaseToken, getCurrentUser, getDashboard, getPendingProfiles, logoutApi, reviewProfile, session } from './api';
+import { exchangeFirebaseToken, getCurrentUser, getDashboard, getPendingPhotos, getPendingProfiles, logoutApi, reviewPhoto, reviewProfile, session } from './api';
 import { firebaseConfigured, firebaseLogin, firebaseLogout, firebaseResetPassword } from './firebase';
+import { PhotoQueue } from './photo-queue';
 import './styles.css';
 
-const emptyStats = { registered_users: 0, active_profiles: 0, pending_verification: 0, open_reports: 0 };
+const emptyStats = { registered_users: 0, active_profiles: 0, pending_verification: 0, pending_photos: 0, open_reports: 0 };
 
 function Login({ onAuthenticated }) {
   const [email, setEmail] = useState('');
@@ -55,15 +56,17 @@ function Login({ onAuthenticated }) {
 function Dashboard({ user, onLogout }) {
   const [stats, setStats] = useState(emptyStats);
   const [profiles, setProfiles] = useState([]);
+  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [reviewing, setReviewing] = useState(null);
+  const [reviewingPhoto, setReviewingPhoto] = useState(null);
 
   async function refresh() {
     setLoading(true); setError('');
     try {
-      const [dashboard, queue] = await Promise.all([getDashboard(), getPendingProfiles()]);
-      setStats(dashboard); setProfiles(queue.data || []);
+      const [dashboard, queue, photoQueue] = await Promise.all([getDashboard(), getPendingProfiles(), getPendingPhotos()]);
+      setStats(dashboard); setProfiles(queue.data || []); setPhotos(photoQueue.data || []);
     } catch (requestError) { setError(requestError.message); }
     finally { setLoading(false); }
   }
@@ -78,7 +81,16 @@ function Dashboard({ user, onLogout }) {
     finally { setReviewing(null); }
   }
 
-  const cards = [['Registered users', stats.registered_users], ['Active profiles', stats.active_profiles], ['Pending review', stats.pending_verification], ['Open reports', stats.open_reports]];
+  async function reviewPendingPhoto(photo, decision) {
+    const reason = decision === 'rejected' ? window.prompt('Give the member a clear reason for rejecting this photo:') : '';
+    if (decision === 'rejected' && !reason?.trim()) return;
+    setReviewingPhoto(photo.id); setError('');
+    try { await reviewPhoto(photo.id, decision, reason); await refresh(); }
+    catch (requestError) { setError(requestError.message); }
+    finally { setReviewingPhoto(null); }
+  }
+
+  const cards = [['Registered users', stats.registered_users], ['Active profiles', stats.active_profiles], ['Pending profiles', stats.pending_verification], ['Pending photos', stats.pending_photos], ['Open reports', stats.open_reports]];
   return <div className="shell">
     <aside className="sidebar"><div><h2>Qismat</h2><b>Admin</b></div><nav><span className="active">Overview</span><span>Members</span><span>Verification</span><span>Reports</span><span>Subscriptions</span><span>Audit log</span></nav><small>Secure operations console</small></aside>
     <main className="workspace">
@@ -91,6 +103,9 @@ function Dashboard({ user, onLogout }) {
           <div className="profile-main"><h4>{profile.display_name || profile.user.name}</h4><p>{profile.city || 'City not provided'}{profile.country ? `, ${profile.country}` : ''} · {profile.occupation || 'Occupation not provided'}</p><small>{profile.profile_code || 'No profile code'} · Submitted {profile.submitted_at ? new Date(profile.submitted_at).toLocaleDateString() : 'recently'}</small></div>
           <div className="profile-actions"><button className="reject" onClick={() => review(profile, 'rejected')} disabled={reviewing === profile.id}>Reject</button><button className="approve" onClick={() => review(profile, 'approved')} disabled={reviewing === profile.id}>Approve</button></div>
         </article>)}</div>}
+      </section>
+      <section className="panel"><div className="panel-heading"><div><span className="kicker">Photo safety</span><h3>Photos awaiting review</h3></div><span className="queue-count">{photos.length} pending</span></div>
+        {loading ? <p className="empty">Loading photo queue…</p> : <PhotoQueue photos={photos} reviewing={reviewingPhoto} onReview={reviewPendingPhoto} />}
       </section>
     </main>
   </div>;

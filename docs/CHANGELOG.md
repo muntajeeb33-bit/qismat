@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added member web photo management, an administrator photo-review queue and an approved-primary-photo requirement for discovery.
 - Added private profile-photo upload, metadata removal, ordering, primary-photo selection, visibility authorization and audited admin moderation APIs.
 - Connected the member web profile editor to structured family, career, privacy and partner-preference fields, and enforced private visibility across discovery and interests.
 - Added a shared, validated partner-preference API and structured family, career and profile-visibility fields for web and mobile clients.
