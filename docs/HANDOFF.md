@@ -1,71 +1,137 @@
-# Qismat Engineering Handoff
+# Qismat Contributor Handoff
 
-Last updated: 2026-09-20
+Last updated: 2026-09-25
 
-## Current state
+## Purpose
 
-- Upstream repository: `shihan84/qismat`
-- Working fork: `muntajeeb33-bit/qismat`
-- Active integration branch: `main`
-- Last verified staging release: `dea4182`
-- Staging deployment: GitHub Actions run `35520740580` passed
-- Member site: `https://qismatconnections.com`
-- Admin site: `https://admin.qismatconnections.com`
+This document is the starting point for contributors joining Qismat. Read it together with `PROJECT_STATUS.md`, `ROADMAP.md`, `TASKS.md`, `DECISIONS.md` and `DEPLOYMENT_LOG.md` before changing application or deployment code.
+
+## Repository and environments
+
+- Repository: `shihan84/qismat`
+- Integration branch: `main`
+- Member website: `https://qismatconnections.com`
+- Member website alias: `https://www.qismatconnections.com`
+- Admin website: `https://admin.qismatconnections.com`
 - Shared API: `https://admin.qismatconnections.com/api/v1`
 - Health endpoint: `https://admin.qismatconnections.com/api/v1/health`
+- Latest verified staging release: `f1027c45a1170749c27e73213b01e59cf1dabd3f`
+- Verified cPanel deployment run: `36141015275`
 
-The Laravel runtime is deployed to `CPANEL_API_PATH`, outside the admin document root. The admin deployment installs `_qismat_api.php` as a symlink to Laravel's public front controller. `admin/public/.htaccess` routes `/api/*` through that entry point and sends other non-file requests to the React admin application.
+The Laravel runtime is deployed outside the public admin document root. The admin domain routes only `/api/*` to Laravel; other non-file requests load the React admin application.
 
-## Verified behavior
+## Architecture
 
-- The Laravel suite passes with 27 tests and 104 assertions; backend CI, web/admin builds and Android build are green.
-- Web and admin dependency audits report no known vulnerabilities.
-- Admin and member sites return HTTP 200 over valid TLS.
-- The shared health endpoint returns the expected `qismat-api` JSON response.
-- CORS permits the member origin with credentials.
-- Android analysis, tests and release APK builds pass with the shared API URL.
-- No private keys, service-account files or production credentials are committed.
+- `backend/`: Laravel 12 API, MySQL/MariaDB data, Firebase token verification and Sanctum API sessions.
+- `web/`: public matrimonial website and member portal.
+- `admin/`: administrator authentication and profile-moderation dashboard.
+- `mobile/`: Flutter application shell for Android and iOS.
+- `.github/workflows/`: backend, web/admin, Android and cPanel deployment automation.
+- `docs/`: product status, plans, decisions, bugs and deployment history.
 
-## Implemented product foundation
+Firebase owns member identity. Laravel verifies Firebase ID tokens, synchronizes the local user by Firebase UID and issues a Sanctum token. Laravel/MySQL remains the authority for profiles, roles, moderation, discovery and other business data.
 
-- Firebase ID-token verification and Firebase-to-Sanctum exchange.
-- Verified-email and active-account enforcement.
-- Profile CRUD, adult eligibility, moderation state, submission and discovery opt-in.
-- Discovery excludes hidden, unapproved, opted-out, inactive and unverified accounts.
-- Interest send/respond foundation; new interests require a discoverable receiver.
-- Activity logging for interest actions.
-- Versioned API response and error contract.
-- cPanel database preflight, environment merging, migrations, frontend deployment and health verification.
+Email/password registration, login and password reset are proxied through Laravel. This avoids browser API-key and origin problems while retaining Firebase verification emails. Both apex and `www` member origins are permitted by Laravel CORS.
 
-## Material gaps
+## Implemented and deployed
 
-1. Web and admin authentication plus the admin moderation queue are implemented in the current feature branch. They require the Firebase Web API key deployment secret and live verification before this gap is closed. Profile editing, discovery and the remaining member screens are still incomplete.
-2. Android remains a visual shell and does not yet authenticate or call the profile APIs.
-3. Photo upload/moderation, partner preferences, favourites, reports, blocking, chat, notifications, subscriptions and payments remain incomplete.
-4. The iOS native project is not committed and Xcode Cloud is not active.
-5. Deployment updates files in place. Atomic release directories, rollback switching and a tested database rollback procedure are still required.
-6. SSH host discovery currently uses `ssh-keyscan`. Replace it with a pinned `known_hosts` value stored in GitHub Secrets.
-7. Remove or redirect the obsolete `api.qismatconnections.com` DNS/subdomain after confirming no external client uses it.
+- Premium public landing page and responsive member access panel.
+- Firebase email/password registration, email verification, login and password recovery.
+- Laravel Firebase proxy, server-side ID-token verification and Sanctum exchange.
+- Google sign-in website integration and Laravel token exchange.
+- Apple sign-in code removed from the visible flow until credentials are available.
+- Member profile editing, required-field readiness, moderation submission and discovery controls.
+- Persistent moderation feedback returned to the member without leaking into discovery.
+- Admin login, active-admin role enforcement, dashboard counts and audited approve/reject moderation.
+- Profile CRUD, moderation states, discovery eligibility and interest send/respond API foundation.
+- cPanel database preflight, managed environment deployment, migrations, frontend deployment and API health checks.
+- CI builds for backend, web/admin and Android.
 
-## Agreed delivery order
+## Immediate priorities
 
-Complete the member web application and admin dashboard first. Develop the Android application against the same shared API and module contracts during this phase. Start native iOS packaging after the web, admin and Android feature set is stable; build and release iOS through Xcode Cloud.
+1. Enable Google under Firebase Authentication → Sign-in method and complete a live Google login test.
+2. Provision the first production administrator from the server console and verify the moderation workflow.
+3. Implement profile photos, privacy controls and moderation.
+4. Add partner preferences, search, filters, favourites and recommendation foundations.
+5. Connect Android Firebase authentication and member modules to the shared API.
+6. Add atomic cPanel releases, a tested rollback procedure and pinned SSH host verification.
 
-1. Add admin Firebase login, enforce Laravel `role=admin` middleware and build moderation list/approve/reject endpoints and screens.
-2. Connect member web and Android Firebase flows to `POST /api/v1/auth/firebase`; store Sanctum tokens securely and implement logout and recovery.
-3. Build profile onboarding on web and Android against the current profile/status endpoints, with admin moderation support.
-4. Add photo storage, moderation and visibility rules across web, admin and Android.
-5. Connect discovery and interests, then implement favourites, reporting/blocking and mutual-match chat across web and Android.
-6. Complete responsive web/admin QA and Android release QA against the shared staging API.
-7. Commit the iOS native project, configure Firebase iOS files through secure build settings, reuse the stable API/module behavior and enable Xcode Cloud.
-8. Add atomic cPanel releases, pinned SSH host verification, backup/restore validation and a documented production release gate.
+## Explicitly deferred
 
-## Deployment and rollback notes
+- Apple login: wait for Apple Developer membership, Service ID, Team ID, Key ID and private key.
+- Branded authentication email: default Firebase verification/reset emails work, but Firebase currently blocks template edits. Revisit Firebase template access or use Firebase Admin action links with an approved Laravel SMTP provider.
+- Native iOS release work and Xcode Cloud: start after shared web, admin and Android behavior stabilizes.
+- Payments: wait for an approved provider and credentials.
 
-Relevant upstream `main` changes automatically run `.github/workflows/deploy-cpanel.yml`; documentation-only and mobile-only commits do not deploy cPanel. Deployments are serialized. The workflow builds artifacts in GitHub Actions, verifies the database, uploads Laravel and both frontends, runs migrations, installs the admin-domain gateway and validates the exact JSON health response.
+## Known operational notes
 
-For application rollback, redeploy a known-good Git ref through the manual workflow input. Do not reverse database migrations automatically. Review each migration, restore from a tested backup when required, and record the result in `docs/DEPLOYMENT_LOG.md`.
+- The Google provider code is deployed, but Google must still be enabled in Firebase Console.
+- Default Firebase verification emails may enter Spam and currently use Firebase project branding.
+- The first administrator must be promoted from the server console after their Firebase account has signed in once:
 
-Required GitHub secrets are `CPANEL_HOST`, `CPANEL_USER`, `CPANEL_PORT`, `CPANEL_SSH_KEY`, `CPANEL_SSH_KEY_PASSPHRASE`, `CPANEL_API_PATH`, `CPANEL_WEB_PATH`, `CPANEL_ADMIN_PATH`, `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON` and `LARAVEL_APP_KEY`. Values must never be copied into repository files or handoff messages.
+  `php artisan qismat:admin admin@example.com`
 
-Create or promote the first admin only from the server console after the Firebase account has signed in once: `php artisan qismat:admin admin@example.com`. The command revokes existing API sessions when the role changes. Never add a public role-assignment endpoint.
+- Never add a public role-assignment endpoint.
+- The obsolete `api.qismatconnections.com` hostname is not used because cPanel presents an unrelated certificate for it.
+- cPanel does not provide the required build tools, so Composer and frontend production artifacts are built in GitHub Actions.
+- Deployments currently update files in place. Database migrations must not be automatically reversed during rollback.
+
+## Contributor workflow
+
+1. Fetch the latest `origin/main` before starting.
+2. Create a focused branch from `origin/main`; do not commit directly to `main`.
+3. Keep one concern per pull request and include verification performed.
+4. Run relevant tests and production builds locally before pushing.
+5. Open a pull request against `main` and wait for required GitHub Actions checks.
+6. Resolve conflicts by preserving newer upstream work; do not overwrite another contributor's changes.
+7. Merge only after checks pass and the change is reviewed.
+8. Update the appropriate files in `docs/` whenever scope, status, architecture, deployment or blockers change.
+
+Useful local checks:
+
+- Backend: `cd backend && php artisan test`
+- Member web: `npm --prefix web ci && npm --prefix web run build`
+- Admin: `npm --prefix admin ci && npm --prefix admin run build`
+- Flutter: `cd mobile && flutter analyze && flutter test`
+
+## Deployment behavior
+
+Relevant changes merged to `main` automatically run `.github/workflows/deploy-cpanel.yml`. Documentation-only and mobile-only changes do not deploy cPanel. Deployments are serialized and perform:
+
+1. Secret validation.
+2. Laravel production dependency build.
+3. Member and admin production builds.
+4. Database connectivity verification.
+5. Managed Laravel environment preparation.
+6. Backend and frontend upload.
+7. Database migrations.
+8. Admin-domain API gateway integration.
+9. Exact JSON health verification.
+
+For application rollback, redeploy a known-good Git reference through the manual workflow input. Review database migrations separately and restore from a tested backup when required. Record material deployments and rollbacks in `DEPLOYMENT_LOG.md`.
+
+## Secrets and access boundaries
+
+Required GitHub secrets include:
+
+- `CPANEL_HOST`, `CPANEL_USER`, `CPANEL_PORT`
+- `CPANEL_SSH_KEY`, `CPANEL_SSH_KEY_PASSPHRASE`
+- `CPANEL_API_PATH`, `CPANEL_WEB_PATH`, `CPANEL_ADMIN_PATH`
+- `DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`
+- `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`
+- `FIREBASE_SERVICE_ACCOUNT_JSON`
+- `LARAVEL_APP_KEY`
+
+Contributors may reference secret names but must never request, print, download, copy or commit their values. Do not place production credentials in issues, pull requests, logs, screenshots, handoff documents or chat messages. Changes to secrets, Firebase providers, DNS, administrator roles or production infrastructure require owner coordination.
+
+## Handoff expectations
+
+Every contributor should leave:
+
+- A focused pull request with a clear summary.
+- Tests/builds performed and their results.
+- Any migration, secret-name or deployment impact.
+- Remaining limitations and the next recommended step.
+- Updated project documentation when the change affects tracked scope or status.
+
+If work is incomplete, leave the branch in a buildable state and document the exact blocker rather than merging partial production behavior.
