@@ -35,8 +35,20 @@ class ProfileController extends Controller
             'city' => ['sometimes', 'nullable', 'string', 'max:80'],
             'education' => ['sometimes', 'nullable', 'string', 'max:180'],
             'occupation' => ['sometimes', 'nullable', 'string', 'max:180'],
+            'company' => ['sometimes', 'nullable', 'string', 'max:180'],
+            'annual_income' => ['sometimes', 'nullable', 'integer', 'min:0'],
             'about_me' => ['sometimes', 'nullable', 'string', 'max:3000'],
             'partner_expectations' => ['sometimes', 'array'],
+            'partner_expectations.summary' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'family_details' => ['sometimes', 'array'],
+            'family_details.family_type' => ['sometimes', 'nullable', 'in:nuclear,joint,extended,other'],
+            'family_details.family_values' => ['sometimes', 'nullable', 'in:traditional,moderate,liberal'],
+            'family_details.father_occupation' => ['sometimes', 'nullable', 'string', 'max:180'],
+            'family_details.mother_occupation' => ['sometimes', 'nullable', 'string', 'max:180'],
+            'family_details.siblings' => ['sometimes', 'nullable', 'integer', 'between:0,20'],
+            'family_details.family_location' => ['sometimes', 'nullable', 'string', 'max:180'],
+            'family_details.summary' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'visibility' => ['sometimes', 'in:members,private,hidden'],
         ]);
 
         $existingProfile = $request->user()->profile()->first();
@@ -45,7 +57,7 @@ class ProfileController extends Controller
             $data + ['profile_code' => $existingProfile?->profile_code ?? $this->newProfileCode()]
         );
 
-        $reviewedFieldsChanged = $profile->wasChanged(['display_name', 'gender', 'date_of_birth', 'marital_status', 'religion', 'community', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation', 'about_me', 'partner_expectations']);
+        $reviewedFieldsChanged = $profile->wasChanged(['display_name', 'gender', 'date_of_birth', 'marital_status', 'religion', 'community', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation', 'company', 'annual_income', 'about_me', 'family_details', 'partner_expectations', 'visibility']);
         $profile->forceFill(['profile_completion' => $this->readiness->percentage($profile)])->save();
 
         // Any change to reviewed public information requires a fresh moderation decision.

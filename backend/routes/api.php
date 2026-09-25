@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FirebaseAuthController;
 use App\Http\Controllers\Api\V1\InterestController;
 use App\Http\Controllers\Api\V1\MatchController;
+use App\Http\Controllers\Api\V1\PartnerPreferenceController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ProfileOnboardingController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/profile/onboarding-status', [ProfileOnboardingController::class, 'status']);
             Route::post('/profile/submit', [ProfileOnboardingController::class, 'submit']);
             Route::put('/profile/discovery', [ProfileOnboardingController::class, 'discovery']);
+            Route::get('/profile/partner-preferences', [PartnerPreferenceController::class, 'show']);
+            Route::put('/profile/partner-preferences', [PartnerPreferenceController::class, 'update']);
 
             Route::get('/matches', [MatchController::class, 'index']);
 

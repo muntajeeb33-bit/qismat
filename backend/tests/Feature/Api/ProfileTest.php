@@ -39,4 +39,63 @@ class ProfileTest extends TestCase
             'date_of_birth' => now()->subYears(10)->toDateString(),
         ])->assertUnprocessable()->assertJsonValidationErrors('date_of_birth');
     }
+
+    public function test_member_can_save_structured_family_and_career_details(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->putJson('/api/v1/profile', [
+            'company' => 'Qismat Technologies',
+            'annual_income' => 85000,
+            'family_details' => [
+                'family_type' => 'nuclear',
+                'family_values' => 'moderate',
+                'father_occupation' => 'Teacher',
+                'mother_occupation' => 'Doctor',
+                'siblings' => 2,
+                'family_location' => 'London',
+                'summary' => 'A close and supportive family.',
+            ],
+            'partner_expectations' => [
+                'summary' => 'Kind, respectful and committed to marriage.',
+            ],
+            'visibility' => 'private',
+        ])->assertOk()
+            ->assertJsonPath('data.company', 'Qismat Technologies')
+            ->assertJsonPath('data.annual_income', 85000)
+            ->assertJsonPath('data.family_details.family_type', 'nuclear')
+            ->assertJsonPath('data.family_details.siblings', 2)
+            ->assertJsonPath('data.partner_expectations.summary', 'Kind, respectful and committed to marriage.')
+            ->assertJsonPath('data.visibility', 'private');
+
+        $this->assertDatabaseHas('profiles', [
+            'user_id' => $user->id,
+            'company' => 'Qismat Technologies',
+            'annual_income' => 85000,
+            'visibility' => 'private',
+        ]);
+    }
+
+    public function test_structured_profile_fields_are_validated(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->putJson('/api/v1/profile', [
+            'annual_income' => -1,
+            'family_details' => [
+                'family_type' => 'invalid',
+                'family_values' => 'invalid',
+                'siblings' => 21,
+            ],
+            'visibility' => 'public',
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'annual_income',
+                'family_details.family_type',
+                'family_details.family_values',
+                'family_details.siblings',
+                'visibility',
+            ]);
+    }
 }
