@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added staged atomic cPanel releases, automatic and operator-selected application rollback, pre-deployment snapshots and daily database/member-file backups.
+- Added optional pinned SSH `known_hosts` configuration with an explicit warning while transitional key scanning remains enabled.
 - Added the complete production-v1 execution plan, Android release path and measurable launch gates.
 - Added a public marriage-purpose and anti-fraud warning, plus required acknowledgments during account registration and profile submission.
 - Added Laravel-proxied Firebase email/password authentication and www CORS coverage.

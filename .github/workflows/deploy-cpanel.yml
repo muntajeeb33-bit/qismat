@@ -32,6 +32,9 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.sha }}
 
+      - name: Set release identifier
+        run: echo "RELEASE_ID=${GITHUB_RUN_ID}-${GITHUB_SHA::12}" >> "$GITHUB_ENV"
+
       - name: Validate deployment secrets
         env:
           HOST: ${{ secrets.CPANEL_HOST }}
@@ -106,14 +109,10 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
           SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          SSH_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
           HOST: ${{ secrets.CPANEL_HOST }}
           PORT: ${{ secrets.CPANEL_PORT }}
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_deploy
-          chmod 600 ~/.ssh/qismat_deploy
-          timeout 20s ssh-keygen -p -q -P "$SSH_KEY_PASSPHRASE" -N '' -f ~/.ssh/qismat_deploy
-          timeout 20s ssh-keyscan -T 10 -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
+        run: bash .github/scripts/configure-ssh.sh ~/.ssh/qismat_deploy
 
       - name: Verify deployment database
         env:
@@ -185,15 +184,45 @@ jobs:
           php -r 'json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR);' "$RUNNER_TEMP/firebase-service-account.json"
           chmod 600 "$RUNNER_TEMP/qismat.env" "$RUNNER_TEMP/firebase-service-account.json"
 
-      - name: Deploy Laravel backend
+      - name: Back up database and member files
         env:
           HOST: ${{ secrets.CPANEL_HOST }}
           USER: ${{ secrets.CPANEL_USER }}
           PORT: ${{ secrets.CPANEL_PORT }}
           API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        run: |
+          local_credentials="$RUNNER_TEMP/qismat-backup-db.cnf"
+          remote_credentials="/tmp/qismat-backup-db-${GITHUB_RUN_ID}.cnf"
+          cleanup() {
+            rm -f "$local_credentials"
+            ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+              "rm -f '$remote_credentials'" || true
+          }
+          trap cleanup EXIT
+          php .github/scripts/write-mysql-option-file.php "$local_credentials"
+          chmod 600 "$local_credentials"
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
+            "$local_credentials" "$USER@$HOST:$remote_credentials"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            "mkdir -p '$API_PATH' && chmod 600 '$remote_credentials'"
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            bash -s -- "$API_PATH" "$DATABASE_NAME" "$remote_credentials" "predeploy-$RELEASE_ID" 14 \
+            < .github/scripts/backup-cpanel.sh
+
+      - name: Stage release
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
         run: |
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
-            "mkdir -p '$API_PATH' '$API_PATH/.secrets' && chmod 700 '$API_PATH/.secrets'"
+            "mkdir -p '$API_PATH/releases/$RELEASE_ID' '$API_PATH/.secrets' '$API_PATH/deployment' '$WEB_PATH/releases/$RELEASE_ID' '$WEB_PATH/assets' '$ADMIN_PATH/releases/$RELEASE_ID' '$ADMIN_PATH/assets' && chmod 700 '$API_PATH/.secrets'"
           rsync -az --delete \
             --exclude='.env' \
             --exclude='.secrets/' \
@@ -202,14 +231,18 @@ jobs:
             --exclude='public/storage' \
             --exclude='public/.well-known/' \
             --exclude='public/cgi-bin/' \
-            --exclude='storage/app/public/' \
-            --exclude='storage/framework/cache/data/' \
-            --exclude='storage/framework/sessions/' \
-            --exclude='storage/framework/views/' \
-            --exclude='storage/logs/' \
+            --exclude='storage/' \
             --exclude='tests/' \
             -e "ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
-            backend/ "$USER@$HOST:$API_PATH/"
+            backend/ "$USER@$HOST:$API_PATH/releases/$RELEASE_ID/"
+          rsync -az --delete -e "ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
+            web/dist/ "$USER@$HOST:$WEB_PATH/releases/$RELEASE_ID/"
+          rsync -az --delete -e "ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
+            admin/dist/ "$USER@$HOST:$ADMIN_PATH/releases/$RELEASE_ID/"
+          rsync -az -e "ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
+            web/dist/assets/ "$USER@$HOST:$WEB_PATH/assets/"
+          rsync -az -e "ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
+            admin/dist/assets/ "$USER@$HOST:$ADMIN_PATH/assets/"
           scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
             "$RUNNER_TEMP/qismat.env" "$USER@$HOST:$API_PATH/.env.${GITHUB_RUN_ID}.tmp"
           scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
@@ -217,11 +250,19 @@ jobs:
           scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
             "$RUNNER_TEMP/firebase-service-account.json" \
             "$USER@$HOST:$API_PATH/.secrets/firebase-service-account.json.${GITHUB_RUN_ID}.tmp"
+          scp -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -P "${PORT:-22}" \
+            .github/scripts/activate-cpanel-release.sh .github/scripts/rollback-cpanel-release.sh \
+            "$USER@$HOST:$API_PATH/deployment/"
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
-            bash -s -- "$API_PATH" "$GITHUB_RUN_ID" <<'REMOTE'
-          set -e
+            bash -s -- "$API_PATH" "$GITHUB_RUN_ID" "$RELEASE_ID" "$GITHUB_SHA" <<'REMOTE'
+          set -euo pipefail
           api_path="$1"
           run_id="$2"
+          release_id="$3"
+          release_sha="$4"
+          release_path="$api_path/releases/$release_id"
+          test "$release_path" = "$api_path/releases/$release_id"
+          test -f "$release_path/artisan"
           cd "$api_path"
           cleanup() {
             rm -f ".env.${run_id}.tmp" ".env.${run_id}.new" ".merge-dotenv.${run_id}.php"
@@ -232,60 +273,34 @@ jobs:
           mv ".env.${run_id}.new" .env
           mv ".secrets/firebase-service-account.json.${run_id}.tmp" .secrets/firebase-service-account.json
           chmod 600 .env .secrets/firebase-service-account.json
-          mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
-          chmod -R u+rwX storage bootstrap/cache
-          php artisan config:clear
+          mkdir -p storage/app/public storage/app/private storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
+          chmod -R u+rwX storage
+          rm -rf "$release_path/storage"
+          ln -s "$api_path/storage" "$release_path/storage"
+          ln -s "$api_path/.env" "$release_path/.env"
+          ln -s "$api_path/storage/app/public" "$release_path/public/storage"
+          chmod -R u+rwX "$release_path/bootstrap/cache"
+          chmod 700 deployment
+          chmod 700 deployment/activate-cpanel-release.sh deployment/rollback-cpanel-release.sh
+          printf '%s\n' "$release_sha" > "$release_path/RELEASE_SHA"
+          cd "$release_path"
+          php artisan optimize:clear
           php artisan migrate --force
-          php artisan storage:link || test -L public/storage
           php artisan optimize
           REMOTE
 
-      - name: Deploy static frontends
-        env:
-          HOST: ${{ secrets.CPANEL_HOST }}
-          USER: ${{ secrets.CPANEL_USER }}
-          PORT: ${{ secrets.CPANEL_PORT }}
-          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
-          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
-        run: |
-          rsync -az --delete --exclude='.well-known/' --exclude='cgi-bin/' -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" web/dist/ "$USER@$HOST:$WEB_PATH/"
-          rsync -az --delete \
-            --exclude='.well-known/' \
-            --exclude='cgi-bin/' \
-            --exclude='_qismat_api.php' \
-            --exclude='storage' \
-            -e "ssh -i ~/.ssh/qismat_deploy -p ${PORT:-22}" \
-            admin/dist/ "$USER@$HOST:$ADMIN_PATH/"
-
-      - name: Integrate API with admin domain
+      - name: Activate release
+        id: activate
         env:
           HOST: ${{ secrets.CPANEL_HOST }}
           USER: ${{ secrets.CPANEL_USER }}
           PORT: ${{ secrets.CPANEL_PORT }}
           API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
           ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
         run: |
           ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
-            bash -s -- "$API_PATH" "$ADMIN_PATH" <<'REMOTE'
-          set -e
-          api_path="$1"
-          admin_path="$2"
-
-          test -f "$api_path/public/index.php"
-          test -d "$api_path/storage/app/public"
-
-          if [ -e "$admin_path/_qismat_api.php" ] && [ ! -L "$admin_path/_qismat_api.php" ]; then
-            echo "Refusing to replace non-symlink: $admin_path/_qismat_api.php" >&2
-            exit 1
-          fi
-          if [ -e "$admin_path/storage" ] && [ ! -L "$admin_path/storage" ]; then
-            echo "Refusing to replace non-symlink: $admin_path/storage" >&2
-            exit 1
-          fi
-
-          ln -sfn "$api_path/public/index.php" "$admin_path/_qismat_api.php"
-          ln -sfn "$api_path/storage/app/public" "$admin_path/storage"
-          REMOTE
+            "$API_PATH/deployment/activate-cpanel-release.sh" "$API_PATH" "$WEB_PATH" "$ADMIN_PATH" "$RELEASE_ID"
 
       - name: Verify API health
         run: |
@@ -299,3 +314,49 @@ jobs:
               exit(1);
           }
           ' "$health_file"
+
+      - name: Verify frontend releases
+        run: |
+          curl --fail --show-error --silent --retry 5 --retry-delay 3 https://qismatconnections.com/ \
+            | grep -F 'Qismat Connections' >/dev/null
+          curl --fail --show-error --silent --retry 5 --retry-delay 3 https://admin.qismatconnections.com/ \
+            | grep -F 'Qismat Admin' >/dev/null
+
+      - name: Roll back failed activation
+        if: failure() && steps.activate.outcome != 'skipped' && steps.activate.outcome != 'cancelled'
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USER }}
+          PORT: ${{ secrets.CPANEL_PORT }}
+          API_PATH: ${{ secrets.CPANEL_API_PATH }}
+          WEB_PATH: ${{ secrets.CPANEL_WEB_PATH }}
+          ADMIN_PATH: ${{ secrets.CPANEL_ADMIN_PATH }}
+        run: |
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes -i ~/.ssh/qismat_deploy -p "${PORT:-22}" "$USER@$HOST" \
+            bash -s -- "$API_PATH" "$WEB_PATH" "$ADMIN_PATH" "$RELEASE_ID" <<'REMOTE'
+          set -euo pipefail
+          api_path="$1"
+          web_path="$2"
+          admin_path="$3"
+          failed_release="$4"
+          active_release=""
+          if [[ -L "$api_path/current" ]]; then
+            active_release="$(basename "$(readlink "$api_path/current")")"
+          fi
+          if [[ "$active_release" != "$failed_release" && ! -f "$web_path/index.html.legacy-$failed_release" ]]; then
+            echo "Release activation did not switch the live entry points; no rollback is required."
+            exit 0
+          fi
+          if [[ -L "$api_path/previous" && -L "$web_path/previous" && -L "$admin_path/previous" ]]; then
+            previous_release="$(basename "$(readlink "$api_path/previous")")"
+            "$api_path/deployment/rollback-cpanel-release.sh" "$api_path" "$web_path" "$admin_path" "$previous_release"
+          else
+            test -f "$web_path/index.html.legacy-$failed_release"
+            test -f "$admin_path/index.html.legacy-$failed_release"
+            mv -Tf "$web_path/index.html.legacy-$failed_release" "$web_path/index.html"
+            mv -Tf "$admin_path/index.html.legacy-$failed_release" "$admin_path/index.html"
+            ln -sfn "$api_path/public/index.php" "$admin_path/_qismat_api.php"
+            ln -sfn "$api_path/storage/app/public" "$admin_path/storage"
+            echo "Restored the pre-atomic legacy release. Database migrations were not reversed."
+          fi
+          REMOTE

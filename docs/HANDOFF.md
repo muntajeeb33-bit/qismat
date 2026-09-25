@@ -4,7 +4,7 @@ Last updated: 2026-09-25
 
 ## Purpose
 
-This document is the starting point for contributors joining Qismat. Read it together with `PRODUCTION_PLAN.md`, `PROJECT_STATUS.md`, `ROADMAP.md`, `TASKS.md`, `DECISIONS.md` and `DEPLOYMENT_LOG.md` before changing application or deployment code.
+This document is the starting point for contributors joining Qismat. Read it together with `PRODUCTION_PLAN.md`, `OPERATIONS.md`, `PROJECT_STATUS.md`, `ROADMAP.md`, `TASKS.md`, `DECISIONS.md` and `DEPLOYMENT_LOG.md` before changing application or deployment code.
 
 ## Repository and environments
 
@@ -122,6 +122,7 @@ Required GitHub secrets include:
 - `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`
 - `FIREBASE_SERVICE_ACCOUNT_JSON`
 - `LARAVEL_APP_KEY`
+- `CPANEL_SSH_KNOWN_HOSTS` (recommended now; required before production launch)
 
 Contributors may reference secret names but must never request, print, download, copy or commit their values. Do not place production credentials in issues, pull requests, logs, screenshots, handoff documents or chat messages. Changes to secrets, Firebase providers, DNS, administrator roles or production infrastructure require owner coordination.
 

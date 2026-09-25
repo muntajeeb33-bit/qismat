@@ -36,14 +36,10 @@ jobs:
         env:
           SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
           SSH_KEY_PASSPHRASE: ${{ secrets.CPANEL_SSH_KEY_PASSPHRASE }}
+          SSH_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
           HOST: ${{ secrets.CPANEL_HOST }}
           PORT: ${{ secrets.CPANEL_PORT }}
-        run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/qismat_preflight
-          chmod 600 ~/.ssh/qismat_preflight
-          timeout 20s ssh-keygen -p -q -P "$SSH_KEY_PASSPHRASE" -N '' -f ~/.ssh/qismat_preflight
-          timeout 20s ssh-keyscan -T 10 -p "${PORT:-22}" "$HOST" >> ~/.ssh/known_hosts
+        run: bash .github/scripts/configure-ssh.sh ~/.ssh/qismat_preflight
 
       - name: Check server versions
         env:
