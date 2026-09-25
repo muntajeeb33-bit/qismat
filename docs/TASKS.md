@@ -25,7 +25,7 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 ## Next
 - [ ] Android Firebase registration/login/verification/password recovery
 - [x] Profile CRUD and onboarding-state APIs
-- [ ] Photo upload/storage rules
+- [x] Private photo upload/storage, metadata removal and authorization rules
 - [x] Partner preference model and API
 - [ ] Search/filter API
 - [x] Interest send/respond API foundation
@@ -85,3 +85,4 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Hide Apple sign-in until its provider credentials are available
 - [x] Deploy validated structured profile fields and partner-preference API
 - [x] Connect member web profile, partner preferences and visibility to the shared API
+- [x] Add member photo management and audited admin photo moderation
