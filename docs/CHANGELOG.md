@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added Laravel-proxied Firebase email/password authentication and www CORS coverage.
+- Added Google sign-in to the member website and connected its Firebase token to the existing Laravel session exchange.
+- Deferred and hid Apple sign-in until Apple Developer credentials are available.
+- Recorded the future branded authentication-email plan while default Firebase emails remain operational.
 - Added Firebase email registration, verification, login and password recovery to the member website.
 - Added Firebase admin login with server-enforced active-admin authorization.
 - Added admin dashboard counts, a pending-profile moderation queue and audited approve/reject decisions.
