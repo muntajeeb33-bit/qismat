@@ -3,9 +3,15 @@
 ## In progress
 - [x] Add Firebase project/service-account configuration
 - [x] Deploy web Firebase Authentication
+- [x] Add Google sign-in UI and Firebase-to-Laravel token exchange
+- [ ] Enable Google provider in Firebase Console and complete live login QA
 - [ ] Connect Android Firebase Authentication client
 - [x] Deploy admin authentication and moderation UI
 - [ ] Provision and verify the first production administrator account
+
+## Deferred
+- [ ] Apple login after Apple Developer credentials are available
+- [ ] Branded verification/password-reset email delivery after Firebase template access is restored or custom SMTP is approved
 
 ## Delivery order
 - [ ] Complete member web modules
@@ -25,7 +31,7 @@
 - [ ] Matching/recommendation service
 - [ ] Chat foundation
 - [ ] Block/report/privacy
-- [ ] Admin moderation
+- [x] Admin moderation foundation
 - [ ] Membership/payment foundation
 - [ ] Notifications
 
@@ -65,3 +71,7 @@
 - [x] Implement admin login, role enforcement, moderation queue and approve/reject audit trail
 - [x] Implement member web profile editing, completion, moderation submission and discovery controls
 - [x] Return admin rejection feedback to the member without exposing it in discovery results
+- [x] Proxy email/password Firebase operations through Laravel
+- [x] Allow both apex and www member origins through Laravel CORS
+- [x] Add Google sign-in to the member website
+- [x] Hide Apple sign-in until its provider credentials are available

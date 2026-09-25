@@ -1,19 +1,19 @@
 # Qismat Project Status
 
-Last updated: 2026-09-20
+Last updated: 2026-09-25
 
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 35%
+**Overall progress:** 45%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
 | Backend/API | In progress | 60% |
-| Website | In progress | 40% |
-| Admin dashboard | In progress | 20% |
+| Website | In progress | 60% |
+| Admin dashboard | In progress | 40% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
 | iOS/Xcode Cloud | Planned | 5% |
@@ -49,12 +49,18 @@ Last updated: 2026-09-20
 - [x] Shared API gateway at `admin.qismatconnections.com/api/v1`
 - [x] Successful cPanel staging deployment with database migrations and HTTPS health verification
 - [x] Web, admin, backend and Android checks passing for the deployed release
+- [x] Production web email/password registration, verification, login and recovery
+- [x] Laravel Firebase authentication proxy and verified-ID-token exchange
+- [x] Apex and www authentication CORS coverage
+- [x] Google sign-in website integration; provider activation remains
+- [x] Apple sign-in hidden until Apple Developer configuration is available
 
 ## In progress / next
 
 - [x] Firebase project/service-account configuration
 - [ ] Complete remaining admin and Android client integration
 - [x] Member web authentication and profile onboarding integration
+- [ ] Enable Google in Firebase Console and run end-to-end Google login QA
 - [ ] Profile photos and privacy rules
 - [ ] Partner preferences and recommendation engine
 - [ ] Search/filter APIs
@@ -62,7 +68,7 @@ Last updated: 2026-09-20
 - [ ] Conversations/messages after mutual acceptance
 - [ ] Block/report/moderation APIs
 - [ ] Connect web/admin/mobile shells to API
-- [ ] Admin authentication and profile moderation APIs/UI
+- [x] Admin authentication and profile moderation APIs/UI foundation
 - [ ] Pin the cPanel SSH host key in GitHub Secrets
 - [ ] Add atomic releases and a tested staging rollback procedure
 - [ ] Xcode Cloud configuration after web, admin and Android stabilization
@@ -85,8 +91,10 @@ Last updated: 2026-09-20
 - MariaDB authentication and database access are verified by the cPanel preflight.
 - `CPANEL_API_PATH`, Firebase credentials and the persistent `LARAVEL_APP_KEY` are configured.
 - Staging is deployed and healthy through the admin-domain gateway.
-- Client applications remain UI shells; endpoint constants alone do not implement login, profiles, matching or moderation screens.
-- The admin panel has no admin authentication or authorization flow yet.
+- The Flutter application remains an early shell and has not completed Firebase authentication integration.
+- Google web sign-in code is deployed, but the Google provider must still be enabled in Firebase Console.
+- Apple sign-in is intentionally deferred pending Apple Developer credentials.
+- Firebase currently blocks email-template edits for this project. Default verification emails work; branded email delivery is deferred or can later move to Laravel with custom SMTP.
 - cPanel deployment currently updates files in place and uses `ssh-keyscan`; atomic release switching and a pinned host key remain outstanding.
 - No production migration is authorized until database/storage backup and rollback procedures are completed.
 - Apple Developer and payment-provider credentials remain pending for their later stages.

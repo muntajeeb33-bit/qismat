@@ -59,3 +59,15 @@ Use Firebase Authentication on web/mobile for email/password registration, login
 **Date:** 2026-09-20
 
 Expose the shared Laravel API at `https://admin.qismatconnections.com/api/v1`. Keep the Laravel runtime outside the public admin directory and route only `/api/*` to its public front controller. The member website and Flutter clients use the same endpoint. This replaces the planned `api.qismatconnections.com` endpoint because cPanel serves an unrelated `*.web-hosting.com` certificate for that hostname.
+
+## ADR-011 — Staged social-login rollout
+**Status:** Accepted
+**Date:** 2026-09-25
+
+Complete Google sign-in first. The website uses Firebase Google popup authentication and exchanges the resulting Firebase ID token through the existing Laravel/Sanctum flow. Keep Apple sign-in hidden until Apple Developer membership and the required Service ID, Team ID, Key ID and private key are available.
+
+## ADR-012 — Authentication email branding is deferred
+**Status:** Accepted
+**Date:** 2026-09-25
+
+Continue using working default Firebase verification and password-reset emails while Firebase template updates are restricted for the project. Revisit branded delivery later through restored Firebase template access or Firebase Admin-generated action links delivered by Laravel through an approved SMTP provider.
