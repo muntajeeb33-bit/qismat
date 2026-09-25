@@ -5,14 +5,14 @@ Last updated: 2026-09-25
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 47%
+**Overall progress:** 49%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
 | Backend/API | In progress | 65% |
-| Website | In progress | 60% |
+| Website | In progress | 68% |
 | Admin dashboard | In progress | 40% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
@@ -56,6 +56,7 @@ Last updated: 2026-09-25
 - [x] Google sign-in website integration; provider activation remains
 - [x] Apple sign-in hidden until Apple Developer configuration is available
 - [x] Structured family/career profile fields and partner-preference API deployed
+- [x] Member web profile, partner-preference and visibility integration deployed
 
 ## In progress / next
 
