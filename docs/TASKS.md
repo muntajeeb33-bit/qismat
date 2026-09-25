@@ -26,7 +26,7 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [ ] Android Firebase registration/login/verification/password recovery
 - [x] Profile CRUD and onboarding-state APIs
 - [ ] Photo upload/storage rules
-- [ ] Partner preference model
+- [x] Partner preference model and API
 - [ ] Search/filter API
 - [x] Interest send/respond API foundation
 - [ ] Shortlist/favourites
@@ -83,3 +83,4 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Allow both apex and www member origins through Laravel CORS
 - [x] Add Google sign-in to the member website
 - [x] Hide Apple sign-in until its provider credentials are available
+- [x] Deploy validated structured profile fields and partner-preference API
