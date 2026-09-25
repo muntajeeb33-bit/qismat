@@ -13,6 +13,7 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
+  const [purposeAccepted, setPurposeAccepted] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
@@ -41,6 +42,10 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
   }
 
   async function googleLogin() {
+    if (mode === 'register' && !purposeAccepted) {
+      setMessage('Confirm that you are joining Qismat for genuine marriage purposes.');
+      return;
+    }
     setBusy(true); setMessage(''); setSuccess(false);
     try {
       const idToken = await firebaseGoogleLogin();
@@ -63,6 +68,7 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
       {mode === 'register' && <label>Full name<input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required /></label>}
       <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>
       <label>Password<input type="password" minLength="8" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} required /></label>
+      {mode === 'register' && <label className="purpose-check"><input type="checkbox" checked={purposeAccepted} onChange={(event) => setPurposeAccepted(event.target.checked)} required /><span>I am an adult genuinely seeking marriage. I will provide truthful information and will not use Qismat for scams, solicitation, or commercial marriage-bureau or agency activity.</span></label>}
       {message && <div className={`auth-notice ${success ? 'success' : 'error'}`}>{message}</div>}
       <button className="btn btn-primary auth-submit" disabled={busy || !firebaseConfigured}>{busy ? 'Please wait…' : mode === 'register' ? 'Create account' : 'Sign in'}</button>
     </form>
