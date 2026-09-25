@@ -30,4 +30,9 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         return $this->hasOne(Profile::class);
     }
+
+    public function partnerPreference()
+    {
+        return $this->hasOne(PartnerPreference::class);
+    }
 }

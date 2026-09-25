@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added a shared, validated partner-preference API and structured family, career and profile-visibility fields for web and mobile clients.
 - Added staged atomic cPanel releases, automatic and operator-selected application rollback, pre-deployment snapshots and daily database/member-file backups.
 - Added optional pinned SSH `known_hosts` configuration with an explicit warning while transitional key scanning remains enabled.
 - Added the complete production-v1 execution plan, Android release path and measurable launch gates.
