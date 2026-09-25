@@ -5,15 +5,15 @@ Last updated: 2026-09-25
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 49%
+**Overall progress:** 55%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 65% |
-| Website | In progress | 68% |
-| Admin dashboard | In progress | 40% |
+| Backend/API | In progress | 72% |
+| Website | In progress | 76% |
+| Admin dashboard | In progress | 52% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
 | iOS/Xcode Cloud | Planned | 5% |
@@ -57,6 +57,7 @@ Last updated: 2026-09-25
 - [x] Apple sign-in hidden until Apple Developer configuration is available
 - [x] Structured family/career profile fields and partner-preference API deployed
 - [x] Member web profile, partner-preference and visibility integration deployed
+- [x] Private photo API, member photo manager and admin photo moderation deployed
 
 ## In progress / next
 
@@ -64,7 +65,7 @@ Last updated: 2026-09-25
 - [ ] Complete remaining admin and Android client integration
 - [x] Member web authentication and profile onboarding integration
 - [ ] Enable Google in Firebase Console and run end-to-end Google login QA
-- [ ] Profile photos and privacy rules
+- [x] Profile photos and privacy rules
 - [x] Partner-preference model and API
 - [ ] Recommendation engine
 - [ ] Search/filter APIs
@@ -87,7 +88,7 @@ Last updated: 2026-09-25
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | through migration `2026_09_25_000200` |
+| Database schema | through migration `2026_09_25_000300` |
 
 ## Major blockers and risks
 
