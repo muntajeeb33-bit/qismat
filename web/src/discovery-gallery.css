@@ -1,0 +1,1 @@
+.profile-gallery{display:flex;gap:8px;overflow:auto;margin:16px 0}.profile-gallery>img,.profile-gallery>.match-placeholder{width:76px;min-width:76px;height:88px;min-height:88px;border-radius:9px;object-fit:cover;font-size:25px}

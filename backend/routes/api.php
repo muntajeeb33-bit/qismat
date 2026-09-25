@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AdminDashboardController;
+use App\Http\Controllers\Api\V1\AdminDiscoveryController;
 use App\Http\Controllers\Api\V1\AdminPhotoModerationController;
 use App\Http\Controllers\Api\V1\AdminProfileModerationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FirebaseAuthController;
+use App\Http\Controllers\Api\V1\FavouriteController;
 use App\Http\Controllers\Api\V1\InterestController;
 use App\Http\Controllers\Api\V1\MatchController;
 use App\Http\Controllers\Api\V1\PartnerPreferenceController;
@@ -34,6 +36,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('admin')->middleware(['verified', 'admin'])->group(function () {
             Route::get('/dashboard', AdminDashboardController::class);
+            Route::get('/discovery', AdminDiscoveryController::class);
             Route::get('/profiles', [AdminProfileModerationController::class, 'index']);
             Route::post('/profiles/{profile}/review', [AdminProfileModerationController::class, 'review']);
             Route::get('/photos', [AdminPhotoModerationController::class, 'index']);
@@ -57,6 +60,10 @@ Route::prefix('v1')->group(function () {
                 ->name('profile.photos.content');
 
             Route::get('/matches', [MatchController::class, 'index']);
+            Route::get('/matches/{profile}', [MatchController::class, 'show']);
+            Route::get('/favourites', [FavouriteController::class, 'index']);
+            Route::post('/favourites', [FavouriteController::class, 'store']);
+            Route::delete('/favourites/{profile}', [FavouriteController::class, 'destroy']);
 
             Route::get('/interests', [InterestController::class, 'index']);
             Route::post('/interests', [InterestController::class, 'store']);

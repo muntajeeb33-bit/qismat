@@ -8,6 +8,10 @@ use App\Models\User;
 
 class ProfilePhotoAccess
 {
+    public function __construct(private readonly DiscoverableProfiles $discoverable)
+    {
+    }
+
     public function canView(User $viewer, ProfilePhoto $photo): bool
     {
         if ($viewer->id === $photo->user_id || ($viewer->role === 'admin' && $viewer->status === 'active')) {
@@ -25,7 +29,7 @@ class ProfilePhotoAccess
         }
 
         if ($photo->visibility === 'members') {
-            return $profile->visibility === 'members' && (bool) $profile->discovery_opt_in;
+            return $this->discoverable->query($viewer)->where('user_id', $owner->id)->exists();
         }
 
         if ($photo->visibility === 'matches') {

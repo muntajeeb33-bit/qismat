@@ -45,6 +45,7 @@ export const getCurrentUser = () => request('/auth/me').then(({ data }) => data)
 export const getDashboard = () => request('/admin/dashboard').then(({ data }) => data);
 export const getPendingProfiles = () => request('/admin/profiles?status=pending').then(({ data }) => data);
 export const getPendingPhotos = () => request('/admin/photos?status=pending').then(({ data }) => data);
+export const getDiscoveryDiagnostics = (query = '') => request(`/admin/discovery${query ? `?q=${encodeURIComponent(query)}` : ''}`).then(({ data }) => data);
 export const reviewProfile = (profileId, decision, reason) => request(`/admin/profiles/${profileId}/review`, {
   method: 'POST',
   body: JSON.stringify({ decision, reason: reason || null }),

@@ -10,7 +10,7 @@ Ship a safe, supportable Qismat production service consisting of the member webs
 
 - Laravel owns all business, privacy, moderation, matching and entitlement rules.
 - Web, admin and Android consume the same versioned API contracts.
-- Complete and stabilize each API and web/admin feature before its Android screen is considered complete.
+- Complete and stabilize the full web/admin launch scope before starting the remaining Android product implementation.
 - Every merge must leave the relevant builds and tests green and must update project tracking when scope or state changes.
 - Staging is the integration environment. Production promotion requires the launch gates in this document.
 - Payments and Apple sign-in cannot block a safe free launch unless they are explicitly selected as day-one business requirements.
@@ -101,7 +101,7 @@ Web and admin:
 - Add profile sections, photo manager, privacy choices and accurate completion guidance.
 - Add photo moderation, rejection reasons, preview and member feedback.
 
-Android:
+Android (deferred until the web/admin completion gate):
 
 - Establish feature-based app structure, API client, secure token storage, environment configuration and reusable error/loading states.
 - Implement Firebase email/password and Google authentication, verification, recovery and session exchange.
@@ -109,7 +109,7 @@ Android:
 
 Exit criteria:
 
-- An adult member can register, complete a truthful profile, upload photos, receive moderation feedback, resubmit and deliberately enter discovery on web and Android.
+- An adult member can register, complete a truthful profile, upload photos, receive moderation feedback, resubmit and deliberately enter discovery on the web.
 - Unauthorized users cannot retrieve private or unapproved photos.
 
 ### Batch 3 — Discovery and matching foundation
@@ -119,11 +119,11 @@ Exit criteria:
 - Enforce approval, opt-in, block and visibility rules in one backend query/service.
 - Add deterministic first-pass recommendations with explainable factors and no sensitive internal scoring in responses.
 - Add favourites and privacy-aware profile-view recording.
-- Build matching web views and admin diagnostics, then the equivalent Android screens.
+- Build matching web views and admin diagnostics. Android equivalents belong to the later Android parity phase.
 
 Exit criteria:
 
-- Web and Android return the same eligible profiles for equivalent requests.
+- Web returns only eligible profiles through the shared API contract that Android will later consume.
 - Blocked, suspended, hidden, incomplete and unapproved profiles never appear.
 - Pagination and filter queries remain within agreed performance targets using production-like data.
 
@@ -134,7 +134,7 @@ Exit criteria:
 - Add block/unblock and report flows with reason categories and optional evidence metadata.
 - Immediately hide blocked parties from discovery, interests and communication.
 - Build the admin report queue, resolution notes, suspension/reactivation and audit history.
-- Deliver the complete workflows on web and Android.
+- Deliver the complete workflows on web and in the admin console before Android parity work begins.
 
 Exit criteria:
 
@@ -260,18 +260,17 @@ Keep pull requests reviewable and deployable in this order:
 3. Private photo storage and APIs.
 4. Web photo/privacy experience.
 5. Admin photo moderation.
-6. Android architecture and authentication.
-7. Android profile/photo experience.
-8. Discovery/search/recommendation API.
-9. Web discovery, favourites and interests.
-10. Android discovery, favourites and interests.
-11. Block/report backend and admin operations.
-12. Web and Android block/report flows.
-13. Messaging and notification backend.
-14. Web messaging and Android messaging/push.
-15. Account deletion, public policies and consent versioning.
-16. Admin completion, observability and release hardening.
-17. Android signing, Play testing and production release.
+6. Discovery/search/recommendation API.
+7. Web discovery, favourites and interests.
+8. Block/report backend and admin operations.
+9. Web block/report flows.
+10. Messaging and notification backend.
+11. Web messaging and account controls.
+12. Account deletion, public policies and consent versioning.
+13. Admin completion, observability and web production hardening.
+14. Android architecture and authentication.
+15. Android profile, discovery, safety, messaging and notification parity.
+16. Android signing, Play testing and production release.
 
 ## Definition of done for every slice
 

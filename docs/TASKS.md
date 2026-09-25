@@ -7,7 +7,6 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Deploy web Firebase Authentication
 - [x] Add Google sign-in UI and Firebase-to-Laravel token exchange
 - [ ] Enable Google provider in Firebase Console and complete live login QA
-- [ ] Connect Android Firebase Authentication client
 - [x] Deploy admin authentication and moderation UI
 - [ ] Provision and verify the first production administrator account
 
@@ -23,19 +22,20 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [ ] Build and release the native iOS client through Xcode Cloud
 
 ## Next
-- [ ] Android Firebase registration/login/verification/password recovery
 - [x] Profile CRUD and onboarding-state APIs
 - [x] Private photo upload/storage, metadata removal and authorization rules
 - [x] Partner preference model and API
-- [ ] Search/filter API
+- [x] Search/filter API
 - [x] Interest send/respond API foundation
-- [ ] Shortlist/favourites
-- [ ] Matching/recommendation service
+- [x] Shortlist/favourites
+- [x] Explainable matching/recommendation foundation
 - [ ] Chat foundation
 - [ ] Block/report/privacy
 - [x] Admin moderation foundation
 - [ ] Membership/payment foundation
 - [ ] Notifications
+- [ ] Finish all member web and admin launch workflows and production QA
+- [ ] Android Firebase registration/login/verification/password recovery after the web/admin completion gate
 
 ## DevOps
 - [x] `.env.example` files without secrets
