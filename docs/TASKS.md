@@ -46,7 +46,8 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] staging configuration and successful deployment
 - [x] Add atomic release, automatic rollback and manual rollback workflow implementation
 - [x] Add pre-deployment and daily database/member-file backup automation
-- [ ] Verify the first atomic staging deployment and operator-selected rollback
+- [x] Verify the first atomic staging deployment with a pre-migration backup and public health checks
+- [ ] Rehearse operator-selected application rollback on staging
 - [ ] Rehearse a backup restore into a separate non-production environment
 - [ ] Configure encrypted off-host backup copies and retention
 - [ ] Add and verify the `CPANEL_SSH_KNOWN_HOSTS` secret, then remove transitional key scanning
