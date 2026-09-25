@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { submitProfile, updatePartnerPreferences, updateProfile } from './api';
+import { PhotoManager } from './photos';
 import './profile.css';
 
 const initial = {
@@ -158,6 +159,7 @@ export function ProfileEditor({ profile, preferences, status, onCancel, onComple
         <label className="span-2">Anything else that matters<textarea name="summary" value={preferenceFormState.summary} onChange={changePreference} maxLength="2000" rows="4" /></label>
       </div></section>
       <section><h2>Privacy</h2><div className="form-grid"><label className="span-2">Profile visibility<select name="visibility" value={form.visibility} onChange={change}><option value="members">Visible to eligible members after approval and discovery opt-in</option><option value="private">Private until you change this setting</option><option value="hidden">Hidden from discovery</option></select><small>Approval alone never makes your profile discoverable. You must also enter discovery.</small></label></div></section>
+      <PhotoManager />
       <section className="profile-purpose"><h2>Truthful profiles protect everyone</h2><p>Qismat Connections is strictly for adults genuinely seeking marriage. False identities or information, scams, solicitation, and commercial use by marriage bureaus, agents, or businesses are prohibited. Violations may result in rejection, suspension, or removal, and suspected unlawful activity may be reported to the appropriate authorities.</p><label><input type="checkbox" checked={purposeConfirmed} onChange={(event) => setPurposeConfirmed(event.target.checked)} required /><span>I confirm that my profile is truthful and intended only for genuinely seeking marriage.</span></label></section>
       {message && <div className="auth-notice error">{message}</div>}
       <div className="profile-actions"><button type="button" className="btn profile-secondary" onClick={() => save(false)} disabled={busy}>{busy ? 'Saving…' : 'Save draft'}</button><button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Please wait…' : 'Save and submit for review'}</button></div>

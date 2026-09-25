@@ -22,7 +22,7 @@ class MatchController extends Controller
         ]);
 
         $me = $r->user();
-        $q = Profile::query()->where('user_id', '!=', $me->id)->where('visibility', 'members')->where('moderation_status', 'approved')->where('discovery_opt_in', true)->whereNotNull('date_of_birth')->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())->whereHas('user', fn ($u) => $u->where('status', 'active')->whereNotNull('email_verified_at'));
+        $q = Profile::query()->where('user_id', '!=', $me->id)->where('visibility', 'members')->where('moderation_status', 'approved')->where('discovery_opt_in', true)->whereNotNull('date_of_birth')->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())->whereHas('photos', fn ($photos) => $photos->where('is_primary', true)->where('moderation_status', 'approved'))->whereHas('user', fn ($u) => $u->where('status', 'active')->whereNotNull('email_verified_at'));
         if ($gender = $filters['gender'] ?? null) {
             $q->where('gender', $gender);
         }

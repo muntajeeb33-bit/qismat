@@ -29,7 +29,8 @@ async function request(path, options = {}) {
   });
   const payload = await response.json().catch(() => null);
   if (!response.ok || !payload?.success) {
-    throw new ApiError(payload?.message || 'The request could not be completed.', response.status, payload?.errors);
+    const validationMessage = Object.values(payload?.errors || {}).flat()[0];
+    throw new ApiError(validationMessage || payload?.message || 'The request could not be completed.', response.status, payload?.errors);
   }
   return payload;
 }
@@ -43,10 +44,22 @@ export async function exchangeFirebaseToken(idToken) {
 export const getCurrentUser = () => request('/auth/me').then(({ data }) => data);
 export const getDashboard = () => request('/admin/dashboard').then(({ data }) => data);
 export const getPendingProfiles = () => request('/admin/profiles?status=pending').then(({ data }) => data);
+export const getPendingPhotos = () => request('/admin/photos?status=pending').then(({ data }) => data);
 export const reviewProfile = (profileId, decision, reason) => request(`/admin/profiles/${profileId}/review`, {
   method: 'POST',
   body: JSON.stringify({ decision, reason: reason || null }),
 }).then(({ data }) => data);
+export const reviewPhoto = (photoId, decision, reason) => request(`/admin/photos/${photoId}/review`, {
+  method: 'POST',
+  body: JSON.stringify({ decision, reason: reason || null }),
+}).then(({ data }) => data);
+export async function getPhotoBlob(contentUrl) {
+  const response = await fetch(contentUrl, {
+    headers: { Accept: 'image/*', Authorization: `Bearer ${session.get()}` },
+  });
+  if (!response.ok) throw new ApiError('The photo could not be loaded.', response.status);
+  return response.blob();
+}
 
 export async function logoutApi() {
   try {

@@ -14,7 +14,7 @@ class ProfileOnboardingTest extends TestCase
 
     private function completeProfile(User $user): Profile
     {
-        return $user->profile()->create([
+        $profile = $user->profile()->create([
             'profile_code' => 'QSM'.str_pad((string) $user->id, 9, '0', STR_PAD_LEFT),
             'display_name' => 'Example Member',
             'date_of_birth' => now()->subYears(25)->toDateString(),
@@ -23,6 +23,15 @@ class ProfileOnboardingTest extends TestCase
             'about_me' => 'A complete member biography.',
             'visibility' => 'members',
         ]);
+        $user->profilePhotos()->create([
+            'disk' => 'profile_photos',
+            'path' => "users/{$user->id}/approved-primary.jpg",
+            'is_primary' => true,
+            'visibility' => 'members',
+            'moderation_status' => 'approved',
+        ]);
+
+        return $profile;
     }
 
     public function test_profile_stays_hidden_until_approved_and_member_opts_in(): void
@@ -170,6 +179,27 @@ class ProfileOnboardingTest extends TestCase
         $this->getJson('/api/v1/matches')
             ->assertOk()
             ->assertJsonCount(0, 'data.data');
+    }
+
+    public function test_profile_requires_an_approved_primary_photo_for_discovery(): void
+    {
+        $member = User::factory()->create();
+        $profile = $this->completeProfile($member);
+        $profile->forceFill(['moderation_status' => 'approved'])->save();
+        $member->profilePhotos()->update(['moderation_status' => 'pending']);
+        Sanctum::actingAs($member);
+
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertOk()
+            ->assertJsonPath('data.has_approved_primary_photo', false)
+            ->assertJsonPath('data.discoverable', false);
+        $this->putJson('/api/v1/profile/discovery', ['enabled' => true])
+            ->assertForbidden();
+
+        $member->profilePhotos()->update(['moderation_status' => 'approved']);
+        $this->putJson('/api/v1/profile/discovery', ['enabled' => true])
+            ->assertOk()
+            ->assertJsonPath('data.discoverable', true);
     }
 
     public function test_match_filters_reject_invalid_age_ranges(): void

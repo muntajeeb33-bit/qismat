@@ -33,6 +33,7 @@ class InterestController extends Controller
             ->where('discovery_opt_in', true)
             ->whereNotNull('date_of_birth')
             ->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())
+            ->whereHas('photos', fn ($photos) => $photos->where('is_primary', true)->where('moderation_status', 'approved'))
             ->whereHas('user', fn ($query) => $query->where('status', 'active')->whereNotNull('email_verified_at'))
             ->exists();
 

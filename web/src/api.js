@@ -14,7 +14,7 @@ async function request(path, options = {}) {
     ...options,
     headers: {
       Accept: 'application/json',
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.body && !(options.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -39,6 +39,23 @@ export const getPartnerPreferences = () => request('/profile/partner-preferences
 export const getOnboardingStatus = () => request('/profile/onboarding-status').then(({ data }) => data);
 export const updateProfile = (profile) => request('/profile', { method: 'PUT', body: JSON.stringify(profile) }).then(({ data }) => data);
 export const updatePartnerPreferences = (preferences) => request('/profile/partner-preferences', { method: 'PUT', body: JSON.stringify(preferences) }).then(({ data }) => data);
+export const getProfilePhotos = () => request('/profile/photos').then(({ data }) => data);
+export const uploadProfilePhoto = (photo, visibility = 'members') => {
+  const body = new FormData();
+  body.append('photo', photo);
+  body.append('visibility', visibility);
+  return request('/profile/photos', { method: 'POST', body }).then(({ data }) => data);
+};
+export const updateProfilePhoto = (photoId, changes) => request(`/profile/photos/${photoId}`, { method: 'PATCH', body: JSON.stringify(changes) }).then(({ data }) => data);
+export const reorderProfilePhotos = (photoIds) => request('/profile/photos/order', { method: 'PUT', body: JSON.stringify({ photo_ids: photoIds }) }).then(({ data }) => data);
+export const deleteProfilePhoto = (photoId) => request(`/profile/photos/${photoId}`, { method: 'DELETE' }).then(({ data }) => data);
+export async function getProfilePhotoBlob(contentUrl) {
+  const response = await fetch(contentUrl, {
+    headers: { Accept: 'image/*', Authorization: `Bearer ${session.get()}` },
+  });
+  if (!response.ok) throw new Error('The photo could not be loaded.');
+  return response.blob();
+}
 export const submitProfile = () => request('/profile/submit', { method: 'POST' }).then(({ data }) => data);
 export const updateDiscovery = (enabled) => request('/profile/discovery', { method: 'PUT', body: JSON.stringify({ enabled }) }).then(({ data }) => data);
 export async function logoutApi() {
