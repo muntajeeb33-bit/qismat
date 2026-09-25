@@ -90,7 +90,7 @@ function App() {
           <li><span>✓</span><div><strong>Profile verification</strong><small>Thoughtful checks help foster a genuine community.</small></div></li>
           <li><span>✓</span><div><strong>Private photo controls</strong><small>Choose exactly who gets to see your photos.</small></div></li>
           <li><span>✓</span><div><strong>Mutual-interest messaging</strong><small>Conversations begin only when you both say yes.</small></div></li>
-        </ul><a className="text-link burgundy" href="#top">Explore our safety promise <Arrow /></a></div>
+        </ul><div className="purpose-notice"><strong>Marriage seekers only</strong><p>Qismat Connections is strictly for adults genuinely seeking marriage. False identities, misleading or falsified information, scams, solicitation, and commercial use by marriage bureaus, agents, or other businesses are prohibited.</p><p>Violations may result in profile rejection, suspension, or removal. Suspected fraud, threats, exploitation, or other unlawful activity may be reported to the appropriate authorities.</p></div><a className="text-link burgundy" href="#top">Explore our safety promise <Arrow /></a></div>
       </section>
 
       <section className="story-section section" id="stories">

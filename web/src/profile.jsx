@@ -22,6 +22,7 @@ export function ProfileEditor({ profile, status, onCancel, onComplete }) {
   const [form, setForm] = useState(() => profileForm(profile));
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
+  const [purposeConfirmed, setPurposeConfirmed] = useState(false);
   const maxBirthDate = useMemo(() => {
     const date = new Date(); date.setFullYear(date.getFullYear() - 18);
     return date.toISOString().slice(0, 10);
@@ -72,6 +73,7 @@ export function ProfileEditor({ profile, status, onCancel, onComplete }) {
         <label className="span-2">Your story *<textarea name="about_me" value={form.about_me} onChange={change} maxLength="3000" rows="6" required /><small>{form.about_me.length}/3000</small></label>
         <label className="span-2">What you value in a partner<textarea name="partner_expectations" value={form.partner_expectations} onChange={change} rows="4" /></label>
       </div></section>
+      <section className="profile-purpose"><h2>Truthful profiles protect everyone</h2><p>Qismat Connections is strictly for adults genuinely seeking marriage. False identities or information, scams, solicitation, and commercial use by marriage bureaus, agents, or businesses are prohibited. Violations may result in rejection, suspension, or removal, and suspected unlawful activity may be reported to the appropriate authorities.</p><label><input type="checkbox" checked={purposeConfirmed} onChange={(event) => setPurposeConfirmed(event.target.checked)} required /><span>I confirm that my profile is truthful and intended only for genuinely seeking marriage.</span></label></section>
       {message && <div className="auth-notice error">{message}</div>}
       <div className="profile-actions"><button type="button" className="btn profile-secondary" onClick={() => save(false)} disabled={busy}>{busy ? 'Saving…' : 'Save draft'}</button><button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Please wait…' : 'Save and submit for review'}</button></div>
     </form>
