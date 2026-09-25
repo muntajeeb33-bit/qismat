@@ -12,6 +12,7 @@ Target production: cPanel + SSH + MySQL/MariaDB.
 - `/api/v1/auth/*`
 - `/api/v1/profile`
 - `/api/v1/profile/partner-preferences`
+- `/api/v1/profile/photos`
 - `/api/v1/matches`
 - `/api/v1/interests`
 - `/api/v1/conversations`

@@ -35,4 +35,9 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         return $this->hasOne(PartnerPreference::class);
     }
+
+    public function profilePhotos()
+    {
+        return $this->hasMany(ProfilePhoto::class)->orderBy('sort_order');
+    }
 }
