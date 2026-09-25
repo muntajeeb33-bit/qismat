@@ -60,6 +60,10 @@ class InterestTest extends TestCase
         $this->makeDiscoverable($receiver);
         $this->postJson('/api/v1/interests', ['receiver_id' => $receiver->id])
             ->assertCreated();
+
+        $receiver->profile()->update(['visibility' => 'private']);
+        $this->postJson('/api/v1/interests', ['receiver_id' => $receiver->id])
+            ->assertNotFound();
     }
 
     public function test_only_the_receiver_can_accept_an_interest(): void
