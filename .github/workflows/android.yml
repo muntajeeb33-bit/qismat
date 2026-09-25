@@ -20,6 +20,8 @@ jobs:
       - name: Generate native projects
         run: flutter create --platforms=android,ios --org com.qismat .
       - run: flutter pub get
+      - name: Generate Android launcher icons
+        run: dart run flutter_launcher_icons
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --release --dart-define=API_BASE_URL=https://admin.qismatconnections.com/api/v1

@@ -5,6 +5,7 @@ import { firebaseConfigured, firebaseLogin, firebaseLogout, firebaseResetPasswor
 import { PhotoQueue } from './photo-queue';
 import { DiscoveryDiagnostics } from './discovery-diagnostics';
 import './styles.css';
+import './branding.css';
 
 const emptyStats = { registered_users: 0, active_profiles: 0, pending_verification: 0, pending_photos: 0, open_reports: 0 };
 
@@ -41,7 +42,7 @@ function Login({ onAuthenticated }) {
   }
 
   return <main className="login-page"><section className="login-card">
-    <div className="brand-mark">Q</div><span className="kicker">Qismat operations</span><h1>Admin sign in</h1>
+    <img className="login-logo" src="/assets/qismat-connections-logo.png" alt="Qismat Connections" /><span className="kicker">Qismat operations</span><h1>Admin sign in</h1>
     <p>Use an active Qismat administrator account. Every moderation decision is recorded.</p>
     {!firebaseConfigured && <div className="notice error">Firebase environment settings are missing.</div>}
     <form onSubmit={submit}>
