@@ -2,6 +2,8 @@
 
 ## Current delivery sequence — 2026-09-25
 
+`PRODUCTION_PLAN.md` is the authoritative execution sequence and launch-gate checklist. This roadmap groups the same scope by product capability.
+
 1. Enable Google as a Firebase Authentication provider and complete live web sign-in QA.
 2. Provision and verify the first production administrator account.
 3. Complete profile photos, privacy controls and partner preferences.

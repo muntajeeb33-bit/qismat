@@ -4,7 +4,7 @@ Last updated: 2026-09-25
 
 ## Purpose
 
-This document is the starting point for contributors joining Qismat. Read it together with `PROJECT_STATUS.md`, `ROADMAP.md`, `TASKS.md`, `DECISIONS.md` and `DEPLOYMENT_LOG.md` before changing application or deployment code.
+This document is the starting point for contributors joining Qismat. Read it together with `PRODUCTION_PLAN.md`, `PROJECT_STATUS.md`, `ROADMAP.md`, `TASKS.md`, `DECISIONS.md` and `DEPLOYMENT_LOG.md` before changing application or deployment code.
 
 ## Repository and environments
 
@@ -15,8 +15,8 @@ This document is the starting point for contributors joining Qismat. Read it tog
 - Admin website: `https://admin.qismatconnections.com`
 - Shared API: `https://admin.qismatconnections.com/api/v1`
 - Health endpoint: `https://admin.qismatconnections.com/api/v1/health`
-- Latest verified staging release: `f1027c45a1170749c27e73213b01e59cf1dabd3f`
-- Verified cPanel deployment run: `36141015275`
+- Latest verified staging release: `660706fa9d79d8f8471f258c3af78fcd7ca25bea`
+- Verified cPanel deployment run: `36147225915`
 
 The Laravel runtime is deployed outside the public admin document root. The admin domain routes only `/api/*` to Laravel; other non-file requests load the React admin application.
 
@@ -41,6 +41,7 @@ Email/password registration, login and password reset are proxied through Larave
 - Google sign-in website integration and Laravel token exchange.
 - Apple sign-in code removed from the visible flow until credentials are available.
 - Member profile editing, required-field readiness, moderation submission and discovery controls.
+- Public marriage-purpose and anti-fraud warning with registration and profile-submission acknowledgments.
 - Persistent moderation feedback returned to the member without leaking into discovery.
 - Admin login, active-admin role enforcement, dashboard counts and audited approve/reject moderation.
 - Profile CRUD, moderation states, discovery eligibility and interest send/respond API foundation.

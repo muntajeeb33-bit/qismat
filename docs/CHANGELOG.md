@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added the complete production-v1 execution plan, Android release path and measurable launch gates.
 - Added a public marriage-purpose and anti-fraud warning, plus required acknowledgments during account registration and profile submission.
 - Added Laravel-proxied Firebase email/password authentication and www CORS coverage.
 - Added Google sign-in to the member website and connected its Firebase token to the existing Laravel session exchange.
