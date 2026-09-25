@@ -84,3 +84,4 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Add Google sign-in to the member website
 - [x] Hide Apple sign-in until its provider credentials are available
 - [x] Deploy validated structured profile fields and partner-preference API
+- [x] Connect member web profile, partner preferences and visibility to the shared API
