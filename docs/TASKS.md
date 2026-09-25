@@ -1,5 +1,7 @@
 # Qismat Task Tracker
 
+Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; this file remains the compact completion checklist.
+
 ## In progress
 - [x] Add Firebase project/service-account configuration
 - [x] Deploy web Firebase Authentication
