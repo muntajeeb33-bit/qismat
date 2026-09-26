@@ -15,6 +15,17 @@ class DiscoverableProfiles
             ->where('visibility', 'members')
             ->where('moderation_status', 'approved')
             ->where('discovery_opt_in', true)
+            ->whereNotExists(fn ($blocks) => $blocks
+                ->selectRaw('1')
+                ->from('blocks')
+                ->where(function ($pair) use ($viewer) {
+                    $pair->whereColumn('blocks.blocked_user_id', 'profiles.user_id')
+                        ->where('blocks.blocker_id', $viewer->id);
+                })
+                ->orWhere(function ($pair) use ($viewer) {
+                    $pair->whereColumn('blocks.blocker_id', 'profiles.user_id')
+                        ->where('blocks.blocked_user_id', $viewer->id);
+                }))
             ->whereNotNull('date_of_birth')
             ->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())
             ->whereHas('photos', fn ($photos) => $photos

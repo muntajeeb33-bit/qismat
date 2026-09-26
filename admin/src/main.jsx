@@ -4,6 +4,7 @@ import { exchangeFirebaseToken, getCurrentUser, getDashboard, getPendingPhotos, 
 import { firebaseConfigured, firebaseLogin, firebaseLogout, firebaseResetPassword } from './firebase';
 import { PhotoQueue } from './photo-queue';
 import { DiscoveryDiagnostics } from './discovery-diagnostics';
+import { ReportQueue } from './report-queue';
 import './styles.css';
 import './branding.css';
 
@@ -109,6 +110,7 @@ function Dashboard({ user, onLogout }) {
       <section className="panel"><div className="panel-heading"><div><span className="kicker">Photo safety</span><h3>Photos awaiting review</h3></div><span className="queue-count">{photos.length} pending</span></div>
         {loading ? <p className="empty">Loading photo queue…</p> : <PhotoQueue photos={photos} reviewing={reviewingPhoto} onReview={reviewPendingPhoto} />}
       </section>
+      <ReportQueue onCountChange={(count) => setStats((current) => ({ ...current, open_reports: count }))} />
       <DiscoveryDiagnostics />
     </main>
   </div>;

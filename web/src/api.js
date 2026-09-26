@@ -67,6 +67,11 @@ export const getFavourites = () => request('/favourites').then(({ data }) => dat
 export const saveFavourite = (profileId) => request('/favourites', { method: 'POST', body: JSON.stringify({ profile_id: profileId }) }).then(({ data }) => data);
 export const removeFavourite = (profileId) => request(`/favourites/${profileId}`, { method: 'DELETE' }).then(({ data }) => data);
 export const sendInterest = (receiverId, message = null) => request('/interests', { method: 'POST', body: JSON.stringify({ receiver_id: receiverId, message }) }).then(({ data }) => data);
+export const getInterests = (direction = '') => request(`/interests${direction ? `?direction=${direction}` : ''}`).then(({ data }) => data);
+export const respondToInterest = (interestId, status) => request(`/interests/${interestId}/respond`, { method: 'POST', body: JSON.stringify({ status }) }).then(({ data }) => data);
+export const cancelInterest = (interestId) => request(`/interests/${interestId}`, { method: 'DELETE' }).then(({ data }) => data);
+export const blockMember = (userId, reason = null) => request('/blocks', { method: 'POST', body: JSON.stringify({ user_id: userId, reason }) }).then(({ data }) => data);
+export const reportMember = (userId, reason, details = null) => request('/reports', { method: 'POST', body: JSON.stringify({ user_id: userId, reason, details }) }).then(({ data }) => data);
 export async function logoutApi() {
   try { if (session.get()) await request('/auth/logout', { method: 'POST' }); }
   finally { session.clear(); }

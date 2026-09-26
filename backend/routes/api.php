@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\AdminDashboardController;
 use App\Http\Controllers\Api\V1\AdminDiscoveryController;
 use App\Http\Controllers\Api\V1\AdminPhotoModerationController;
 use App\Http\Controllers\Api\V1\AdminProfileModerationController;
+use App\Http\Controllers\Api\V1\AdminReportController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\FavouriteController;
 use App\Http\Controllers\Api\V1\FirebaseAuthController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Api\V1\PartnerPreferenceController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ProfileOnboardingController;
 use App\Http\Controllers\Api\V1\ProfilePhotoController;
+use App\Http\Controllers\Api\V1\SafetyController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -41,6 +43,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/profiles/{profile}/review', [AdminProfileModerationController::class, 'review']);
             Route::get('/photos', [AdminPhotoModerationController::class, 'index']);
             Route::post('/photos/{photo}/review', [AdminPhotoModerationController::class, 'review']);
+            Route::get('/reports', [AdminReportController::class, 'index']);
+            Route::post('/reports/{report}/resolve', [AdminReportController::class, 'resolve']);
         });
 
         Route::middleware('verified')->group(function () {
@@ -68,6 +72,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/interests', [InterestController::class, 'index']);
             Route::post('/interests', [InterestController::class, 'store']);
             Route::post('/interests/{interest}/respond', [InterestController::class, 'respond']);
+            Route::delete('/interests/{interest}', [InterestController::class, 'destroy']);
+
+            Route::get('/blocks', [SafetyController::class, 'blocks']);
+            Route::post('/blocks', [SafetyController::class, 'block'])->middleware('throttle:20,1');
+            Route::delete('/blocks/{user}', [SafetyController::class, 'unblock']);
+            Route::post('/reports', [SafetyController::class, 'report'])->middleware('throttle:10,1');
         });
     });
 });

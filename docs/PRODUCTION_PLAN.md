@@ -1,6 +1,8 @@
 # Qismat Production Plan
 
-Last updated: 2026-09-25
+Last updated: 2026-09-26
+
+The competitor-informed product direction and guardrails are recorded in `COMPETITIVE_PRODUCT_STRATEGY.md`.
 
 ## Goal
 
@@ -135,6 +137,7 @@ Exit criteria:
 - Immediately hide blocked parties from discovery, interests and communication.
 - Build the admin report queue, resolution notes, suspension/reactivation and audit history.
 - Deliver the complete workflows on web and in the admin console before Android parity work begins.
+- Keep safety controls free, reports confidential and every administrator resolution auditable.
 
 Exit criteria:
 
