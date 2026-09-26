@@ -22,7 +22,9 @@ class AccountController extends Controller
 
     public function notificationPreferences(Request $request)
     {
-        return $this->success(NotificationPreference::firstOrCreate(['user_id' => $request->user()->id]));
+        $preferences = NotificationPreference::firstOrCreate(['user_id' => $request->user()->id]);
+
+        return $this->success($preferences->fresh());
     }
 
     public function updateNotificationPreferences(Request $request, ActivityTracker $tracker)

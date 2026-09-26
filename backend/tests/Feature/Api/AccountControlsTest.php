@@ -64,7 +64,7 @@ class AccountControlsTest extends TestCase
     {
         $user = User::factory()->create(['firebase_uid' => 'firebase-deleted-member']);
         $other = User::factory()->create();
-        Profile::factory()->create(['user_id' => $user->id]);
+        Profile::create(['user_id' => $user->id, 'display_name' => 'Member to delete']);
         Block::create(['blocker_id' => $user->id, 'blocked_user_id' => $other->id]);
         Sanctum::actingAs($user);
 
