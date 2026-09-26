@@ -95,7 +95,7 @@ Last updated: 2026-09-26
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | through migration `2026_09_25_000400` |
+| Database schema | through migration `2026_09_26_000200` |
 
 ## Major blockers and risks
 
