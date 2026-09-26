@@ -61,11 +61,11 @@ class DiscoveryProfilePresenter
                 'photos' => $profile->photos
                     ->filter(fn (ProfilePhoto $item) => $item->visibility === 'members' || ($item->visibility === 'private' && $canViewPrivate))
                     ->map(fn (ProfilePhoto $item) => [
-                    'id' => $item->id,
-                    'content_url' => url('/api/v1/profile/photos/'.$item->id.'/content'),
-                    'width' => $item->width,
-                    'height' => $item->height,
-                    'is_primary' => (bool) $item->is_primary,
+                        'id' => $item->id,
+                        'content_url' => url('/api/v1/profile/photos/'.$item->id.'/content'),
+                        'width' => $item->width,
+                        'height' => $item->height,
+                        'is_primary' => (bool) $item->is_primary,
                     ])->values(),
             ];
         }
