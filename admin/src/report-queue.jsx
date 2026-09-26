@@ -30,7 +30,7 @@ export function ReportQueue({ onCountChange }) {
     finally { setBusy(null); }
   }
 
-  return <section className="panel report-panel"><div className="panel-heading"><div><span className="kicker">Trust and safety</span><h3>Open member reports</h3></div><button onClick={load} disabled={loading}>Refresh</button></div>
+  return <section className="panel report-panel" id="reports"><div className="panel-heading"><div><span className="kicker">Trust and safety</span><h3>Open member reports</h3></div><button onClick={load} disabled={loading}>Refresh</button></div>
     {error && <div className="notice error">{error}</div>}
     {loading ? <p className="empty">Loading safety reports…</p> : reports.length === 0 ? <p className="empty">No open reports require review.</p> : <div className="report-list">{reports.map((report) => <article key={report.id}>
       <div><span className="report-reason">{labels[report.reason] || report.reason}</span><h4>{report.reported_user?.profile?.display_name || report.reported_user?.name}</h4><p>{report.details || 'No additional details were supplied.'}</p><small>Reported by {report.reporter?.profile?.profile_code || report.reporter?.name} · {new Date(report.created_at).toLocaleString()}</small></div>

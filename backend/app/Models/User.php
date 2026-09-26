@@ -56,6 +56,11 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->hasMany(Report::class, 'reporter_id');
     }
 
+    public function reportsReceived()
+    {
+        return $this->hasMany(Report::class, 'reported_user_id');
+    }
+
     public function notificationPreference()
     {
         return $this->hasOne(NotificationPreference::class);

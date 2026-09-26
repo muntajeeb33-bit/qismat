@@ -35,6 +35,7 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Admin safety report queue, suspension and audited resolution
 - [x] Account privacy controls, notification preferences and public policy/support pages
 - [x] Admin moderation foundation
+- [x] Admin member search, status/verification operations and audit-log review
 - [ ] Membership/payment foundation
 - [ ] Notifications
 - [ ] Finish all member web and admin launch workflows and production QA

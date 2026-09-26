@@ -5,6 +5,8 @@ import { firebaseConfigured, firebaseLogin, firebaseLogout, firebaseResetPasswor
 import { PhotoQueue } from './photo-queue';
 import { DiscoveryDiagnostics } from './discovery-diagnostics';
 import { ReportQueue } from './report-queue';
+import { MemberDirectory } from './member-directory';
+import { AuditLog } from './audit-log';
 import './styles.css';
 import './branding.css';
 
@@ -95,9 +97,9 @@ function Dashboard({ user, onLogout }) {
 
   const cards = [['Registered users', stats.registered_users], ['Active profiles', stats.active_profiles], ['Pending profiles', stats.pending_verification], ['Pending photos', stats.pending_photos], ['Open reports', stats.open_reports]];
   return <div className="shell">
-    <aside className="sidebar"><div><h2>Qismat</h2><b>Admin</b></div><nav><span className="active">Overview</span><span>Members</span><span>Verification</span><span>Reports</span><span>Subscriptions</span><span>Audit log</span></nav><small>Secure operations console</small></aside>
+    <aside className="sidebar"><div><h2>Qismat</h2><b>Admin</b></div><nav><a className="active" href="#overview">Overview</a><a href="#members">Members</a><a href="#photos">Verification</a><a href="#reports">Reports</a><a href="#audit">Audit log</a></nav><small>Secure operations console</small></aside>
     <main className="workspace">
-      <header><div><span className="kicker">Operations</span><h1>Dashboard</h1></div><div className="account"><div><b>{user.name}</b><small>{user.email}</small></div><button onClick={onLogout}>Sign out</button></div></header>
+      <header id="overview"><div><span className="kicker">Operations</span><h1>Dashboard</h1></div><div className="account"><div><b>{user.name}</b><small>{user.email}</small></div><button onClick={onLogout}>Sign out</button></div></header>
       {error && <div className="notice error">{error}</div>}
       <section className="cards">{cards.map(([label, value]) => <article key={label}><span>{label}</span><strong>{loading ? '—' : value}</strong></article>)}</section>
       <section className="panel"><div className="panel-heading"><div><span className="kicker">Moderation queue</span><h3>Profiles awaiting review</h3></div><button onClick={refresh} disabled={loading}>Refresh</button></div>
@@ -107,11 +109,13 @@ function Dashboard({ user, onLogout }) {
           <div className="profile-actions"><button className="reject" onClick={() => review(profile, 'rejected')} disabled={reviewing === profile.id}>Reject</button><button className="approve" onClick={() => review(profile, 'approved')} disabled={reviewing === profile.id}>Approve</button></div>
         </article>)}</div>}
       </section>
-      <section className="panel"><div className="panel-heading"><div><span className="kicker">Photo safety</span><h3>Photos awaiting review</h3></div><span className="queue-count">{photos.length} pending</span></div>
+      <section className="panel" id="photos"><div className="panel-heading"><div><span className="kicker">Photo safety</span><h3>Photos awaiting review</h3></div><span className="queue-count">{photos.length} pending</span></div>
         {loading ? <p className="empty">Loading photo queue…</p> : <PhotoQueue photos={photos} reviewing={reviewingPhoto} onReview={reviewPendingPhoto} />}
       </section>
       <ReportQueue onCountChange={(count) => setStats((current) => ({ ...current, open_reports: count }))} />
       <DiscoveryDiagnostics />
+      <MemberDirectory />
+      <AuditLog />
     </main>
   </div>;
 }

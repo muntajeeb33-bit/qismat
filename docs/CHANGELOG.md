@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-26 — Administrator member operations
+
+- Added role-protected member search by name, email and profile code with account, moderation, verification and report context.
+- Added audited member suspension/reactivation that revokes sessions and safely removes suspended profiles from discovery.
+- Added reviewed and identity-verification controls with mandatory administrator reasons.
+- Added a searchable administrator audit-log view and working admin navigation links.
+
 ## 2026-09-26 — Account controls and public policies
 
 - Added member notification preferences for interest, messaging, moderation and product email/push categories.

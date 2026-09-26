@@ -47,6 +47,12 @@ export const getPendingProfiles = () => request('/admin/profiles?status=pending'
 export const getPendingPhotos = () => request('/admin/photos?status=pending').then(({ data }) => data);
 export const getDiscoveryDiagnostics = (query = '') => request(`/admin/discovery${query ? `?q=${encodeURIComponent(query)}` : ''}`).then(({ data }) => data);
 export const getReports = (status = 'open') => request(`/admin/reports?status=${encodeURIComponent(status)}`).then(({ data }) => data);
+export const getMembers = (filters = {}) => {
+  const query = new URLSearchParams(Object.entries(filters).filter(([, value]) => value));
+  return request(`/admin/members?${query}`).then(({ data }) => data);
+};
+export const updateMember = (userId, changes) => request(`/admin/members/${userId}`, { method: 'PATCH', body: JSON.stringify(changes) }).then(({ data }) => data);
+export const getAuditLogs = (action = '') => request(`/admin/audit-logs${action ? `?action=${encodeURIComponent(action)}` : ''}`).then(({ data }) => data);
 export const resolveReport = (reportId, action, notes) => request(`/admin/reports/${reportId}/resolve`, {
   method: 'POST',
   body: JSON.stringify({ action, notes }),

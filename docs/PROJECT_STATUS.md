@@ -5,15 +5,15 @@ Last updated: 2026-09-26
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 73%
+**Overall progress:** 76%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 91% |
+| Backend/API | In progress | 93% |
 | Website | In progress | 93% |
-| Admin dashboard | In progress | 68% |
+| Admin dashboard | In progress | 82% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
 | iOS/Xcode Cloud | Planned | 5% |
@@ -77,6 +77,7 @@ Last updated: 2026-09-26
 - [x] Inclusive faith/community/ethnicity profile fields and 18–100 age enforcement
 - [x] Member notification preferences, blocked-member management, global sign-out and account deletion
 - [x] Public privacy, terms, safety and account-deletion/support pages
+- [x] Admin member search, account suspension/reactivation, verification controls and audit history
 - [ ] Recommendation engine
 - [x] Search/filter APIs
 - [x] Interests, favourites and profile views foundation

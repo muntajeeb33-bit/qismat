@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AccountController;
+use App\Http\Controllers\Api\V1\AdminAuditController;
 use App\Http\Controllers\Api\V1\AdminDashboardController;
 use App\Http\Controllers\Api\V1\AdminDiscoveryController;
+use App\Http\Controllers\Api\V1\AdminMemberController;
 use App\Http\Controllers\Api\V1\AdminPhotoModerationController;
 use App\Http\Controllers\Api\V1\AdminProfileModerationController;
 use App\Http\Controllers\Api\V1\AdminReportController;
@@ -41,6 +43,9 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('admin')->middleware(['verified', 'admin'])->group(function () {
             Route::get('/dashboard', AdminDashboardController::class);
+            Route::get('/members', [AdminMemberController::class, 'index']);
+            Route::patch('/members/{user}', [AdminMemberController::class, 'update']);
+            Route::get('/audit-logs', AdminAuditController::class);
             Route::get('/discovery', AdminDiscoveryController::class);
             Route::get('/profiles', [AdminProfileModerationController::class, 'index']);
             Route::post('/profiles/{profile}/review', [AdminProfileModerationController::class, 'review']);
