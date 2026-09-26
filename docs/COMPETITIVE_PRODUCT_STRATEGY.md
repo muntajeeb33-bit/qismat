@@ -40,7 +40,7 @@ Reference material:
 3. Add mutual-connection messaging with unread/read state, rate limits and report-from-conversation.
 4. Add pause, hide, session revocation, account deletion and public policy/support pages.
 5. Add notification preferences, service email and privacy-safe Android push delivery.
-6. Add phone verification and clearly defined trust indicators.
+6. Use verified email and Google sign-in with clearly defined trust indicators.
 
 ### Trust differentiation
 

@@ -82,6 +82,9 @@ export const getPhotoAccessRequests = (direction = 'received') => request(`/phot
 export const requestPhotoAccess = (userId) => request('/photo-access-requests', { method: 'POST', body: JSON.stringify({ user_id: userId }) }).then(({ data }) => data);
 export const respondPhotoAccess = (requestId, decision) => request(`/photo-access-requests/${requestId}/respond`, { method: 'POST', body: JSON.stringify({ decision }) }).then(({ data }) => data);
 export const revokePhotoAccess = (requestId) => request(`/photo-access-requests/${requestId}`, { method: 'DELETE' }).then(({ data }) => data);
+export const getNotifications = () => request('/notifications').then(({ data }) => data);
+export const markNotificationRead = (notificationId) => request(`/notifications/${notificationId}/read`, { method: 'POST' }).then(({ data }) => data);
+export const markAllNotificationsRead = () => request('/notifications/read-all', { method: 'POST' }).then(({ data }) => data);
 export const getConversations = () => request('/conversations').then(({ data }) => data);
 export const getMessages = (conversationId) => request(`/conversations/${conversationId}/messages`).then(({ data }) => data);
 export const sendMessage = (conversationId, body) => request(`/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify({ body }) }).then(({ data }) => data);

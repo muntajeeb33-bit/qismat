@@ -8,6 +8,7 @@ use App\Models\PhotoAccessRequest;
 use App\Models\User;
 use App\Services\ActivityTracker;
 use App\Services\DiscoverableProfiles;
+use App\Services\MemberNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -28,7 +29,7 @@ class PhotoAccessRequestController extends Controller
         return $this->success($query->paginate(30));
     }
 
-    public function store(Request $request, DiscoverableProfiles $discoverable, ActivityTracker $tracker)
+    public function store(Request $request, DiscoverableProfiles $discoverable, ActivityTracker $tracker, MemberNotifier $notifier)
     {
         $data = $request->validate(['user_id' => ['required', 'integer', 'not_in:'.$request->user()->id]]);
         $owner = User::query()->where('role', 'member')->findOrFail($data['user_id']);
@@ -39,17 +40,19 @@ class PhotoAccessRequestController extends Controller
         abort_if($photoRequest->exists && in_array($photoRequest->status, ['pending', 'approved'], true), 409, 'A photo access request is already active.');
         $photoRequest->fill(['status' => 'pending', 'responded_at' => null])->save();
         $tracker->record($request, 'photo_access.requested', 'user', $owner->id);
+        $notifier->send($owner->id, 'photo_access_requested', 'Private photo request', 'A member requested access to your private photos.', 'photos', ['request_id' => $photoRequest->id]);
 
         return $this->success($photoRequest, 'Private photo access requested.', 201);
     }
 
-    public function respond(Request $request, PhotoAccessRequest $photoAccessRequest, ActivityTracker $tracker)
+    public function respond(Request $request, PhotoAccessRequest $photoAccessRequest, ActivityTracker $tracker, MemberNotifier $notifier)
     {
         abort_unless($photoAccessRequest->owner_id === $request->user()->id, 404);
         $data = $request->validate(['decision' => ['required', Rule::in(['approved', 'declined'])]]);
         abort_unless($photoAccessRequest->status === 'pending', 409, 'Only pending requests can be answered.');
         $photoAccessRequest->update(['status' => $data['decision'], 'responded_at' => now()]);
         $tracker->record($request, 'photo_access.'.$data['decision'], 'user', $photoAccessRequest->requester_id);
+        $notifier->send($photoAccessRequest->requester_id, 'photo_access_'.$data['decision'], 'Photo access '.$data['decision'], $data['decision'] === 'approved' ? 'You can now view this member’s approved private photos.' : 'Your private photo request was declined.', 'photos', ['request_id' => $photoAccessRequest->id]);
 
         return $this->success($photoAccessRequest, 'Photo access request updated.');
     }

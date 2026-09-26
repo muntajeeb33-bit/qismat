@@ -39,7 +39,7 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Private-photo access requests, owner decisions and revocation
 - [x] Actionable profile-completion and launch guidance
 - [ ] Membership/payment foundation
-- [ ] Notifications
+- [x] Privacy-safe in-app notifications
 - [ ] Finish all member web and admin launch workflows and production QA
 - [ ] Android Firebase registration/login/verification/password recovery after the web/admin completion gate
 

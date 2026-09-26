@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-26 — Member notification center
+
+- Added privacy-safe in-app notifications for interests, messages, private-photo access and moderation decisions.
+- Added unread counts, read state, mark-all-read controls and direct navigation to the relevant member workflow.
+- Confirmed verified email and Google sign-in as the launch identity methods; phone verification is outside launch scope.
+
 ## 2026-09-26 — Profile completion guidance
 
 - Added API-generated missing-field guidance and a single recommended next action for each onboarding state.

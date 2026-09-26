@@ -9,6 +9,7 @@ use App\Models\Conversation;
 use App\Models\Interest;
 use App\Services\ActivityTracker;
 use App\Services\DiscoverableProfiles;
+use App\Services\MemberNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -64,7 +65,7 @@ class InterestController extends Controller
         return $this->success($interests);
     }
 
-    public function store(Request $r, ActivityTracker $tracker, DiscoverableProfiles $discoverable)
+    public function store(Request $r, ActivityTracker $tracker, DiscoverableProfiles $discoverable, MemberNotifier $notifier)
     {
         $data = $r->validate(['receiver_id' => ['required', 'integer', 'exists:users,id', 'not_in:'.$r->user()->id], 'message' => ['nullable', 'string', 'max:500']]);
         $receiverIsDiscoverable = $discoverable->query($r->user())->where('user_id', $data['receiver_id'])->exists();
@@ -78,6 +79,7 @@ class InterestController extends Controller
 
         if ($interest->wasRecentlyCreated) {
             $tracker->record($r, 'interest.sent', 'interest', $interest->id, ['receiver_id' => $data['receiver_id']]);
+            $notifier->send($interest->receiver_id, 'interest_received', 'New interest received', 'A member is interested in connecting with you.', 'interests', ['interest_id' => $interest->id]);
         }
 
         return $this->success(
@@ -87,7 +89,7 @@ class InterestController extends Controller
         );
     }
 
-    public function respond(Request $r, Interest $interest, ActivityTracker $tracker)
+    public function respond(Request $r, Interest $interest, ActivityTracker $tracker, MemberNotifier $notifier)
     {
         abort_unless($interest->receiver_id === $r->user()->id, 403);
         $data = $r->validate(['status' => ['required', 'in:accepted,declined']]);
@@ -109,6 +111,7 @@ class InterestController extends Controller
             return $locked;
         });
         $tracker->record($r, 'interest.'.$data['status'], 'interest', $interest->id);
+        $notifier->send($interest->sender_id, 'interest_'.$data['status'], 'Interest '.$data['status'], $data['status'] === 'accepted' ? 'Your interest was accepted. You can now start a conversation.' : 'Your interest was declined.', $data['status'] === 'accepted' ? 'messages' : 'interests', ['interest_id' => $interest->id]);
 
         return $this->success($interest, 'Interest '.$data['status'].'.');
     }

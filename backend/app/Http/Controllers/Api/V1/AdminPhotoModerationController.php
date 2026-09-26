@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Concerns\RespondsWithJson;
 use App\Http\Controllers\Controller;
 use App\Models\AdminAuditLog;
 use App\Models\ProfilePhoto;
+use App\Services\MemberNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,14 +31,14 @@ class AdminPhotoModerationController extends Controller
         return $this->success($photos);
     }
 
-    public function review(Request $request, ProfilePhoto $photo)
+    public function review(Request $request, ProfilePhoto $photo, MemberNotifier $notifier)
     {
         $data = $request->validate([
             'decision' => ['required', 'in:approved,rejected'],
             'reason' => ['nullable', 'string', 'max:500', 'required_if:decision,rejected'],
         ]);
 
-        return DB::transaction(function () use ($request, $photo, $data) {
+        return DB::transaction(function () use ($request, $photo, $data, $notifier) {
             $photo = ProfilePhoto::query()->lockForUpdate()->findOrFail($photo->id);
             abort_unless($photo->moderation_status === 'pending', 409, 'Only pending photos can be reviewed.');
 
@@ -59,6 +60,8 @@ class AdminPhotoModerationController extends Controller
                 'new_values' => $photo->only(['moderation_status', 'moderation_feedback', 'moderated_by', 'moderated_at']),
                 'ip_address' => $request->ip(),
             ]);
+
+            $notifier->send($photo->user_id, 'photo_'.$data['decision'], 'Photo '.$data['decision'], $approved ? 'Your profile photo was approved.' : 'Your profile photo needs changes. Review the moderator feedback.', 'home', ['photo_id' => $photo->id]);
 
             return $this->success(
                 $this->payload($photo->load(['user:id,name,email,status', 'user.profile:id,user_id,profile_code,display_name'])),

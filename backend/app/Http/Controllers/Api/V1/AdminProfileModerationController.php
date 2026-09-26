@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Concerns\RespondsWithJson;
 use App\Http\Controllers\Controller;
 use App\Models\AdminAuditLog;
 use App\Models\Profile;
+use App\Services\MemberNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -31,14 +32,14 @@ class AdminProfileModerationController extends Controller
         return $this->success($profiles);
     }
 
-    public function review(Request $request, Profile $profile)
+    public function review(Request $request, Profile $profile, MemberNotifier $notifier)
     {
         $data = $request->validate([
             'decision' => ['required', 'in:approved,rejected'],
             'reason' => ['nullable', 'string', 'max:500', 'required_if:decision,rejected'],
         ]);
 
-        return DB::transaction(function () use ($request, $profile, $data) {
+        return DB::transaction(function () use ($request, $profile, $data, $notifier) {
             $profile = Profile::query()->lockForUpdate()->findOrFail($profile->id);
             abort_unless($profile->moderation_status === 'pending', 409, 'Only pending profiles can be reviewed.');
 
@@ -62,6 +63,8 @@ class AdminProfileModerationController extends Controller
                 'new_values' => $profile->only(['moderation_status', 'moderation_feedback', 'discovery_opt_in', 'approved_at', 'moderated_by', 'moderated_at']),
                 'ip_address' => $request->ip(),
             ]);
+
+            $notifier->send($profile->user_id, 'profile_'.$data['decision'], 'Profile '.$data['decision'], $approved ? 'Your profile was approved. Add an approved primary photo and enter discovery when ready.' : 'Your profile needs changes. Review the moderator feedback before resubmitting.', 'home', ['profile_id' => $profile->id]);
 
             return $this->success(
                 $profile->load('user:id,name,email,status')->makeVisible(['moderation_feedback', 'moderated_by', 'moderated_at']),

@@ -26,7 +26,7 @@
 
 ## Phase 1 — Identity and Profiles
 - Registration/login
-- Email/mobile verification
+- Verified email and Google sign-in
 - Google sign-in
 - Apple sign-in after Apple Developer configuration
 - User roles

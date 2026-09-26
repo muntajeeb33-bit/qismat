@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\FavouriteController;
 use App\Http\Controllers\Api\V1\FirebaseAuthController;
 use App\Http\Controllers\Api\V1\InterestController;
 use App\Http\Controllers\Api\V1\MatchController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PartnerPreferenceController;
 use App\Http\Controllers\Api\V1\PhotoAccessRequestController;
 use App\Http\Controllers\Api\V1\ProfileController;
@@ -59,6 +60,9 @@ Route::prefix('v1')->group(function () {
         Route::middleware('verified')->group(function () {
             Route::get('/account/notification-preferences', [AccountController::class, 'notificationPreferences']);
             Route::put('/account/notification-preferences', [AccountController::class, 'updateNotificationPreferences']);
+            Route::get('/notifications', [NotificationController::class, 'index']);
+            Route::post('/notifications/read-all', [NotificationController::class, 'readAll']);
+            Route::post('/notifications/{notification}/read', [NotificationController::class, 'read']);
             Route::delete('/account', [AccountController::class, 'destroy'])->middleware('throttle:3,1');
             Route::get('/profile', [ProfileController::class, 'show']);
             Route::put('/profile', [ProfileController::class, 'update']);

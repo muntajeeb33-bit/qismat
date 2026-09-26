@@ -11,8 +11,8 @@ Last updated: 2026-09-26
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 96% |
-| Website | In progress | 96% |
+| Backend/API | In progress | 98% |
+| Website | In progress | 98% |
 | Admin dashboard | In progress | 82% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
@@ -60,6 +60,7 @@ Last updated: 2026-09-26
 - [x] Private photo API, member photo manager and admin photo moderation deployed
 - [x] Private-photo access requests, owner-controlled reveal decisions and member trust indicators deployed
 - [x] API-driven missing-field and next-action guidance deployed on the member dashboard
+- [x] Privacy-safe member notification center for interests, messages, photo access and moderation events
 - [x] Discovery filters, safe profile details, favourites and privacy-aware profile views implemented
 - [x] Member discovery/saved-profile UI and admin eligibility diagnostics implemented
 - [x] Sent/received interest management with accept, decline and cancellation
@@ -101,7 +102,7 @@ Last updated: 2026-09-26
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | through migration `2026_09_26_000500` |
+| Database schema | through migration `2026_09_26_000600` |
 
 ## Major blockers and risks
 
@@ -111,6 +112,7 @@ Last updated: 2026-09-26
 - Staging is deployed and healthy through the admin-domain gateway.
 - The Flutter application remains an early shell and has not completed Firebase authentication integration.
 - Google web sign-in code is deployed, but the Google provider must still be enabled in Firebase Console.
+- Verified email and Google sign-in are the launch identity methods; phone verification is outside launch scope.
 - Apple sign-in is intentionally deferred pending Apple Developer credentials.
 - Firebase currently blocks email-template edits for this project. Default verification emails work; branded email delivery is deferred or can later move to Laravel with custom SMTP.
 - cPanel deployment uses immutable releases and atomic activation with automatic/manual application rollback. A verified pinned host key, off-host backup copy and restore/rollback rehearsals remain outstanding.

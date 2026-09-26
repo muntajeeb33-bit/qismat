@@ -53,6 +53,8 @@ class InterestTest extends TestCase
 
         $this->assertDatabaseCount('interests', 1);
         $this->assertDatabaseCount('activity_logs', 1);
+        $this->assertDatabaseCount('member_notifications', 1);
+        $this->assertDatabaseHas('member_notifications', ['user_id' => $receiver->id, 'type' => 'interest_received']);
     }
 
     public function test_interest_cannot_bypass_profile_discovery_rules(): void
@@ -98,6 +100,7 @@ class InterestTest extends TestCase
             'user_one_id' => min($sender->id, $receiver->id),
             'user_two_id' => max($sender->id, $receiver->id),
         ]);
+        $this->assertDatabaseHas('member_notifications', ['user_id' => $sender->id, 'type' => 'interest_accepted']);
     }
 
     public function test_members_can_list_and_cancel_their_pending_interests(): void

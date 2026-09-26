@@ -10,6 +10,7 @@ use App\Models\Interest;
 use App\Models\Message;
 use App\Models\User;
 use App\Services\ActivityTracker;
+use App\Services\MemberNotifier;
 use Illuminate\Http\Request;
 
 class ConversationController extends Controller
@@ -47,7 +48,7 @@ class ConversationController extends Controller
         return $this->success($messages);
     }
 
-    public function store(Request $request, Conversation $conversation, ActivityTracker $tracker)
+    public function store(Request $request, Conversation $conversation, ActivityTracker $tracker, MemberNotifier $notifier)
     {
         $this->authorizeConversation($request->user(), $conversation);
         $data = $request->validate(['body' => ['required', 'string', 'max:1000']]);
@@ -57,6 +58,8 @@ class ConversationController extends Controller
         $message = $conversation->messages()->create(['sender_id' => $request->user()->id, 'body' => $body]);
         $conversation->update(['last_message_at' => $message->created_at]);
         $tracker->record($request, 'message.sent', 'conversation', $conversation->id);
+        $receiverId = $conversation->user_one_id === $request->user()->id ? $conversation->user_two_id : $conversation->user_one_id;
+        $notifier->send($receiverId, 'message_received', 'New message', 'You received a new message from a mutual connection.', 'messages', ['conversation_id' => $conversation->id]);
 
         return $this->success($this->messagePayload($message, $request->user()), 'Message sent.', 201);
     }
