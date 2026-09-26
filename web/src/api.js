@@ -58,6 +58,15 @@ export async function getProfilePhotoBlob(contentUrl) {
 }
 export const submitProfile = () => request('/profile/submit', { method: 'POST' }).then(({ data }) => data);
 export const updateDiscovery = (enabled) => request('/profile/discovery', { method: 'PUT', body: JSON.stringify({ enabled }) }).then(({ data }) => data);
+export const getMatches = (filters = {}) => {
+  const query = new URLSearchParams(Object.entries(filters).filter(([, value]) => value !== '' && value != null));
+  return request(`/matches?${query}`).then(({ data }) => data);
+};
+export const getMatch = (profileId) => request(`/matches/${profileId}`).then(({ data }) => data);
+export const getFavourites = () => request('/favourites').then(({ data }) => data);
+export const saveFavourite = (profileId) => request('/favourites', { method: 'POST', body: JSON.stringify({ profile_id: profileId }) }).then(({ data }) => data);
+export const removeFavourite = (profileId) => request(`/favourites/${profileId}`, { method: 'DELETE' }).then(({ data }) => data);
+export const sendInterest = (receiverId, message = null) => request('/interests', { method: 'POST', body: JSON.stringify({ receiver_id: receiverId, message }) }).then(({ data }) => data);
 export async function logoutApi() {
   try { if (session.get()) await request('/auth/logout', { method: 'POST' }); }
   finally { session.clear(); }

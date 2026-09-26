@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\V1\Concerns\RespondsWithJson;
 use App\Http\Controllers\Controller;
 use App\Models\Interest;
-use App\Models\Profile;
 use App\Services\ActivityTracker;
+use App\Services\DiscoverableProfiles;
 use Illuminate\Http\Request;
 
 class InterestController extends Controller
@@ -23,19 +23,10 @@ class InterestController extends Controller
         return $this->success($interests);
     }
 
-    public function store(Request $r, ActivityTracker $tracker)
+    public function store(Request $r, ActivityTracker $tracker, DiscoverableProfiles $discoverable)
     {
         $data = $r->validate(['receiver_id' => ['required', 'integer', 'exists:users,id', 'not_in:'.$r->user()->id], 'message' => ['nullable', 'string', 'max:500']]);
-        $receiverIsDiscoverable = Profile::query()
-            ->where('user_id', $data['receiver_id'])
-            ->where('visibility', 'members')
-            ->where('moderation_status', 'approved')
-            ->where('discovery_opt_in', true)
-            ->whereNotNull('date_of_birth')
-            ->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())
-            ->whereHas('photos', fn ($photos) => $photos->where('is_primary', true)->where('moderation_status', 'approved'))
-            ->whereHas('user', fn ($query) => $query->where('status', 'active')->whereNotNull('email_verified_at'))
-            ->exists();
+        $receiverIsDiscoverable = $discoverable->query($r->user())->where('user_id', $data['receiver_id'])->exists();
 
         abort_unless($receiverIsDiscoverable, 404, 'Profile not found.');
 

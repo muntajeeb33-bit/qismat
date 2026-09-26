@@ -37,4 +37,9 @@ class Profile extends Model
     {
         return $this->hasMany(ProfilePhoto::class, 'user_id', 'user_id')->orderBy('sort_order');
     }
+
+    public function favouritedBy()
+    {
+        return $this->hasMany(Favourite::class, 'favourite_user_id', 'user_id');
+    }
 }

@@ -5,15 +5,15 @@ Last updated: 2026-09-25
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 55%
+**Overall progress:** 60%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 72% |
-| Website | In progress | 76% |
-| Admin dashboard | In progress | 52% |
+| Backend/API | In progress | 78% |
+| Website | In progress | 82% |
+| Admin dashboard | In progress | 60% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
 | iOS/Xcode Cloud | Planned | 5% |
@@ -58,18 +58,20 @@ Last updated: 2026-09-25
 - [x] Structured family/career profile fields and partner-preference API deployed
 - [x] Member web profile, partner-preference and visibility integration deployed
 - [x] Private photo API, member photo manager and admin photo moderation deployed
+- [x] Discovery filters, safe profile details, favourites and privacy-aware profile views implemented
+- [x] Member discovery/saved-profile UI and admin eligibility diagnostics implemented
 
 ## In progress / next
 
 - [x] Firebase project/service-account configuration
-- [ ] Complete remaining admin and Android client integration
+- [ ] Complete remaining member web and admin launch workflows
 - [x] Member web authentication and profile onboarding integration
 - [ ] Enable Google in Firebase Console and run end-to-end Google login QA
 - [x] Profile photos and privacy rules
 - [x] Partner-preference model and API
 - [ ] Recommendation engine
-- [ ] Search/filter APIs
-- [ ] Interests, favourites and profile views
+- [x] Search/filter APIs
+- [x] Interests, favourites and profile views foundation
 - [ ] Conversations/messages after mutual acceptance
 - [ ] Block/report/moderation APIs
 - [ ] Connect web/admin/mobile shells to API
@@ -88,7 +90,7 @@ Last updated: 2026-09-25
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | through migration `2026_09_25_000300` |
+| Database schema | through migration `2026_09_25_000400` |
 
 ## Major blockers and risks
 
@@ -106,7 +108,7 @@ Last updated: 2026-09-25
 
 ## Delivery priority
 
-The active product phase completes member web and admin first while Android implements the same modules against the shared API. Native iOS implementation follows the stabilized feature set and uses Xcode Cloud for builds and releases.
+The active product phase completes and stabilizes the full member web and admin launch scope first. Android implementation starts after that gate. Native iOS implementation follows the stabilized Android/shared feature set and uses Xcode Cloud for builds and releases.
 
 ## Rule
 

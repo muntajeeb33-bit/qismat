@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { exchangeFirebaseToken, getOnboardingStatus, getPartnerPreferences, getProfile, updateDiscovery } from './api';
 import { firebaseConfigured, firebaseGoogleLogin, firebaseLogin, firebaseRegister, firebaseResetPassword, socialLoginConfigured } from './firebase';
 import { ProfileEditor } from './profile';
+import { Discovery } from './discovery';
 import './auth.css';
 import './social-auth.css';
 
@@ -11,6 +12,7 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [view, setView] = useState('home');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
   const [purposeAccepted, setPurposeAccepted] = useState(false);
@@ -109,8 +111,8 @@ export function MemberHome({ user, onLogout }) {
   }
 
   const state = status?.moderation_status || 'draft';
-  return <div className="member-shell"><header className="member-header"><strong>Qismat Connections</strong><div><span>{user.name}</span><button onClick={onLogout}>Sign out</button></div></header>
-    {editing ? <ProfileEditor profile={profile} preferences={preferences} status={status} onCancel={() => setEditing(false)} onComplete={completed} /> : <main className="member-main">
+  return <div className="member-shell"><header className="member-header"><strong><img src="/assets/qismat-connections-logo.png" alt="Qismat Connections" /></strong><nav className="member-nav" aria-label="Member navigation"><button className={view === 'home' ? 'active' : ''} onClick={() => { setView('home'); setEditing(false); }}>Home</button><button className={view === 'discover' ? 'active' : ''} onClick={() => { setView('discover'); setEditing(false); }}>Discover</button><button className={view === 'saved' ? 'active' : ''} onClick={() => { setView('saved'); setEditing(false); }}>Saved</button></nav><div><span>{user.name}</span><button onClick={onLogout}>Sign out</button></div></header>
+    {view === 'discover' ? <Discovery /> : view === 'saved' ? <Discovery mode="saved" /> : editing ? <ProfileEditor profile={profile} preferences={preferences} status={status} onCancel={() => setEditing(false)} onComplete={completed} /> : <main className="member-main">
       <section><span className="kicker">Your membership</span><h1>Welcome, {user.name.split(' ')[0]}.</h1><p>Your secure account is connected. Complete your profile, submit it for review, and choose when approved whether to appear in discovery.</p>
         {notice && <div className="auth-notice success">{notice}</div>}{error && <div className="auth-notice error">{error}</div>}
         {state === 'rejected' && status?.moderation_feedback && <div className="member-feedback"><strong>Reviewer feedback</strong><span>{status.moderation_feedback}</span></div>}

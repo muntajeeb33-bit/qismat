@@ -4,6 +4,7 @@ import { getCurrentUser, logoutApi, session } from './api';
 import { AuthPanel, MemberHome } from './auth';
 import { firebaseLogout } from './firebase';
 import './styles.css';
+import './branding.css';
 
 const Arrow = () => <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg>;
 const Heart = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" /></svg>;
@@ -17,7 +18,7 @@ const steps = [
 ];
 
 function Brand() {
-  return <a className="brand" href="#top" aria-label="Qismat Connections home"><span className="brand-mark"><Heart /></span><span>Qismat Connections</span></a>;
+  return <a className="brand" href="#top" aria-label="Qismat Connections home"><img src="/assets/qismat-connections-logo.png" alt="Qismat Connections" /></a>;
 }
 
 function App() {

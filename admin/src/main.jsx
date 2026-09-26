@@ -3,7 +3,9 @@ import { createRoot } from 'react-dom/client';
 import { exchangeFirebaseToken, getCurrentUser, getDashboard, getPendingPhotos, getPendingProfiles, logoutApi, reviewPhoto, reviewProfile, session } from './api';
 import { firebaseConfigured, firebaseLogin, firebaseLogout, firebaseResetPassword } from './firebase';
 import { PhotoQueue } from './photo-queue';
+import { DiscoveryDiagnostics } from './discovery-diagnostics';
 import './styles.css';
+import './branding.css';
 
 const emptyStats = { registered_users: 0, active_profiles: 0, pending_verification: 0, pending_photos: 0, open_reports: 0 };
 
@@ -40,7 +42,7 @@ function Login({ onAuthenticated }) {
   }
 
   return <main className="login-page"><section className="login-card">
-    <div className="brand-mark">Q</div><span className="kicker">Qismat operations</span><h1>Admin sign in</h1>
+    <img className="login-logo" src="/assets/qismat-connections-logo.png" alt="Qismat Connections" /><span className="kicker">Qismat operations</span><h1>Admin sign in</h1>
     <p>Use an active Qismat administrator account. Every moderation decision is recorded.</p>
     {!firebaseConfigured && <div className="notice error">Firebase environment settings are missing.</div>}
     <form onSubmit={submit}>
@@ -107,6 +109,7 @@ function Dashboard({ user, onLogout }) {
       <section className="panel"><div className="panel-heading"><div><span className="kicker">Photo safety</span><h3>Photos awaiting review</h3></div><span className="queue-count">{photos.length} pending</span></div>
         {loading ? <p className="empty">Loading photo queue…</p> : <PhotoQueue photos={photos} reviewing={reviewingPhoto} onReview={reviewPendingPhoto} />}
       </section>
+      <DiscoveryDiagnostics />
     </main>
   </div>;
 }

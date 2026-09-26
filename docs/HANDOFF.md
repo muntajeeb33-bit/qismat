@@ -48,6 +48,8 @@ Email/password registration, login and password reset are proxied through Larave
 - Structured family/career fields and member-scoped partner-preference CRUD with safe age/height ranges.
 - Member web editing for structured profile fields, matching preferences and enforced profile visibility.
 - Private metadata-stripped profile photos, member photo management, audited admin photo moderation and approved-primary-photo discovery gating.
+- Privacy-safe member discovery with full filters, explainable preference matches, profile detail views, daily view recording and favourites.
+- Member discovery/saved-profile screens and administrator discovery-eligibility diagnostics.
 - cPanel database preflight, managed environment deployment, migrations, frontend deployment and API health checks.
 - Pre-migration database/member-file snapshots, immutable application releases, atomic activation and automatic/manual application rollback workflows.
 - CI builds for backend, web/admin and Android.
@@ -56,10 +58,10 @@ Email/password registration, login and password reset are proxied through Larave
 
 1. Enable Google under Firebase Authentication → Sign-in method and complete a live Google login test.
 2. Provision the first production administrator from the server console and verify the moderation workflow.
-3. Connect Android Firebase authentication and the deployed profile/photo modules to the shared API.
-4. Add search, filters, favourites and recommendation foundations using the deployed partner-preference contract.
-5. Complete block/report and broader administration safety operations.
-6. Rehearse application rollback and backup restore, configure off-host copies and pin SSH host verification.
+3. Complete web and admin block/report, mutual-interest, messaging, account-control and broader safety operations.
+4. Complete web/admin policies, consent records, observability and production-release hardening.
+5. Rehearse application rollback and backup restore, configure off-host copies and pin SSH host verification.
+6. Start Android implementation only after the web and admin launch scope is complete and stable.
 
 ## Explicitly deferred
 
