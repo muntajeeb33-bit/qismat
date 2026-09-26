@@ -11,7 +11,7 @@ class Profile extends Model
 
     protected $fillable = [
         'user_id', 'profile_code', 'created_by', 'display_name', 'moderation_status', 'discovery_opt_in', 'submitted_at', 'approved_at', 'moderation_feedback', 'moderated_by', 'moderated_at', 'gender', 'date_of_birth', 'height_cm', 'marital_status',
-        'religion', 'community', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation',
+        'religion', 'denomination', 'community', 'sub_community', 'ethnicity', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation',
         'company', 'annual_income', 'about_me', 'family_details', 'partner_expectations', 'profile_completion',
         'verification_status', 'visibility', 'last_active_at',
     ];

@@ -25,7 +25,10 @@ class DiscoveryProfilePresenter
             'height_cm' => $profile->height_cm,
             'marital_status' => $profile->marital_status,
             'religion' => $profile->religion,
+            'denomination' => $profile->denomination,
             'community' => $profile->community,
+            'sub_community' => $profile->sub_community,
+            'ethnicity' => $profile->ethnicity,
             'mother_tongue' => $profile->mother_tongue,
             'country' => $profile->country,
             'state' => $profile->state,
@@ -70,7 +73,10 @@ class DiscoveryProfilePresenter
         $checks = [
             'Within your preferred age range' => $profile->date_of_birth && $preference->min_age !== null && $preference->max_age !== null && $profile->date_of_birth->age >= $preference->min_age && $profile->date_of_birth->age <= $preference->max_age,
             'Matches your religion preference' => in_array($profile->religion, $preference->religions ?? [], true),
+            'Matches your denomination preference' => in_array($profile->denomination, $preference->denominations ?? [], true),
             'Matches your community preference' => in_array($profile->community, $preference->communities ?? [], true),
+            'Matches your sub-community preference' => in_array($profile->sub_community, $preference->sub_communities ?? [], true),
+            'Matches your ethnic background preference' => in_array($profile->ethnicity, $preference->ethnicities ?? [], true),
             'Matches your language preference' => in_array($profile->mother_tongue, $preference->mother_tongues ?? [], true),
             'Matches your location preference' => in_array($profile->city, $preference->cities ?? [], true) || in_array($profile->country, $preference->countries ?? [], true),
         ];

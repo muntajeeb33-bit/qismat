@@ -24,11 +24,14 @@ class ProfileController extends Controller
         $data = $request->validate([
             'display_name' => ['sometimes', 'nullable', 'string', 'max:120'],
             'gender' => ['sometimes', 'nullable', 'in:male,female,other'],
-            'date_of_birth' => ['sometimes', 'nullable', 'date', 'before_or_equal:'.now()->subYears(18)->toDateString()],
+            'date_of_birth' => ['sometimes', 'nullable', 'date', 'after_or_equal:'.now()->subYears(100)->toDateString(), 'before_or_equal:'.now()->subYears(18)->toDateString()],
             'height_cm' => ['sometimes', 'nullable', 'integer', 'between:100,250'],
             'marital_status' => ['sometimes', 'nullable', 'string', 'max:40'],
             'religion' => ['sometimes', 'nullable', 'string', 'max:80'],
+            'denomination' => ['sometimes', 'nullable', 'string', 'max:100'],
             'community' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'sub_community' => ['sometimes', 'nullable', 'string', 'max:120'],
+            'ethnicity' => ['sometimes', 'nullable', 'string', 'max:120'],
             'mother_tongue' => ['sometimes', 'nullable', 'string', 'max:80'],
             'country' => ['sometimes', 'nullable', 'string', 'max:80'],
             'state' => ['sometimes', 'nullable', 'string', 'max:80'],
@@ -57,7 +60,7 @@ class ProfileController extends Controller
             $data + ['profile_code' => $existingProfile?->profile_code ?? $this->newProfileCode()]
         );
 
-        $reviewedFieldsChanged = $profile->wasChanged(['display_name', 'gender', 'date_of_birth', 'marital_status', 'religion', 'community', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation', 'company', 'annual_income', 'about_me', 'family_details', 'partner_expectations', 'visibility']);
+        $reviewedFieldsChanged = $profile->wasChanged(['display_name', 'gender', 'date_of_birth', 'marital_status', 'religion', 'denomination', 'community', 'sub_community', 'ethnicity', 'mother_tongue', 'country', 'state', 'city', 'education', 'occupation', 'company', 'annual_income', 'about_me', 'family_details', 'partner_expectations', 'visibility']);
         $profile->forceFill(['profile_completion' => $this->readiness->percentage($profile)])->save();
 
         // Any change to reviewed public information requires a fresh moderation decision.

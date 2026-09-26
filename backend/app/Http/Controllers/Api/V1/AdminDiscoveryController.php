@@ -68,8 +68,8 @@ class AdminDiscoveryController extends Controller
         if ($profile->visibility !== 'members') {
             $issues[] = 'Profile visibility is restricted';
         }
-        if (! $profile->date_of_birth || $profile->date_of_birth->age < 18) {
-            $issues[] = 'Adult date of birth is missing';
+        if (! $profile->date_of_birth || $profile->date_of_birth->age < 18 || $profile->date_of_birth->age > 100) {
+            $issues[] = 'Date of birth must represent an age from 18 to 100';
         }
         if (! $profile->user || $profile->user->status !== 'active') {
             $issues[] = 'Member account is inactive';

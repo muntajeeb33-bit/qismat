@@ -46,6 +46,7 @@ Email/password registration, login and password reset are proxied through Larave
 - Admin login, active-admin role enforcement, dashboard counts and audited approve/reject moderation.
 - Profile CRUD, moderation states, discovery eligibility and interest send/respond API foundation.
 - Structured family/career fields and member-scoped partner-preference CRUD with safe age/height ranges.
+- Optional faith, denomination, community/caste, sub-community/sub-caste and ethnic-background data shared by profiles, preferences, discovery and moderation, with member ages limited to 18–100.
 - Member web editing for structured profile fields, matching preferences and enforced profile visibility.
 - Private metadata-stripped profile photos, member photo management, audited admin photo moderation and approved-primary-photo discovery gating.
 - Privacy-safe member discovery with full filters, explainable preference matches, profile detail views, daily view recording and favourites.

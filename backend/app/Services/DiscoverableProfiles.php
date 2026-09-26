@@ -27,6 +27,7 @@ class DiscoverableProfiles
                         ->where('blocks.blocked_user_id', $viewer->id);
                 }))
             ->whereNotNull('date_of_birth')
+            ->whereDate('date_of_birth', '>=', now()->subYears(100)->toDateString())
             ->whereDate('date_of_birth', '<=', now()->subYears(18)->toDateString())
             ->whereHas('photos', fn ($photos) => $photos
                 ->where('is_primary', true)

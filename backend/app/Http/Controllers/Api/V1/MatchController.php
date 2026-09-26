@@ -22,7 +22,10 @@ class MatchController extends Controller
             'state' => ['sometimes', 'string', 'max:80'],
             'city' => ['sometimes', 'string', 'max:80'],
             'religion' => ['sometimes', 'string', 'max:80'],
+            'denomination' => ['sometimes', 'string', 'max:100'],
             'community' => ['sometimes', 'string', 'max:100'],
+            'sub_community' => ['sometimes', 'string', 'max:120'],
+            'ethnicity' => ['sometimes', 'string', 'max:120'],
             'mother_tongue' => ['sometimes', 'string', 'max:80'],
             'marital_status' => ['sometimes', 'string', 'max:40'],
             'education' => ['sometimes', 'string', 'max:180'],
@@ -39,7 +42,7 @@ class MatchController extends Controller
             ->with(['user:id,name', 'photos' => fn ($photos) => $photos->where('is_primary', true)->where('moderation_status', 'approved')->where('visibility', 'members')])
             ->with(['favouritedBy' => fn ($favourites) => $favourites->where('user_id', $viewer->id)]);
 
-        foreach (['gender', 'country', 'state', 'city', 'religion', 'community', 'mother_tongue', 'marital_status'] as $field) {
+        foreach (['gender', 'country', 'state', 'city', 'religion', 'denomination', 'community', 'sub_community', 'ethnicity', 'mother_tongue', 'marital_status'] as $field) {
             if (isset($filters[$field])) {
                 $query->where($field, $filters[$field]);
             }
