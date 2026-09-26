@@ -47,6 +47,8 @@ Email/password registration, login and password reset are proxied through Larave
 - Profile CRUD, moderation states, discovery eligibility and interest send/respond API foundation.
 - Structured family/career fields and member-scoped partner-preference CRUD with safe age/height ranges.
 - Optional faith, denomination, community/caste, sub-community/sub-caste and ethnic-background data shared by profiles, preferences, discovery and moderation, with member ages limited to 18–100.
+- Member notification controls, blocked-member management, global session revocation and safeguarded account deletion with private media removal.
+- Public privacy, terms, safety and account-deletion/support pages linked from the website footer.
 - Member web editing for structured profile fields, matching preferences and enforced profile visibility.
 - Private metadata-stripped profile photos, member photo management, audited admin photo moderation and approved-primary-photo discovery gating.
 - Privacy-safe member discovery with full filters, explainable preference matches, profile detail views, daily view recording and favourites.
@@ -61,9 +63,9 @@ Email/password registration, login and password reset are proxied through Larave
 
 1. Enable Google under Firebase Authentication → Sign-in method and complete a live Google login test.
 2. Provision the first production administrator from the server console and verify the moderation workflow.
-3. Complete account controls, notification preferences and public legal/support pages.
+3. Verify the public support mailbox and approve the published privacy, terms, safety and retention language before launch.
 4. Add phone verification and precise trust indicators, then profile prompts and private-photo reveal requests.
-5. Complete observability and production-release hardening; rehearse rollback and backup restore, configure off-host copies and pin SSH host verification.
+5. Complete notification delivery, observability and production-release hardening; rehearse rollback and backup restore, configure off-host copies and pin SSH host verification.
 6. Start Android implementation only after the web and admin launch scope is complete and stable.
 
 ## Explicitly deferred

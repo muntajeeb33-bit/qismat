@@ -72,6 +72,12 @@ export const respondToInterest = (interestId, status) => request(`/interests/${i
 export const cancelInterest = (interestId) => request(`/interests/${interestId}`, { method: 'DELETE' }).then(({ data }) => data);
 export const blockMember = (userId, reason = null) => request('/blocks', { method: 'POST', body: JSON.stringify({ user_id: userId, reason }) }).then(({ data }) => data);
 export const reportMember = (userId, reason, details = null) => request('/reports', { method: 'POST', body: JSON.stringify({ user_id: userId, reason, details }) }).then(({ data }) => data);
+export const getBlockedMembers = () => request('/blocks').then(({ data }) => data);
+export const unblockMember = (userId) => request(`/blocks/${userId}`, { method: 'DELETE' }).then(({ data }) => data);
+export const getNotificationPreferences = () => request('/account/notification-preferences').then(({ data }) => data);
+export const updateNotificationPreferences = (preferences) => request('/account/notification-preferences', { method: 'PUT', body: JSON.stringify(preferences) }).then(({ data }) => data);
+export const logoutAllApi = () => request('/auth/logout-all', { method: 'POST' }).then(({ data }) => data);
+export const deleteAccount = () => request('/account', { method: 'DELETE', body: JSON.stringify({ confirmation: 'DELETE' }) }).then(({ data }) => data);
 export const getConversations = () => request('/conversations').then(({ data }) => data);
 export const getMessages = (conversationId) => request(`/conversations/${conversationId}/messages`).then(({ data }) => data);
 export const sendMessage = (conversationId, body) => request(`/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify({ body }) }).then(({ data }) => data);

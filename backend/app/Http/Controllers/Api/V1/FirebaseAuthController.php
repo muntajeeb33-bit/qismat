@@ -97,6 +97,10 @@ class FirebaseAuthController extends Controller
 
             $user = $identityUser ?? $emailUser;
 
+            if ($user && $user->status !== 'active') {
+                abort(403, 'This Qismat account is not active.');
+            }
+
             if ($user?->firebase_uid && $user->firebase_uid !== $uid) {
                 throw new ConflictHttpException('Email address is already linked to another Firebase account.');
             }
@@ -118,8 +122,6 @@ class FirebaseAuthController extends Controller
 
             return $user;
         });
-
-        abort_unless($user->status === 'active', 403, 'This Qismat account is not active.');
 
         return $this->success([
             'user' => $user->load('profile'),

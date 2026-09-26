@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-26 — Account controls and public policies
+
+- Added member notification preferences for interest, messaging, moderation and product email/push categories.
+- Added blocked-member review and unblock controls plus global API-session revocation.
+- Added confirmed account deletion that removes profile data and stored photos while retaining a non-login tombstone for abuse prevention.
+- Added linked privacy, terms, safety and account-deletion/support pages to the public website.
+
 ## Unreleased
 
 - Added optional religion, sect or denomination, community or caste, sub-community or sub-caste, and ethnicity fields across profiles, partner preferences, discovery, and admin moderation.

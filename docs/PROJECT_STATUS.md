@@ -5,14 +5,14 @@ Last updated: 2026-09-26
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 70%
+**Overall progress:** 73%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 89% |
-| Website | In progress | 90% |
+| Backend/API | In progress | 91% |
+| Website | In progress | 93% |
 | Admin dashboard | In progress | 68% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
@@ -75,6 +75,8 @@ Last updated: 2026-09-26
 - [x] Profile photos and privacy rules
 - [x] Partner-preference model and API
 - [x] Inclusive faith/community/ethnicity profile fields and 18–100 age enforcement
+- [x] Member notification preferences, blocked-member management, global sign-out and account deletion
+- [x] Public privacy, terms, safety and account-deletion/support pages
 - [ ] Recommendation engine
 - [x] Search/filter APIs
 - [x] Interests, favourites and profile views foundation
@@ -96,7 +98,7 @@ Last updated: 2026-09-26
 | Admin | shell 001 |
 | Android | shell 001 |
 | iOS | shell 001 |
-| Database schema | through migration `2026_09_26_000200` |
+| Database schema | through migration `2026_09_26_000400` |
 
 ## Major blockers and risks
 
