@@ -15,8 +15,8 @@ This document is the starting point for contributors joining Qismat. Read it tog
 - Admin website: `https://admin.qismatconnections.com`
 - Shared API: `https://admin.qismatconnections.com/api/v1`
 - Health endpoint: `https://admin.qismatconnections.com/api/v1/health`
-- Latest verified staging release: `e4f8f7103de4f698dae38305ff3b2bc983476ab2`
-- Verified cPanel deployment run: `36157171677`
+- Latest verified staging release: `522162358a03733f1ba6236e270ce17ea0f101f3`
+- Verified cPanel deployment run: `36223891274`
 
 The Laravel runtime is deployed outside the public admin document root. The admin domain routes only `/api/*` to Laravel; other non-file requests load the React admin application.
 
