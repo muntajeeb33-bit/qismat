@@ -74,6 +74,7 @@ Last updated: 2026-09-26
 - [ ] Enable Google in Firebase Console and run end-to-end Google login QA
 - [x] Profile photos and privacy rules
 - [x] Partner-preference model and API
+- [x] Inclusive faith/community/ethnicity profile fields and 18–100 age enforcement
 - [ ] Recommendation engine
 - [x] Search/filter APIs
 - [x] Interests, favourites and profile views foundation

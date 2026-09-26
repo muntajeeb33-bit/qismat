@@ -71,3 +71,11 @@ Complete Google sign-in first. The website uses Firebase Google popup authentica
 **Date:** 2026-09-25
 
 Continue using working default Firebase verification and password-reset emails while Firebase template updates are restricted for the project. Revisit branded delivery later through restored Firebase template access or Firebase Admin-generated action links delivered by Laravel through an approved SMTP provider.
+
+## ADR-013 — Inclusive faith and cultural background fields
+**Status:** Accepted
+**Date:** 2026-09-26
+
+Represent faith and cultural identity as separate optional profile fields: religion, sect or denomination, community or caste, sub-community or sub-caste, and ethnic background. Offer common suggestions while accepting self-described values and “Prefer not to say.” This follows the useful religion/community/sub-community search hierarchy used by established matrimonial services without forcing every culture or faith into one caste taxonomy. Apply the same fields to partner preferences and discovery, and keep the shared API contract suitable for web, Android and iOS clients.
+
+Member age is limited to 18 through 100 at profile validation, discovery eligibility, partner preferences and search filters.

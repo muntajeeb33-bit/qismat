@@ -40,6 +40,43 @@ class ProfileTest extends TestCase
         ])->assertUnprocessable()->assertJsonValidationErrors('date_of_birth');
     }
 
+    public function test_profile_age_must_not_exceed_one_hundred(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->putJson('/api/v1/profile', [
+            'date_of_birth' => now()->subYears(100)->toDateString(),
+        ])->assertOk();
+
+        $this->putJson('/api/v1/profile', [
+            'date_of_birth' => now()->subYears(100)->subDay()->toDateString(),
+        ])->assertUnprocessable()->assertJsonValidationErrors('date_of_birth');
+    }
+
+    public function test_member_can_save_optional_faith_community_and_ethnicity_details(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->putJson('/api/v1/profile', [
+            'religion' => 'Muslim',
+            'denomination' => 'Sunni',
+            'community' => 'Rajput',
+            'sub_community' => 'Self-described group',
+            'ethnicity' => 'South Asian',
+        ])->assertOk()
+            ->assertJsonPath('data.denomination', 'Sunni')
+            ->assertJsonPath('data.sub_community', 'Self-described group')
+            ->assertJsonPath('data.ethnicity', 'South Asian');
+
+        $this->assertDatabaseHas('profiles', [
+            'user_id' => $user->id,
+            'denomination' => 'Sunni',
+            'sub_community' => 'Self-described group',
+            'ethnicity' => 'South Asian',
+        ]);
+    }
+
     public function test_member_can_save_structured_family_and_career_details(): void
     {
         $user = User::factory()->create();

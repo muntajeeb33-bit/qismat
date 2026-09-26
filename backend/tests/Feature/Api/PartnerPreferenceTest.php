@@ -26,7 +26,11 @@ class PartnerPreferenceTest extends TestCase
             'min_height_cm' => 150,
             'max_height_cm' => 190,
             'marital_statuses' => ['never_married', 'divorced'],
-            'religions' => ['Islam'],
+            'religions' => ['Muslim'],
+            'denominations' => ['Sunni'],
+            'communities' => ['Rajput'],
+            'sub_communities' => ['Self-described group'],
+            'ethnicities' => ['South Asian'],
             'countries' => ['United Kingdom', 'Pakistan'],
             'open_to_relocation' => true,
             'summary' => 'Seeking a kind, family-oriented partner.',
@@ -34,6 +38,8 @@ class PartnerPreferenceTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.min_age', 25)
             ->assertJsonPath('data.marital_statuses.1', 'divorced')
+            ->assertJsonPath('data.denominations.0', 'Sunni')
+            ->assertJsonPath('data.ethnicities.0', 'South Asian')
             ->assertJsonPath('data.open_to_relocation', true);
 
         $this->putJson('/api/v1/profile/partner-preferences', [
@@ -76,6 +82,20 @@ class PartnerPreferenceTest extends TestCase
             'countries' => ['Pakistan', 'Pakistan'],
         ])->assertUnprocessable()
             ->assertJsonValidationErrors(['countries.0', 'countries.1']);
+    }
+
+    public function test_partner_preferences_allow_age_one_hundred_but_not_higher(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $this->putJson('/api/v1/profile/partner-preferences', [
+            'min_age' => 18,
+            'max_age' => 100,
+        ])->assertOk()->assertJsonPath('data.max_age', 100);
+
+        $this->putJson('/api/v1/profile/partner-preferences', [
+            'max_age' => 101,
+        ])->assertUnprocessable()->assertJsonValidationErrors('max_age');
     }
 
     public function test_partial_updates_cannot_break_an_existing_range(): void

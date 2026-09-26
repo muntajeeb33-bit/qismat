@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added optional religion, sect or denomination, community or caste, sub-community or sub-caste, and ethnicity fields across profiles, partner preferences, discovery, and admin moderation.
+- Enforced an inclusive member age range of 18 through 100 at profile entry and discovery eligibility, matching the existing preference and search limits.
 - Added member web photo management, an administrator photo-review queue and an approved-primary-photo requirement for discovery.
 - Added private profile-photo upload, metadata removal, ordering, primary-photo selection, visibility authorization and audited admin moderation APIs.
 - Connected the member web profile editor to structured family, career, privacy and partner-preference fields, and enforced private visibility across discovery and interests.

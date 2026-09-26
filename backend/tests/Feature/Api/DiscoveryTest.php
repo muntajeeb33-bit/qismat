@@ -15,15 +15,17 @@ class DiscoveryTest extends TestCase
     public function test_discovery_filters_profiles_and_returns_only_safe_fields(): void
     {
         $viewer = User::factory()->create();
-        $match = $this->discoverable(['city' => 'Toronto', 'religion' => 'Muslim', 'occupation' => 'Engineer']);
+        $match = $this->discoverable(['city' => 'Toronto', 'religion' => 'Muslim', 'denomination' => 'Sunni', 'ethnicity' => 'South Asian', 'occupation' => 'Engineer']);
         $this->discoverable(['city' => 'Ottawa', 'religion' => 'Muslim']);
         Sanctum::actingAs($viewer);
 
-        $this->getJson('/api/v1/matches?city=Toronto&religion=Muslim&occupation=Eng')
+        $this->getJson('/api/v1/matches?city=Toronto&religion=Muslim&denomination=Sunni&ethnicity=South%20Asian&occupation=Eng')
             ->assertOk()
             ->assertJsonCount(1, 'data.data')
             ->assertJsonPath('data.data.0.id', $match->id)
             ->assertJsonPath('data.data.0.city', 'Toronto')
+            ->assertJsonPath('data.data.0.denomination', 'Sunni')
+            ->assertJsonPath('data.data.0.ethnicity', 'South Asian')
             ->assertJsonPath('data.data.0.primary_photo.id', $match->photos()->first()->id)
             ->assertJsonMissingPath('data.data.0.date_of_birth')
             ->assertJsonMissingPath('data.data.0.primary_photo.path')
@@ -35,6 +37,7 @@ class DiscoveryTest extends TestCase
         $viewer = User::factory()->create();
         $hidden = $this->discoverable(['visibility' => 'private']);
         $pending = $this->discoverable(['moderation_status' => 'pending']);
+        $tooOld = $this->discoverable(['date_of_birth' => now()->subYears(100)->subDay()->toDateString()]);
         $noPhoto = $this->discoverable();
         $noPhoto->photos()->delete();
         Sanctum::actingAs($viewer);
@@ -42,6 +45,7 @@ class DiscoveryTest extends TestCase
         $this->getJson('/api/v1/matches')->assertOk()->assertJsonCount(0, 'data.data');
         $this->getJson('/api/v1/matches/'.$hidden->id)->assertNotFound();
         $this->getJson('/api/v1/matches/'.$pending->id)->assertNotFound();
+        $this->getJson('/api/v1/matches/'.$tooOld->id)->assertNotFound();
     }
 
     public function test_profile_detail_records_only_one_view_per_day(): void
@@ -78,16 +82,20 @@ class DiscoveryTest extends TestCase
             'min_age' => 22,
             'max_age' => 32,
             'religions' => ['Muslim'],
+            'denominations' => ['Sunni'],
+            'ethnicities' => ['South Asian'],
             'cities' => ['Toronto'],
         ]);
-        $this->discoverable(['city' => 'Toronto', 'religion' => 'Muslim']);
+        $this->discoverable(['city' => 'Toronto', 'religion' => 'Muslim', 'denomination' => 'Sunni', 'ethnicity' => 'South Asian']);
         Sanctum::actingAs($viewer);
 
         $this->getJson('/api/v1/matches')
             ->assertOk()
             ->assertJsonPath('data.data.0.match_reasons.0', 'Within your preferred age range')
             ->assertJsonPath('data.data.0.match_reasons.1', 'Matches your religion preference')
-            ->assertJsonPath('data.data.0.match_reasons.2', 'Matches your location preference');
+            ->assertJsonPath('data.data.0.match_reasons.2', 'Matches your denomination preference')
+            ->assertJsonPath('data.data.0.match_reasons.3', 'Matches your ethnic background preference')
+            ->assertJsonPath('data.data.0.match_reasons.4', 'Matches your location preference');
     }
 
     public function test_admin_can_inspect_discovery_eligibility(): void

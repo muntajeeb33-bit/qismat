@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { submitProfile, updatePartnerPreferences, updateProfile } from './api';
 import { PhotoManager } from './photos';
+import { COMMUNITIES, DENOMINATIONS, ETHNICITIES, RELIGIONS, SuggestionList } from './profile-options';
 import './profile.css';
 
 const initial = {
   display_name: '', gender: '', date_of_birth: '', height_cm: '', marital_status: '',
-  religion: '', community: '', mother_tongue: '', country: '', state: '', city: '',
+  religion: '', denomination: '', community: '', sub_community: '', ethnicity: '', mother_tongue: '', country: '', state: '', city: '',
   education: '', occupation: '', company: '', annual_income: '', about_me: '',
   partner_expectations: '', visibility: 'members', family_type: '', family_values: '',
   father_occupation: '', mother_occupation: '', siblings: '', family_location: '', family_summary: '',
@@ -13,7 +14,7 @@ const initial = {
 
 const preferenceInitial = {
   min_age: '', max_age: '', min_height_cm: '', max_height_cm: '', marital_statuses: '',
-  religions: '', communities: '', mother_tongues: '', countries: '', cities: '',
+  religions: '', denominations: '', communities: '', sub_communities: '', ethnicities: '', mother_tongues: '', countries: '', cities: '',
   education_preferences: '', occupation_preferences: '', open_to_relocation: '', summary: '',
 };
 
@@ -57,6 +58,10 @@ export function ProfileEditor({ profile, preferences, status, onCancel, onComple
     const date = new Date(); date.setFullYear(date.getFullYear() - 18);
     return date.toISOString().slice(0, 10);
   }, []);
+  const minBirthDate = useMemo(() => {
+    const date = new Date(); date.setFullYear(date.getFullYear() - 100);
+    return date.toISOString().slice(0, 10);
+  }, []);
 
   function change(event) {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -89,7 +94,7 @@ export function ProfileEditor({ profile, preferences, status, onCancel, onComple
       payload.height_cm = optionalNumber(payload.height_cm);
       payload.annual_income = optionalNumber(payload.annual_income);
 
-      const listFields = ['marital_statuses', 'religions', 'communities', 'mother_tongues', 'countries', 'cities', 'education_preferences', 'occupation_preferences'];
+      const listFields = ['marital_statuses', 'religions', 'denominations', 'communities', 'sub_communities', 'ethnicities', 'mother_tongues', 'countries', 'cities', 'education_preferences', 'occupation_preferences'];
       const preferencePayload = Object.fromEntries(Object.entries(preferenceFormState).map(([key, value]) => {
         if (listFields.includes(key)) return [key, commaList(value)];
         if (['min_age', 'max_age', 'min_height_cm', 'max_height_cm'].includes(key)) return [key, optionalNumber(value)];
@@ -110,7 +115,7 @@ export function ProfileEditor({ profile, preferences, status, onCancel, onComple
     <form className="profile-form" onSubmit={(event) => { event.preventDefault(); save(true); }}>
       <section><h2>Essentials</h2><div className="form-grid">
         <label className="span-2">Display name *<input name="display_name" value={form.display_name} onChange={change} maxLength="120" required /></label>
-        <label>Date of birth *<input type="date" name="date_of_birth" value={form.date_of_birth} onChange={change} max={maxBirthDate} required /></label>
+        <label>Date of birth *<input type="date" name="date_of_birth" value={form.date_of_birth} onChange={change} min={minBirthDate} max={maxBirthDate} required /><small>Members must be between 18 and 100 years old.</small></label>
         <label>Gender<select name="gender" value={form.gender} onChange={change}><option value="">Select</option><option value="female">Female</option><option value="male">Male</option><option value="other">Other</option></select></label>
         <label>Marital status<select name="marital_status" value={form.marital_status} onChange={change}><option value="">Select</option><option>Never married</option><option>Divorced</option><option>Widowed</option><option>Separated</option></select></label>
         <label>Height in cm<input type="number" name="height_cm" value={form.height_cm} onChange={change} min="100" max="250" /></label>
@@ -119,9 +124,16 @@ export function ProfileEditor({ profile, preferences, status, onCancel, onComple
         <label>Country *<input name="country" value={form.country} onChange={change} maxLength="80" required /></label>
         <label>State or province<input name="state" value={form.state} onChange={change} maxLength="80" /></label>
         <label>City *<input name="city" value={form.city} onChange={change} maxLength="80" required /></label>
-        <label>Religion<input name="religion" value={form.religion} onChange={change} maxLength="80" /></label>
-        <label>Community<input name="community" value={form.community} onChange={change} maxLength="100" /></label>
+        <label>Religion<input list="religion-options" name="religion" value={form.religion} onChange={change} maxLength="80" placeholder="Select or describe" /></label>
+        <label>Sect or denomination<input list="denomination-options" name="denomination" value={form.denomination} onChange={change} maxLength="100" placeholder="Optional" /></label>
+        <label>Community or caste<input list="community-options" name="community" value={form.community} onChange={change} maxLength="100" placeholder="Optional" /></label>
+        <label>Sub-community or sub-caste<input name="sub_community" value={form.sub_community} onChange={change} maxLength="120" placeholder="Optional" /></label>
+        <label>Ethnic background<input list="ethnicity-options" name="ethnicity" value={form.ethnicity} onChange={change} maxLength="120" placeholder="Optional or prefer not to say" /></label>
         <label>Mother tongue<input name="mother_tongue" value={form.mother_tongue} onChange={change} maxLength="80" /></label>
+        <SuggestionList id="religion-options" values={RELIGIONS} />
+        <SuggestionList id="denomination-options" values={DENOMINATIONS} />
+        <SuggestionList id="community-options" values={COMMUNITIES} />
+        <SuggestionList id="ethnicity-options" values={ETHNICITIES} />
       </div></section>
       <section><h2>Education and career</h2><div className="form-grid">
         <label>Education<input name="education" value={form.education} onChange={change} maxLength="180" /></label>
@@ -148,8 +160,11 @@ export function ProfileEditor({ profile, preferences, status, onCancel, onComple
         <label>Minimum height in cm<input type="number" name="min_height_cm" value={preferenceFormState.min_height_cm} onChange={changePreference} min="100" max="250" /></label>
         <label>Maximum height in cm<input type="number" name="max_height_cm" value={preferenceFormState.max_height_cm} onChange={changePreference} min="100" max="250" /></label>
         <label>Marital statuses<input name="marital_statuses" value={preferenceFormState.marital_statuses} onChange={changePreference} placeholder="Never married, Divorced" /></label>
-        <label>Religions<input name="religions" value={preferenceFormState.religions} onChange={changePreference} placeholder="Islam" /></label>
-        <label>Communities<input name="communities" value={preferenceFormState.communities} onChange={changePreference} /></label>
+        <label>Religions<input name="religions" value={preferenceFormState.religions} onChange={changePreference} placeholder="Muslim" /></label>
+        <label>Sects or denominations<input name="denominations" value={preferenceFormState.denominations} onChange={changePreference} placeholder="Sunni, Shia" /></label>
+        <label>Communities or castes<input name="communities" value={preferenceFormState.communities} onChange={changePreference} /></label>
+        <label>Sub-communities or sub-castes<input name="sub_communities" value={preferenceFormState.sub_communities} onChange={changePreference} /></label>
+        <label>Ethnic backgrounds<input name="ethnicities" value={preferenceFormState.ethnicities} onChange={changePreference} /></label>
         <label>Mother tongues<input name="mother_tongues" value={preferenceFormState.mother_tongues} onChange={changePreference} /></label>
         <label>Countries<input name="countries" value={preferenceFormState.countries} onChange={changePreference} placeholder="United Kingdom, Pakistan" /></label>
         <label>Cities<input name="cities" value={preferenceFormState.cities} onChange={changePreference} /></label>
