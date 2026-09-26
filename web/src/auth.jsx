@@ -16,7 +16,6 @@ export function AuthPanel({ initialMode = 'login', onClose, onAuthenticated }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
-  const [view, setView] = useState('home');
   const [message, setMessage] = useState('');
   const [success, setSuccess] = useState(false);
   const [purposeAccepted, setPurposeAccepted] = useState(false);
@@ -90,6 +89,7 @@ export function MemberHome({ user, onLogout }) {
   const [notice, setNotice] = useState('');
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [view, setView] = useState('home');
 
   async function refresh() {
     setError('');
