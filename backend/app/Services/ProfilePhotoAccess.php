@@ -8,9 +8,7 @@ use App\Models\User;
 
 class ProfilePhotoAccess
 {
-    public function __construct(private readonly DiscoverableProfiles $discoverable)
-    {
-    }
+    public function __construct(private readonly DiscoverableProfiles $discoverable) {}
 
     public function canView(User $viewer, ProfilePhoto $photo): bool
     {
