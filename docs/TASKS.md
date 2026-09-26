@@ -29,7 +29,7 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Interest send/respond API foundation
 - [x] Shortlist/favourites
 - [x] Explainable matching/recommendation foundation
-- [ ] Chat foundation
+- [x] Mutual-match chat foundation with read state, deletion and safety controls
 - [x] Interest inbox, acceptance, decline and cancellation
 - [x] Bidirectional block enforcement and confidential member reports
 - [x] Admin safety report queue, suspension and audited resolution

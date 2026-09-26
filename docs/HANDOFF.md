@@ -1,6 +1,6 @@
 # Qismat Contributor Handoff
 
-Last updated: 2026-09-25
+Last updated: 2026-09-26
 
 ## Purpose
 
@@ -50,6 +50,8 @@ Email/password registration, login and password reset are proxied through Larave
 - Private metadata-stripped profile photos, member photo management, audited admin photo moderation and approved-primary-photo discovery gating.
 - Privacy-safe member discovery with full filters, explainable preference matches, profile detail views, daily view recording and favourites.
 - Member discovery/saved-profile screens and administrator discovery-eligibility diagnostics.
+- Complete sent/received interest management, bidirectional blocking, confidential reports and an audited administrator safety queue.
+- Mutual-connection messaging with unread/read state, member deletion, polling, rate limits and report/block actions.
 - cPanel database preflight, managed environment deployment, migrations, frontend deployment and API health checks.
 - Pre-migration database/member-file snapshots, immutable application releases, atomic activation and automatic/manual application rollback workflows.
 - CI builds for backend, web/admin and Android.
@@ -58,9 +60,9 @@ Email/password registration, login and password reset are proxied through Larave
 
 1. Enable Google under Firebase Authentication → Sign-in method and complete a live Google login test.
 2. Provision the first production administrator from the server console and verify the moderation workflow.
-3. Complete web and admin block/report, mutual-interest, messaging, account-control and broader safety operations.
-4. Complete web/admin policies, consent records, observability and production-release hardening.
-5. Rehearse application rollback and backup restore, configure off-host copies and pin SSH host verification.
+3. Complete account controls, notification preferences and public legal/support pages.
+4. Add phone verification and precise trust indicators, then profile prompts and private-photo reveal requests.
+5. Complete observability and production-release hardening; rehearse rollback and backup restore, configure off-host copies and pin SSH host verification.
 6. Start Android implementation only after the web and admin launch scope is complete and stable.
 
 ## Explicitly deferred

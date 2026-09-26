@@ -49,6 +49,7 @@ class AdminReportController extends Controller
             if ($data['action'] === 'suspended') {
                 $report->reportedUser()->update(['status' => 'suspended']);
                 $report->reportedUser?->profile?->update(['moderation_status' => 'suspended', 'discovery_opt_in' => false]);
+                $report->reportedUser?->tokens()->delete();
             }
 
             $report->update([
