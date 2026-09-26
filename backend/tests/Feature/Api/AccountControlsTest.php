@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Contracts\FirebaseTokenVerifier;
 use App\Models\Block;
 use App\Models\Profile;
 use App\Models\User;
@@ -102,7 +103,7 @@ class AccountControlsTest extends TestCase
 
     private function mockFirebaseClaims(array $claims): void
     {
-        $this->mock(\App\Contracts\FirebaseTokenVerifier::class)
+        $this->mock(FirebaseTokenVerifier::class)
             ->shouldReceive('verify')
             ->once()
             ->with('valid-firebase-token')
