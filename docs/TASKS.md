@@ -33,7 +33,7 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Interest inbox, acceptance, decline and cancellation
 - [x] Bidirectional block enforcement and confidential member reports
 - [x] Admin safety report queue, suspension and audited resolution
-- [ ] Remaining account privacy controls and public policies
+- [x] Account privacy controls, notification preferences and public policy/support pages
 - [x] Admin moderation foundation
 - [ ] Membership/payment foundation
 - [ ] Notifications

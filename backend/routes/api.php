@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AdminDashboardController;
 use App\Http\Controllers\Api\V1\AdminDiscoveryController;
 use App\Http\Controllers\Api\V1\AdminPhotoModerationController;
@@ -36,6 +37,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/auth/me', [AuthController::class, 'me']);
+        Route::post('/auth/logout-all', [AccountController::class, 'logoutAll']);
 
         Route::prefix('admin')->middleware(['verified', 'admin'])->group(function () {
             Route::get('/dashboard', AdminDashboardController::class);
@@ -49,6 +51,9 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::middleware('verified')->group(function () {
+            Route::get('/account/notification-preferences', [AccountController::class, 'notificationPreferences']);
+            Route::put('/account/notification-preferences', [AccountController::class, 'updateNotificationPreferences']);
+            Route::delete('/account', [AccountController::class, 'destroy'])->middleware('throttle:3,1');
             Route::get('/profile', [ProfileController::class, 'show']);
             Route::put('/profile', [ProfileController::class, 'update']);
             Route::get('/profile/onboarding-status', [ProfileOnboardingController::class, 'status']);

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { getCurrentUser, logoutApi, session } from './api';
 import { AuthPanel, MemberHome } from './auth';
 import { firebaseLogout } from './firebase';
+import { LegalPage } from './legal';
 import './styles.css';
 import './branding.css';
 
@@ -16,6 +17,7 @@ const steps = [
   ['02', 'Discover meaningful matches', 'Explore compatible profiles chosen around your preferences, lifestyle and future goals.'],
   ['03', 'Connect with confidence', 'Express interest and start a conversation only when the feeling is mutual.'],
 ];
+const legalFromHash = () => location.hash.startsWith('#legal-') ? location.hash.slice(7) : null;
 
 function Brand() {
   return <a className="brand" href="#top" aria-label="Qismat Connections home"><img src="/assets/qismat-connections-logo.png" alt="Qismat Connections" /></a>;
@@ -26,10 +28,17 @@ function App() {
   const [authMode, setAuthMode] = useState(null);
   const [user, setUser] = useState(null);
   const [restoring, setRestoring] = useState(Boolean(session.get()));
+  const [legalPage, setLegalPage] = useState(legalFromHash);
 
   useEffect(() => {
     if (!session.get()) return;
     getCurrentUser().then(setUser).catch(() => session.clear()).finally(() => setRestoring(false));
+  }, []);
+
+  useEffect(() => {
+    const update = () => setLegalPage(legalFromHash());
+    window.addEventListener('hashchange', update);
+    return () => window.removeEventListener('hashchange', update);
   }, []);
 
   async function logout() {
@@ -39,6 +48,7 @@ function App() {
 
   if (restoring) return <div className="member-loader">Restoring your session…</div>;
   if (user) return <MemberHome user={user} onLogout={logout} />;
+  if (legalPage) return <LegalPage page={legalPage} onClose={() => { location.hash = 'top'; setLegalPage(null); }} />;
 
   return <div className="site-shell">
     <header className="header">
@@ -102,7 +112,7 @@ function App() {
       <section className="final-cta"><span className="cta-spark">✦</span><p className="kicker">Your person may be closer than you think</p><h2>Let your story<br /><em>begin.</em></h2><button className="btn btn-light btn-large" onClick={() => setAuthMode('register')}>Join Qismat for free <Arrow /></button><small>It takes less than 5 minutes to create your profile.</small></section>
     </main>
 
-    <footer><div className="footer-brand"><Brand /><p>Meaningful matches.<br />Beautiful beginnings.</p></div><div className="footer-links"><div><strong>Discover</strong><a href="#discover">Find matches</a><a href="#stories">Success stories</a><a href="#journey">How it works</a></div><div><strong>Trust</strong><a href="#safety">Safety</a><a href="#safety">Privacy</a><a href="#safety">Help centre</a></div><div><strong>Company</strong><a href="#top">About Qismat</a><a href="#top">Contact</a><a href="#top">Careers</a></div></div><div className="footer-bottom"><span>© 2026 Qismat Connections. All rights reserved.</span><span>Made with care for meaningful connections.</span></div></footer>
+    <footer><div className="footer-brand"><Brand /><p>Meaningful matches.<br />Beautiful beginnings.</p></div><div className="footer-links"><div><strong>Discover</strong><a href="#discover">Find matches</a><a href="#stories">Success stories</a><a href="#journey">How it works</a></div><div><strong>Trust</strong><a href="#legal-safety">Safety centre</a><a href="#legal-privacy">Privacy policy</a><a href="#legal-support">Help and deletion</a></div><div><strong>Legal</strong><a href="#legal-terms">Terms of use</a><a href="#legal-support">Contact and support</a><a href="#legal-safety">Community safety</a></div></div><div className="footer-bottom"><span>© 2026 Qismat Connections. All rights reserved.</span><span>Made with care for meaningful connections.</span></div></footer>
     {authMode && <AuthPanel initialMode={authMode} onClose={() => setAuthMode(null)} onAuthenticated={(member) => { setUser(member); setAuthMode(null); }} />}
   </div>;
 }
