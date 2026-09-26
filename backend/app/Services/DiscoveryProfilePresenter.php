@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\PhotoAccessRequest;
 use App\Models\Profile;
 use App\Models\ProfilePhoto;
-use App\Models\PhotoAccessRequest;
 use App\Models\User;
 
 class DiscoveryProfilePresenter
