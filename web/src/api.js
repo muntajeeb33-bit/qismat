@@ -72,6 +72,11 @@ export const respondToInterest = (interestId, status) => request(`/interests/${i
 export const cancelInterest = (interestId) => request(`/interests/${interestId}`, { method: 'DELETE' }).then(({ data }) => data);
 export const blockMember = (userId, reason = null) => request('/blocks', { method: 'POST', body: JSON.stringify({ user_id: userId, reason }) }).then(({ data }) => data);
 export const reportMember = (userId, reason, details = null) => request('/reports', { method: 'POST', body: JSON.stringify({ user_id: userId, reason, details }) }).then(({ data }) => data);
+export const getConversations = () => request('/conversations').then(({ data }) => data);
+export const getMessages = (conversationId) => request(`/conversations/${conversationId}/messages`).then(({ data }) => data);
+export const sendMessage = (conversationId, body) => request(`/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify({ body }) }).then(({ data }) => data);
+export const markConversationRead = (conversationId) => request(`/conversations/${conversationId}/read`, { method: 'POST' }).then(({ data }) => data);
+export const deleteMessage = (messageId) => request(`/messages/${messageId}`, { method: 'DELETE' }).then(({ data }) => data);
 export async function logoutApi() {
   try { if (session.get()) await request('/auth/logout', { method: 'POST' }); }
   finally { session.clear(); }

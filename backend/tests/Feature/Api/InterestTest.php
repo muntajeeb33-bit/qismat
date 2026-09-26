@@ -94,6 +94,10 @@ class InterestTest extends TestCase
             ->assertJsonPath('data.status', 'accepted');
 
         $this->assertDatabaseHas('interests', ['id' => $interest->id, 'status' => 'accepted']);
+        $this->assertDatabaseHas('conversations', [
+            'user_one_id' => min($sender->id, $receiver->id),
+            'user_two_id' => max($sender->id, $receiver->id),
+        ]);
     }
 
     public function test_members_can_list_and_cancel_their_pending_interests(): void

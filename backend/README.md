@@ -17,8 +17,12 @@ Target production: cPanel + SSH + MySQL/MariaDB.
 - `/api/v1/matches/{profile}`
 - `/api/v1/favourites`
 - `/api/v1/interests`
+- `/api/v1/blocks`
+- `/api/v1/reports`
 - `/api/v1/admin/discovery`
+- `/api/v1/admin/reports`
 - `/api/v1/conversations`
+- `/api/v1/conversations/{conversation}/messages`
 
 Authentication will use Laravel Sanctum tokens for mobile/API clients.
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\V1\Concerns\RespondsWithJson;
 use App\Http\Controllers\Controller;
 use App\Models\Block;
+use App\Models\Conversation;
 use App\Models\Interest;
 use App\Services\ActivityTracker;
 use App\Services\DiscoverableProfiles;
@@ -101,6 +102,9 @@ class InterestController extends Controller
             $locked = Interest::query()->lockForUpdate()->findOrFail($interest->id);
             abort_unless($locked->status === 'pending', 409, 'This interest has already been answered.');
             $locked->update(['status' => $data['status'], 'responded_at' => now()]);
+            if ($data['status'] === 'accepted') {
+                Conversation::firstOrCreate(Conversation::between($locked->sender_id, $locked->receiver_id));
+            }
 
             return $locked;
         });

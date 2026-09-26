@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AdminPhotoModerationController;
 use App\Http\Controllers\Api\V1\AdminProfileModerationController;
 use App\Http\Controllers\Api\V1\AdminReportController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ConversationController;
 use App\Http\Controllers\Api\V1\FavouriteController;
 use App\Http\Controllers\Api\V1\FirebaseAuthController;
 use App\Http\Controllers\Api\V1\InterestController;
@@ -78,6 +79,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/blocks', [SafetyController::class, 'block'])->middleware('throttle:20,1');
             Route::delete('/blocks/{user}', [SafetyController::class, 'unblock']);
             Route::post('/reports', [SafetyController::class, 'report'])->middleware('throttle:10,1');
+
+            Route::get('/conversations', [ConversationController::class, 'index']);
+            Route::get('/conversations/{conversation}/messages', [ConversationController::class, 'messages']);
+            Route::post('/conversations/{conversation}/messages', [ConversationController::class, 'store'])->middleware('throttle:30,1');
+            Route::post('/conversations/{conversation}/read', [ConversationController::class, 'read']);
+            Route::delete('/messages/{message}', [ConversationController::class, 'destroy']);
         });
     });
 });

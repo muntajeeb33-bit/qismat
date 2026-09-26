@@ -5,14 +5,14 @@ Last updated: 2026-09-26
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 65%
+**Overall progress:** 70%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 84% |
-| Website | In progress | 86% |
+| Backend/API | In progress | 89% |
+| Website | In progress | 90% |
 | Admin dashboard | In progress | 68% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
@@ -64,6 +64,7 @@ Last updated: 2026-09-26
 - [x] Bidirectional blocking that immediately removes discovery, favourites and active interests
 - [x] Confidential reports and audited administrator resolution/suspension queue
 - [x] Competitor-informed trust-first product strategy recorded
+- [x] Mutual-match conversations, paginated messages, unread/read state, deletion, polling and conversation safety controls
 
 ## In progress / next
 
@@ -76,7 +77,7 @@ Last updated: 2026-09-26
 - [ ] Recommendation engine
 - [x] Search/filter APIs
 - [x] Interests, favourites and profile views foundation
-- [ ] Conversations/messages after mutual acceptance
+- [x] Conversations/messages after mutual acceptance
 - [x] Block/report/moderation APIs and first web/admin workflows
 - [ ] Connect web/admin/mobile shells to API
 - [x] Admin authentication and profile moderation APIs/UI foundation
