@@ -11,8 +11,8 @@ Last updated: 2026-09-26
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 95% |
-| Website | In progress | 95% |
+| Backend/API | In progress | 96% |
+| Website | In progress | 96% |
 | Admin dashboard | In progress | 82% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
@@ -59,6 +59,7 @@ Last updated: 2026-09-26
 - [x] Member web profile, partner-preference and visibility integration deployed
 - [x] Private photo API, member photo manager and admin photo moderation deployed
 - [x] Private-photo access requests, owner-controlled reveal decisions and member trust indicators deployed
+- [x] API-driven missing-field and next-action guidance shown on the member dashboard
 - [x] Discovery filters, safe profile details, favourites and privacy-aware profile views implemented
 - [x] Member discovery/saved-profile UI and admin eligibility diagnostics implemented
 - [x] Sent/received interest management with accept, decline and cancellation

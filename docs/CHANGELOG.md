@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-26 — Profile completion guidance
+
+- Added API-generated missing-field guidance and a single recommended next action for each onboarding state.
+- Added an actionable member dashboard prompt covering profile completion, resubmission, moderation, photo approval, visibility and discovery.
+
 ## 2026-09-26 — Private photo access and trust indicators
 
 - Added member-to-member private-photo access requests with owner approval, decline, cancellation and revocation.

@@ -139,6 +139,30 @@ class ProfileOnboardingTest extends TestCase
             ->assertJsonPath('data.profile_completion', 42);
     }
 
+    public function test_onboarding_status_guides_the_member_to_the_next_launch_step(): void
+    {
+        $member = User::factory()->create();
+        Sanctum::actingAs($member);
+
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertOk()
+            ->assertJsonPath('data.next_action.code', 'complete_profile')
+            ->assertJsonPath('data.missing_required_fields.0', 'Display name');
+
+        $profile = $this->completeProfile($member);
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertJsonPath('data.next_action.code', 'submit_profile')
+            ->assertJsonCount(0, 'data.missing_required_fields');
+
+        $profile->forceFill(['moderation_status' => 'approved'])->save();
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertJsonPath('data.next_action.code', 'enter_discovery');
+
+        $profile->forceFill(['discovery_opt_in' => true])->save();
+        $this->getJson('/api/v1/profile/onboarding-status')
+            ->assertJsonPath('data.next_action.code', 'discover_profiles');
+    }
+
     public function test_other_profiles_are_not_discoverable_without_approval_and_opt_in(): void
     {
         $member = User::factory()->create();

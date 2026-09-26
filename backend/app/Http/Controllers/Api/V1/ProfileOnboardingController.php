@@ -18,14 +18,20 @@ class ProfileOnboardingController extends Controller
     public function status(Request $request)
     {
         $profile = $request->user()->profile()->first();
+        $hasApprovedPrimaryPhoto = $profile ? $this->hasApprovedPrimaryPhoto($profile) : false;
+        $missingRequiredFields = $profile ? $this->readiness->missingRequired($profile) : array_values([
+            'Display name', 'Adult date of birth', 'Country', 'City', 'Your story',
+        ]);
 
         return $this->success([
             'moderation_status' => $profile?->moderation_status ?? 'draft',
             'discovery_opt_in' => (bool) ($profile?->discovery_opt_in ?? false),
             'discoverable' => $profile ? $this->discoverable($profile, $request) : false,
             'required_fields_complete' => $profile ? $this->complete($profile) : false,
-            'has_approved_primary_photo' => $profile ? $this->hasApprovedPrimaryPhoto($profile) : false,
+            'has_approved_primary_photo' => $hasApprovedPrimaryPhoto,
             'profile_completion' => $profile?->profile_completion ?? 0,
+            'missing_required_fields' => $missingRequiredFields,
+            'next_action' => $this->nextAction($profile, $hasApprovedPrimaryPhoto),
             'moderation_feedback' => $profile?->moderation_feedback,
             'submitted_at' => $profile?->submitted_at,
         ]);
@@ -103,5 +109,32 @@ class ProfileOnboardingController extends Controller
             ->where('is_primary', true)
             ->where('moderation_status', 'approved')
             ->exists();
+    }
+
+    private function nextAction(?Profile $profile, bool $hasApprovedPrimaryPhoto): array
+    {
+        if (! $profile || ! $this->complete($profile)) {
+            return ['code' => 'complete_profile', 'title' => 'Complete your essentials', 'description' => 'Add the missing required details so your profile can be reviewed.'];
+        }
+        if ($profile->moderation_status === 'rejected') {
+            return ['code' => 'update_profile', 'title' => 'Address reviewer feedback', 'description' => 'Update your profile using the feedback shown below, then submit it again.'];
+        }
+        if ($profile->moderation_status === 'draft') {
+            return ['code' => 'submit_profile', 'title' => 'Submit your profile', 'description' => 'Your required details are complete and ready for moderation.'];
+        }
+        if ($profile->moderation_status === 'pending') {
+            return ['code' => 'await_review', 'title' => 'Review in progress', 'description' => 'Your profile is waiting for the moderation team.'];
+        }
+        if (! $hasApprovedPrimaryPhoto) {
+            return ['code' => 'upload_photo', 'title' => 'Add an approved primary photo', 'description' => 'Upload a clear primary photo and wait for photo approval before entering discovery.'];
+        }
+        if ($profile->visibility !== 'members') {
+            return ['code' => 'enable_visibility', 'title' => 'Allow member visibility', 'description' => 'Change profile visibility to members before entering discovery.'];
+        }
+        if (! $profile->discovery_opt_in) {
+            return ['code' => 'enter_discovery', 'title' => 'Enter discovery', 'description' => 'Your approved profile is ready. Choose when other eligible members can discover it.'];
+        }
+
+        return ['code' => 'discover_profiles', 'title' => 'Discover compatible profiles', 'description' => 'Your profile is live and ready to make meaningful connections.'];
     }
 }
