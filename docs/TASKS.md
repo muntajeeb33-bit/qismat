@@ -37,6 +37,7 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Admin moderation foundation
 - [x] Admin member search, status/verification operations and audit-log review
 - [x] Private-photo access requests, owner decisions and revocation
+- [x] Actionable profile-completion and launch guidance
 - [ ] Membership/payment foundation
 - [ ] Notifications
 - [ ] Finish all member web and admin launch workflows and production QA
