@@ -45,4 +45,14 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         return $this->hasMany(Favourite::class);
     }
+
+    public function blocks()
+    {
+        return $this->hasMany(Block::class, 'blocker_id');
+    }
+
+    public function reportsMade()
+    {
+        return $this->hasMany(Report::class, 'reporter_id');
+    }
 }

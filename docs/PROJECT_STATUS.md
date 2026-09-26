@@ -1,19 +1,19 @@
 # Qismat Project Status
 
-Last updated: 2026-09-25
+Last updated: 2026-09-26
 
 ## Overall
 
 **Phase:** Identity and profile foundation
-**Overall progress:** 60%
+**Overall progress:** 65%
 **Current release:** 0.1.0-dev
 
 | Area | Status | Progress |
 |---|---|---:|
 | Architecture | In progress | 70% |
-| Backend/API | In progress | 78% |
-| Website | In progress | 82% |
-| Admin dashboard | In progress | 60% |
+| Backend/API | In progress | 84% |
+| Website | In progress | 86% |
+| Admin dashboard | In progress | 68% |
 | Flutter mobile app | In progress | 20% |
 | Android CI/CD | In progress | 60% |
 | iOS/Xcode Cloud | Planned | 5% |
@@ -60,6 +60,10 @@ Last updated: 2026-09-25
 - [x] Private photo API, member photo manager and admin photo moderation deployed
 - [x] Discovery filters, safe profile details, favourites and privacy-aware profile views implemented
 - [x] Member discovery/saved-profile UI and admin eligibility diagnostics implemented
+- [x] Sent/received interest management with accept, decline and cancellation
+- [x] Bidirectional blocking that immediately removes discovery, favourites and active interests
+- [x] Confidential reports and audited administrator resolution/suspension queue
+- [x] Competitor-informed trust-first product strategy recorded
 
 ## In progress / next
 
@@ -73,7 +77,7 @@ Last updated: 2026-09-25
 - [x] Search/filter APIs
 - [x] Interests, favourites and profile views foundation
 - [ ] Conversations/messages after mutual acceptance
-- [ ] Block/report/moderation APIs
+- [x] Block/report/moderation APIs and first web/admin workflows
 - [ ] Connect web/admin/mobile shells to API
 - [x] Admin authentication and profile moderation APIs/UI foundation
 - [ ] Pin the cPanel SSH host key in GitHub Secrets

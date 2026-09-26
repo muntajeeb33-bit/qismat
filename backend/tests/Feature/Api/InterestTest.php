@@ -95,4 +95,43 @@ class InterestTest extends TestCase
 
         $this->assertDatabaseHas('interests', ['id' => $interest->id, 'status' => 'accepted']);
     }
+
+    public function test_members_can_list_and_cancel_their_pending_interests(): void
+    {
+        $sender = User::factory()->create();
+        $receiver = User::factory()->create();
+        $this->makeDiscoverable($receiver);
+        $interest = Interest::create([
+            'sender_id' => $sender->id,
+            'receiver_id' => $receiver->id,
+            'status' => 'pending',
+            'message' => 'I appreciated your profile.',
+        ]);
+
+        Sanctum::actingAs($sender);
+        $this->getJson('/api/v1/interests?direction=sent')
+            ->assertOk()
+            ->assertJsonPath('data.data.0.direction', 'sent')
+            ->assertJsonPath('data.data.0.member.user_id', $receiver->id)
+            ->assertJsonPath('data.data.0.message', 'I appreciated your profile.');
+
+        $this->deleteJson("/api/v1/interests/{$interest->id}")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'cancelled');
+
+        $this->deleteJson("/api/v1/interests/{$interest->id}")->assertStatus(409);
+    }
+
+    public function test_an_interest_cannot_be_answered_twice(): void
+    {
+        $sender = User::factory()->create();
+        $receiver = User::factory()->create();
+        $interest = Interest::create(['sender_id' => $sender->id, 'receiver_id' => $receiver->id, 'status' => 'pending']);
+        Sanctum::actingAs($receiver);
+
+        $this->postJson("/api/v1/interests/{$interest->id}/respond", ['status' => 'declined'])->assertOk();
+        $this->postJson("/api/v1/interests/{$interest->id}/respond", ['status' => 'accepted'])->assertStatus(409);
+
+        $this->assertDatabaseHas('interests', ['id' => $interest->id, 'status' => 'declined']);
+    }
 }

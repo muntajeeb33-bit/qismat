@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getFavourites, getMatch, getMatches, getProfilePhotoBlob, removeFavourite, saveFavourite, sendInterest } from './api';
+import { blockMember, getFavourites, getMatch, getMatches, getProfilePhotoBlob, removeFavourite, reportMember, saveFavourite, sendInterest } from './api';
 import './discovery.css';
 import './discovery-gallery.css';
 
@@ -23,6 +23,9 @@ export function Discovery({ mode = 'discover' }) {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('fake_identity');
+  const [reportDetails, setReportDetails] = useState('');
 
   async function load(nextFilters = filters) {
     setLoading(true); setMessage(''); setError('');
@@ -36,7 +39,7 @@ export function Discovery({ mode = 'discover' }) {
 
   async function view(profile) {
     setMessage(''); setError('');
-    try { setSelected(await getMatch(profile.id)); }
+    try { setSelected(await getMatch(profile.id)); setReportOpen(false); setReportDetails(''); }
     catch (requestError) { setError(requestError.message); }
   }
 
@@ -50,6 +53,18 @@ export function Discovery({ mode = 'discover' }) {
 
   async function interest(profile) {
     try { setError(''); await sendInterest(profile.user_id); setMessage(`Interest sent to ${profile.display_name}.`); }
+    catch (requestError) { setError(requestError.message); }
+  }
+
+  async function block(profile) {
+    if (!window.confirm(`Block ${profile.display_name}? You will no longer see or contact each other.`)) return;
+    try {
+      setError(''); await blockMember(profile.user_id, 'Blocked from profile'); setSelected(null); setMessage('Member blocked.'); await load();
+    } catch (requestError) { setError(requestError.message); }
+  }
+
+  async function report(profile) {
+    try { setError(''); await reportMember(profile.user_id, reportReason, reportDetails.trim() || null); setMessage('Your confidential report was submitted.'); setReportOpen(false); setReportDetails(''); }
     catch (requestError) { setError(requestError.message); }
   }
 
@@ -77,6 +92,6 @@ export function Discovery({ mode = 'discover' }) {
       <button className="match-photo" onClick={() => view(profile)}><PrivateImage photo={profile.primary_photo} alt={`${profile.display_name}'s approved profile`} /></button>
       <div className="match-copy"><h3>{profile.display_name}, {profile.age}</h3><p>{[profile.city, profile.country].filter(Boolean).join(', ')} · {profile.occupation || 'Occupation not listed'}</p><small>{[profile.religion, profile.community, profile.mother_tongue].filter(Boolean).join(' · ')}</small>{profile.match_reasons?.length > 0 && <span className="match-reason">✓ {profile.match_reasons[0]}</span>}<div><button onClick={() => view(profile)}>View profile</button><button className="interest-button" onClick={() => interest(profile)}>Send interest</button></div></div>
     </article>)}</div>}
-    {selected && <div className="profile-modal" role="dialog" aria-modal="true"><article><button className="modal-close" onClick={() => setSelected(null)}>×</button><PrivateImage photo={selected.primary_photo} alt={`${selected.display_name}'s approved profile`} /><div className="profile-detail"><span className="kicker">{selected.profile_code}</span><h2>{selected.display_name}, {selected.age}</h2><p>{[selected.city, selected.state, selected.country].filter(Boolean).join(', ')}</p>{selected.photos?.length > 1 && <div className="profile-gallery">{selected.photos.map((photo) => <PrivateImage key={photo.id} photo={photo} alt={`${selected.display_name}'s approved profile`} />)}</div>}<dl><div><dt>Education</dt><dd>{selected.education || 'Not listed'}</dd></div><div><dt>Occupation</dt><dd>{selected.occupation || 'Not listed'}</dd></div><div><dt>Faith & community</dt><dd>{[selected.religion, selected.community].filter(Boolean).join(' · ') || 'Not listed'}</dd></div><div><dt>Language</dt><dd>{selected.mother_tongue || 'Not listed'}</dd></div></dl><h3>About</h3><p>{selected.about_me || 'This member has not added an introduction yet.'}</p>{selected.match_reasons?.map((reason) => <span className="detail-reason" key={reason}>✓ {reason}</span>)}<div className="detail-actions"><button onClick={() => favourite(selected)}>{selected.is_favourite ? 'Remove saved' : 'Save profile'}</button><button className="btn btn-primary" onClick={() => interest(selected)}>Send interest</button></div></div></article></div>}
+    {selected && <div className="profile-modal" role="dialog" aria-modal="true"><article><button className="modal-close" onClick={() => setSelected(null)}>×</button><PrivateImage photo={selected.primary_photo} alt={`${selected.display_name}'s approved profile`} /><div className="profile-detail"><span className="kicker">{selected.profile_code}</span><h2>{selected.display_name}, {selected.age}</h2><p>{[selected.city, selected.state, selected.country].filter(Boolean).join(', ')}</p>{selected.photos?.length > 1 && <div className="profile-gallery">{selected.photos.map((photo) => <PrivateImage key={photo.id} photo={photo} alt={`${selected.display_name}'s approved profile`} />)}</div>}<dl><div><dt>Education</dt><dd>{selected.education || 'Not listed'}</dd></div><div><dt>Occupation</dt><dd>{selected.occupation || 'Not listed'}</dd></div><div><dt>Faith & community</dt><dd>{[selected.religion, selected.community].filter(Boolean).join(' · ') || 'Not listed'}</dd></div><div><dt>Language</dt><dd>{selected.mother_tongue || 'Not listed'}</dd></div></dl><h3>About</h3><p>{selected.about_me || 'This member has not added an introduction yet.'}</p>{selected.match_reasons?.map((reason) => <span className="detail-reason" key={reason}>✓ {reason}</span>)}<div className="detail-actions"><button onClick={() => favourite(selected)}>{selected.is_favourite ? 'Remove saved' : 'Save profile'}</button><button className="btn btn-primary" onClick={() => interest(selected)}>Send interest</button><button className="safety-action" onClick={() => setReportOpen(!reportOpen)}>Report</button><button className="safety-action danger" onClick={() => block(selected)}>Block</button></div>{reportOpen && <div className="report-form"><h3>Confidential report</h3><p>Choose the closest reason and share only the details needed for our safety team to investigate.</p><label>Reason<select value={reportReason} onChange={(event) => setReportReason(event.target.value)}><option value="fake_identity">Fake identity</option><option value="commercial_use">Marriage bureau or commercial use</option><option value="scam">Scam or financial request</option><option value="harassment">Harassment</option><option value="inappropriate_content">Inappropriate content</option><option value="underage_concern">Underage concern</option><option value="other">Other safety concern</option></select></label><label>Details<textarea maxLength="1000" value={reportDetails} onChange={(event) => setReportDetails(event.target.value)} placeholder="What happened?" /></label><button className="btn btn-primary" onClick={() => report(selected)}>Submit confidential report</button></div>}</div></article></div>}
   </section>;
 }

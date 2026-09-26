@@ -30,7 +30,10 @@ Execution order and acceptance criteria are defined in `PRODUCTION_PLAN.md`; thi
 - [x] Shortlist/favourites
 - [x] Explainable matching/recommendation foundation
 - [ ] Chat foundation
-- [ ] Block/report/privacy
+- [x] Interest inbox, acceptance, decline and cancellation
+- [x] Bidirectional block enforcement and confidential member reports
+- [x] Admin safety report queue, suspension and audited resolution
+- [ ] Remaining account privacy controls and public policies
 - [x] Admin moderation foundation
 - [ ] Membership/payment foundation
 - [ ] Notifications
