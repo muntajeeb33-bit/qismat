@@ -59,7 +59,7 @@ Last updated: 2026-09-26
 - [x] Member web profile, partner-preference and visibility integration deployed
 - [x] Private photo API, member photo manager and admin photo moderation deployed
 - [x] Private-photo access requests, owner-controlled reveal decisions and member trust indicators deployed
-- [x] API-driven missing-field and next-action guidance shown on the member dashboard
+- [x] API-driven missing-field and next-action guidance deployed on the member dashboard
 - [x] Discovery filters, safe profile details, favourites and privacy-aware profile views implemented
 - [x] Member discovery/saved-profile UI and admin eligibility diagnostics implemented
 - [x] Sent/received interest management with accept, decline and cancellation
