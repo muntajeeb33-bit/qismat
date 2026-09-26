@@ -108,6 +108,78 @@ class AdminModerationTest extends TestCase
             ->assertStatus(409);
     }
 
+    public function test_admin_can_search_members_and_update_account_status(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $member = User::factory()->create(['name' => 'Searchable Member', 'email' => 'searchable@example.test']);
+        $profile = $member->profile()->create([
+            'profile_code' => 'QSMSEARCH001',
+            'display_name' => 'Searchable Profile',
+            'moderation_status' => 'approved',
+            'discovery_opt_in' => true,
+        ]);
+        $member->createToken('member-session');
+        Sanctum::actingAs($admin);
+
+        $this->getJson('/api/v1/admin/members?q=QSMSEARCH001')
+            ->assertOk()
+            ->assertJsonPath('data.data.0.id', $member->id)
+            ->assertJsonPath('data.data.0.profile.display_name', 'Searchable Profile');
+
+        $this->patchJson("/api/v1/admin/members/{$member->id}", [
+            'status' => 'suspended',
+            'reason' => 'Safety investigation is in progress.',
+        ])->assertOk()
+            ->assertJsonPath('data.status', 'suspended')
+            ->assertJsonPath('data.profile.moderation_status', 'suspended');
+
+        $this->assertDatabaseMissing('personal_access_tokens', ['tokenable_id' => $member->id]);
+        $this->assertDatabaseHas('profiles', ['id' => $profile->id, 'discovery_opt_in' => false]);
+        $this->assertDatabaseHas('admin_audit_logs', [
+            'admin_id' => $admin->id,
+            'action' => 'member.status_changed',
+            'target_id' => $member->id,
+        ]);
+
+        $this->patchJson("/api/v1/admin/members/{$member->id}", [
+            'status' => 'active',
+            'reason' => 'Safety review completed with no outstanding concern.',
+        ])->assertOk()
+            ->assertJsonPath('data.status', 'active')
+            ->assertJsonPath('data.profile.moderation_status', 'draft');
+    }
+
+    public function test_admin_can_set_profile_verification_and_review_audit_history(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $profile = $this->pendingProfile();
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/v1/admin/members/{$profile->user_id}", [
+            'verification_status' => 'reviewed',
+            'reason' => 'Profile information reviewed against available evidence.',
+        ])->assertOk()
+            ->assertJsonPath('data.profile.verification_status', 'reviewed');
+
+        $this->getJson('/api/v1/admin/audit-logs?action=member.verification_changed')
+            ->assertOk()
+            ->assertJsonPath('data.data.0.admin.email', $admin->email)
+            ->assertJsonPath('data.data.0.target_id', $profile->user_id)
+            ->assertJsonPath('data.data.0.new_values.reason', 'Profile information reviewed against available evidence.');
+    }
+
+    public function test_admin_cannot_modify_another_administrator_through_member_operations(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $otherAdmin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/v1/admin/members/{$otherAdmin->id}", [
+            'status' => 'suspended',
+            'reason' => 'Attempted administrator account change.',
+        ])->assertNotFound();
+    }
+
     private function pendingProfile(): Profile
     {
         return User::factory()->create()->profile()->create([

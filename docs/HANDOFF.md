@@ -49,6 +49,7 @@ Email/password registration, login and password reset are proxied through Larave
 - Optional faith, denomination, community/caste, sub-community/sub-caste and ethnic-background data shared by profiles, preferences, discovery and moderation, with member ages limited to 18–100.
 - Member notification controls, blocked-member management, global session revocation and safeguarded account deletion with private media removal.
 - Public privacy, terms, safety and account-deletion/support pages linked from the website footer.
+- Administrator member search, audited suspension/reactivation, reviewed/identity-verification controls and searchable audit history.
 - Member web editing for structured profile fields, matching preferences and enforced profile visibility.
 - Private metadata-stripped profile photos, member photo management, audited admin photo moderation and approved-primary-photo discovery gating.
 - Privacy-safe member discovery with full filters, explainable preference matches, profile detail views, daily view recording and favourites.
