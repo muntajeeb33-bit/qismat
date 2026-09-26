@@ -58,7 +58,7 @@ Last updated: 2026-09-26
 - [x] Structured family/career profile fields and partner-preference API deployed
 - [x] Member web profile, partner-preference and visibility integration deployed
 - [x] Private photo API, member photo manager and admin photo moderation deployed
-- [x] Private-photo access requests, owner-controlled reveal decisions and member trust indicators implemented
+- [x] Private-photo access requests, owner-controlled reveal decisions and member trust indicators deployed
 - [x] Discovery filters, safe profile details, favourites and privacy-aware profile views implemented
 - [x] Member discovery/saved-profile UI and admin eligibility diagnostics implemented
 - [x] Sent/received interest management with accept, decline and cancellation
